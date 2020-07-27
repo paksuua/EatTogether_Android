@@ -149,7 +149,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             updateTransform()
         }
 
-        preferences = getSharedPreferences("USERSIGN", Context.MODE_PRIVATE)
+        /*preferences = getSharedPreferences("USERSIGN", Context.MODE_PRIVATE)
 
         food_img = findViewById(R.id.img_food)
         food_name = findViewById(R.id.txt_food_name)
@@ -177,7 +177,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
-        hasConnection = true
+        hasConnection = true*/
     }
 
     internal var onNewMessage: Emitter.Listener = Emitter.Listener { args ->
@@ -244,21 +244,22 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 val buffer = image.planes[0].buffer
                 // 이미지 데이터를 바이트배열로 추출
                 val data:ByteArray = buffer.toByteArray()
-                // bytearray socket 통신으로 보내기
-                sendIMG(data)
                 // 픽셀 하나하나를 유의미한 데이터리스트로 만든다
                 val pixels:List<Int> = data.map { it.toInt() and 0xFF }
+                // socket 통신으로 보내기
+                sendIMG(pixels)
                 // 이미지의 평균 휘도를 구한다
                 val luma:Double = pixels.average()
                 // 로그에 휘도 출력
                 Log.d("우리 뭐 먹지", "Average luminosity: $luma")
                 // 로그로 data 어떻게 찍히는지 확인하기!
+                Log.d("우리 뭐 먹지", "Image Data: $pixels")
                 // 마지막 분석한 프레임의 타임스탬프로 업데이트한다.
                 lastAnalyzedTimestamp = currentTimestamp
             }
         }
 
-        fun sendIMG(data:ByteArray) {
+        fun sendIMG(pixels:List<Int>) {
             val now = System.currentTimeMillis()
             val date = Date(now)
             //나중에 바꿔줄것
@@ -270,7 +271,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             try {
                 jsonObject.put("name", preferences.getString("name", ""))
                 //byte 전송
-                jsonObject.put("cameraview", data)
+                jsonObject.put("cameraview", pixels)
                 jsonObject.put("date_time", getTime)
                 jsonObject.put("roomNum", "room_example")
             } catch (e: JSONException) {

@@ -1,3 +1,4 @@
+/*
 package com.example.eattogether_neep.UI.Activity
 
 import android.os.Bundle
@@ -21,3 +22,4 @@ class MapActivity : AppCompatActivity() {
     }
 }
 
+*/

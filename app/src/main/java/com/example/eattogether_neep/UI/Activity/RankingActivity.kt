@@ -24,8 +24,8 @@ class RankingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_ranking)
 
         ll_ranking.setOnClickListener {
-            val intent=Intent(this, MapActivity::class.java)
-            startActivity(intent)
+            //val intent=Intent(this, MapActivity::class.java)
+            //startActivity(intent)
         }
     }
 
