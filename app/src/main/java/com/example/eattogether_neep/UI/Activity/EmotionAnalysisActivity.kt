@@ -1,27 +1,48 @@
 package com.example.eattogether_neep.UI.Activity
 
 import android.Manifest
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.text.TextUtils
 import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import android.view.TextureView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.eattogether_neep.Data.PreferenceModel
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import com.example.eattogether_neep.R
+import com.github.nkzawa.emitter.Emitter
+import com.github.nkzawa.socketio.client.IO
+import com.github.nkzawa.socketio.client.Socket
+import kotlinx.android.synthetic.main.activity_emotion_analysis.*
+import org.json.JSONException
+import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.*
+import com.bumptech.glide.Glide
 
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+
+internal lateinit var preferences: SharedPreferences
+private lateinit var food_img: ImageView
+private lateinit var food_name: TextView
+
+private var hasConnection: Boolean = false
+//private var mSocket: Socket = IO.socket("[your server url]")
+private var mSocket: Socket = IO.socket("http://b8d76a8d.ngrok.io/")
 
 class EmotionAnalysisActivity : AppCompatActivity() {
 
@@ -127,6 +148,55 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         viewFinder.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             updateTransform()
         }
+
+        preferences = getSharedPreferences("USERSIGN", Context.MODE_PRIVATE)
+
+        food_img = findViewById(R.id.img_food)
+        food_name = findViewById(R.id.txt_food_name)
+        if (savedInstanceState != null) {
+            hasConnection = savedInstanceState.getBoolean("hasConnection")
+        }
+        if (hasConnection) {
+        } else {
+            //소켓연결
+            mSocket.connect()
+            //서버에 신호 보내는거같음 밑에 에밋 리스너들 실행
+            //socket.on은 수신
+            //mSocket.on("connect user", onNewUser)
+            mSocket.on("chat message", onNewMessage)
+
+            val userId = JSONObject()
+            try {
+                userId.put("username", preferences.getString("name", "") + " Connected")
+                userId.put("roomNum", "room_example")
+                Log.e("username",preferences.getString("name", "") + " Connected")
+
+                //socket.emit은 메세지 전송임
+                mSocket.emit("connect user", userId)
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+        }
+        hasConnection = true
+    }
+
+    internal var onNewMessage: Emitter.Listener = Emitter.Listener { args ->
+        runOnUiThread(Runnable {
+            val data = args[0] as JSONObject
+            val f_name: String
+            val f_img: String
+            try {
+                Log.e("asdasd", data.toString())
+                f_name = data.getString("name")
+                f_img = data.getString("profile_image")
+
+                Glide.with(this).load(f_img).into(img_food)
+                txt_food_name.setText(f_name)
+                Log.e("new me",f_name)
+            } catch (e: Exception) {
+                return@Runnable
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(
@@ -174,15 +244,42 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 val buffer = image.planes[0].buffer
                 // 이미지 데이터를 바이트배열로 추출
                 val data:ByteArray = buffer.toByteArray()
+                // bytearray socket 통신으로 보내기
+                sendIMG(data)
                 // 픽셀 하나하나를 유의미한 데이터리스트로 만든다
                 val pixels:List<Int> = data.map { it.toInt() and 0xFF }
                 // 이미지의 평균 휘도를 구한다
                 val luma:Double = pixels.average()
                 // 로그에 휘도 출력
                 Log.d("우리 뭐 먹지", "Average luminosity: $luma")
+                // 로그로 data 어떻게 찍히는지 확인하기!
                 // 마지막 분석한 프레임의 타임스탬프로 업데이트한다.
                 lastAnalyzedTimestamp = currentTimestamp
             }
         }
+
+        fun sendIMG(data:ByteArray) {
+            val now = System.currentTimeMillis()
+            val date = Date(now)
+            //나중에 바꿔줄것
+            val sdf = SimpleDateFormat("yyyy-MM-dd")
+
+            val getTime = sdf.format(date)
+
+            val jsonObject = JSONObject()
+            try {
+                jsonObject.put("name", preferences.getString("name", ""))
+                //byte 전송
+                jsonObject.put("cameraview", data)
+                jsonObject.put("date_time", getTime)
+                jsonObject.put("roomNum", "room_example")
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+            Log.e("챗룸", "sendMessage: 1" + mSocket.emit("chat message", jsonObject))
+            Log.e("sendmmm",preferences.getString("name", "") )
+
+        }
+
     }
 }
