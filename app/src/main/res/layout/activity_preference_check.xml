@@ -9,7 +9,6 @@
     tools:context=".UI.Activity.PreferenceCheckActivity">
 
     <View
-        android:id="@+id/view"
         android:layout_width="0dp"
         android:layout_height="327dp"
         android:background="#F1C40F"
@@ -26,19 +25,18 @@
         android:background="@drawable/round_bottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/view">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingTop="16dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:src="@drawable/btn_close"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></ImageView>
 
         <View
-            android:id="@+id/view2"
             android:layout_width="137dp"
             android:layout_height="12dp"
             android:layout_marginStart="122dp"
@@ -48,11 +46,10 @@
             app:layout_constraintTop_toTopOf="parent"></View>
 
         <TextView
-            android:id="@+id/textView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="120dp"
+            android:layout_marginTop="120dp"
             android:text="선호도 조사"
             android:textSize="26sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -60,16 +57,16 @@
             app:layout_constraintTop_toTopOf="parent"></TextView>
 
         <TextView
-            android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="22dp"
-            android:paddingTop="197dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="197dp"
             android:text="❤ 지금 먹고 싶은 음식은?"
-            android:textSize="15dp"></TextView>
+            android:textSize="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></TextView>
 
         <View
-            android:id="@+id/view3"
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="22dp"
@@ -94,17 +91,16 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="22dp"
-            android:paddingTop="297dp"
+            android:layout_marginStart="22dp"
+            android:layout_marginTop="297dp"
             android:text="😖 지금 먹기 싫은 음식은?"
             android:textSize="15dp"
-            app:layout_constraintStart_toStartOf="parent"></TextView>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></TextView>
 
         <View
-            android:id="@+id/view4"
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="22dp"
