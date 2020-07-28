@@ -1,6 +1,5 @@
-/*
 package com.example.eattogether_neep.UI.Activity
-
+/*
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +19,5 @@ class MapActivity : AppCompatActivity() {
         val mapViewContainer = map_view as ViewGroup
         mapViewContainer.addView(mapView)
     }
-}
+}*/
 
-*/

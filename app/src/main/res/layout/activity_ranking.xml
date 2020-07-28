@@ -1,202 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ll_ranking"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.Activity.RankingActivity"
+    android:background="#f8f8f8"
     android:orientation="vertical"
-    android:background="#ffffff">
+    tools:context=".UI.Activity.RankingActivity">
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="327dp"
+        android:background="#F1C40F"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></View>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/btn_close_white"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></ImageView>
+
+    <View
+        android:layout_width="60dp"
+        android:layout_height="12dp"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="68dp"
+        android:background="#fbe798"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></View>
+
     <TextView
-        android:textStyle="bold"
-        android:textSize="20dp"
-        android:paddingTop="100dp"
-        android:paddingBottom="50dp"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="랭킹" />
+        android:layout_marginStart="182dp"
+        android:layout_marginTop="50dp"
+        android:text="랭킹"
+        android:textColor="#101010"
+        android:textSize="26sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></TextView>
 
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1. "
-            android:textSize="20dp"
-            android:textColor="#FFD700"/>
-        <TextView
-            android:id="@+id/txt_r1_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="마라샹궈" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="2. "
-            android:textSize="20dp"
-            android:textColor="#C0C0C0"/>
-        <TextView
-            android:id="@+id/txt_r2_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="냉면" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="3. "
-            android:textSize="20dp"
-            android:textColor="#800000"/>
-        <TextView
-            android:id="@+id/txt_r3_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="팟타이" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="4. "
-            android:textSize="20dp"
-            android:textColor="#000000"/>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="98dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/txt_r4_name"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_ranking"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="떡볶이" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5. "
-            android:textSize="20dp"
-            android:textColor="#000000"/>
-        <TextView
-            android:id="@+id/txt_r5_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="돈까스" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="6. "
-            android:textSize="20dp"
-            android:textColor="#000000"/>
-        <TextView
-            android:id="@+id/txt_r6_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="돌솥비빔밥" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="7. "
-            android:textSize="20dp"
-            android:textColor="#000000"/>
-        <TextView
-            android:id="@+id/txt_r7_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="보쌈" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="8. "
-            android:textSize="20dp"
-            android:textColor="#000000"/>
-        <TextView
-            android:id="@+id/txt_r8_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="햄버그 스테이크" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="9. "
-            android:textSize="20dp"
-            android:textColor="#000000"/>
-        <TextView
-            android:id="@+id/txt_r9_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="짜장면" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="10. "
-            android:textSize="20dp"
-            android:textColor="#000000"/>
-        <TextView
-            android:id="@+id/txt_r10_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="오코노미야끼" />
-    </LinearLayout>
-</LinearLayout>
+            android:layout_height="match_parent">
+
+        </androidx.recyclerview.widget.RecyclerView>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

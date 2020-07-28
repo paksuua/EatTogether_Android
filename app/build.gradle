@@ -53,6 +53,9 @@ dependencies {
 
     implementation 'com.github.nkzawa:socket.io-client:0.3.0'
 
+    // 리사이클뷰
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha01'
+
     // 카메라
     def camerax_version = "1.0.0-alpha01"
     implementation "androidx.camera:camera-core:${camerax_version}"

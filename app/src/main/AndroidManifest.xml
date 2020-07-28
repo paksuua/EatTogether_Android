@@ -27,7 +27,7 @@
         <activity android:name="com.example.eattogether_neep.UI.Activity.PreferenceCheckActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.MakeUrlActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.JoinActivity" />
-        <activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />
+        <!--<activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />-->
         <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
