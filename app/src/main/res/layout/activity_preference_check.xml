@@ -20,7 +20,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="380dp"
-        android:layout_height="396dp"
+        android:layout_height="667dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/round_bottom"
@@ -42,8 +42,7 @@
             android:layout_width="137dp"
             android:layout_height="12dp"
             android:layout_marginStart="122dp"
-            android:layout_marginTop="68dp"
-            android:layout_marginEnd="122dp"
+            android:layout_marginTop="138dp"
             android:background="#fbe798"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></View>
@@ -53,18 +52,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:paddingTop="50dp"
+            android:paddingTop="120dp"
             android:text="선호도 조사"
             android:textSize="26sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"></TextView>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></TextView>
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="22dp"
-            android:paddingTop="127dp"
+            android:paddingTop="197dp"
             android:text="❤ 지금 먹고 싶은 음식은?"
             android:textSize="15dp"></TextView>
 
@@ -73,7 +73,7 @@
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="22dp"
-            android:layout_marginTop="161dp"
+            android:layout_marginTop="231dp"
             android:background="@drawable/gray_bd"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></View>
@@ -83,7 +83,7 @@
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="161dp"
+            android:layout_marginTop="231dp"
             android:layout_marginEnd="22dp"
             android:background="@null"
             android:hint="메뉴를 입력하세요."
@@ -98,7 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="22dp"
-            android:paddingTop="227dp"
+            android:paddingTop="297dp"
             android:text="😖 지금 먹기 싫은 음식은?"
             android:textSize="15dp"
             app:layout_constraintStart_toStartOf="parent"></TextView>
@@ -108,7 +108,7 @@
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="22dp"
-            android:layout_marginTop="261dp"
+            android:layout_marginTop="331dp"
             android:background="@drawable/gray_bd"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></View>
@@ -118,7 +118,7 @@
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="261dp"
+            android:layout_marginTop="331dp"
             android:layout_marginEnd="22dp"
             android:background="@null"
             android:hint="메뉴를 입력하세요."
@@ -133,7 +133,7 @@
             android:layout_width="336dp"
             android:layout_height="40dp"
             android:layout_marginStart="22dp"
-            android:layout_marginTop="340dp"
+            android:layout_marginTop="408dp"
             android:layout_marginEnd="22dp"
             android:background="@drawable/btn_gray"
             android:text="SUBMIT"
