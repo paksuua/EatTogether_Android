@@ -1,10 +1,13 @@
 package com.example.eattogether_neep.UI.Activity
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.eattogether_neep.Network.Network.ApplicationController
 import com.example.eattogether_neep.Network.NetworkService
 import com.example.eattogether_neep.Network.Post.PostPreferenceResponse
@@ -28,17 +31,48 @@ class PreferenceCheckActivity : AppCompatActivity() {
 
         val intent = Intent(this, WaitingActivity::class.java)
 
-        btn_preference_check.setOnClickListener {
-            if(edt_favorite.text.isNullOrBlank()||edt_hate.text.isNullOrBlank()){
-                Toast.makeText(this, "입력 내용을 다시 확인해주세요.", Toast.LENGTH_SHORT).show()
-            }else{
-                startActivity(intent)
-
-                val favorite: String = edt_favorite.text.toString()
-                val hate: String = edt_hate.text.toString()
-                //postPreferenceResponse(favorite, hate)
+        edt_favorite.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (edt_favorite.text.toString() != "" &&
+                    edt_hate.text.toString() != "") {
+                    btn_preference_check.isEnabled = true
+                    btn_preference_check.setBackgroundResource(R.drawable.btn_yellow)
+                    btn_preference_check.setTextColor(Color.parseColor("#101010"))
+                    btn_preference_check.setOnClickListener {
+                        val favorite: String = edt_favorite.text.toString()
+                        val hate: String = edt_hate.text.toString()
+                        //postPreferenceResponse(favorite, hate)
+                    }
+                }
+                else {
+                    btn_preference_check.isEnabled = false
+                    btn_preference_check.setBackgroundResource(R.drawable.btn_gray)
+                    btn_preference_check.setTextColor(Color.parseColor("#959595"))                }
             }
-        }
+        })
+        edt_hate.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (edt_favorite.text.toString() != "" &&
+                    edt_hate.text.toString() != "") {
+                    btn_preference_check.isEnabled = true
+                    btn_preference_check.setBackgroundResource(R.drawable.btn_yellow)
+                    btn_preference_check.setTextColor(Color.parseColor("#101010"))
+                    btn_preference_check.setOnClickListener {
+                        val favorite: String = edt_favorite.text.toString()
+                        val hate: String = edt_hate.text.toString()
+                        //postPreferenceResponse(favorite, hate)
+                    }
+                }
+                else {
+                    btn_preference_check.isEnabled = false
+                    btn_preference_check.setBackgroundResource(R.drawable.btn_gray)
+                    btn_preference_check.setTextColor(Color.parseColor("#959595"))                }
+            }
+        })
     }
     fun postPreferenceResponse(u_favorite:String, u_hate: String) {
         var jsonObject = JSONObject()
@@ -50,7 +84,7 @@ class PreferenceCheckActivity : AppCompatActivity() {
             networkService.postPreferenceResponse("application/json", gsonObject)
         postPreferenceResponse.enqueue(object: Callback<PostPreferenceResponse> {
             override fun onFailure(call: Call<PostPreferenceResponse>, t: Throwable) {
-                Log.e("tag", "회원가입 실패")
+                Log.e("tag", "입력 실패")
                 t.printStackTrace()
             }
 

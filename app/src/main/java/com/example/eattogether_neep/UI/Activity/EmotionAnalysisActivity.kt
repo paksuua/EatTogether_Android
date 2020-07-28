@@ -42,7 +42,7 @@ private lateinit var food_name: TextView
 
 private var hasConnection: Boolean = false
 //private var mSocket: Socket = IO.socket("[your server url]")
-private var mSocket: Socket = IO.socket("http://b8d76a8d.ngrok.io/")
+private var mSocket: Socket = IO.socket("nothing")
 
 class EmotionAnalysisActivity : AppCompatActivity() {
 
@@ -247,7 +247,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 // 픽셀 하나하나를 유의미한 데이터리스트로 만든다
                 val pixels:List<Int> = data.map { it.toInt() and 0xFF }
                 // socket 통신으로 보내기
-                sendIMG(pixels)
+                //sendIMG(pixels)
                 // 이미지의 평균 휘도를 구한다
                 val luma:Double = pixels.average()
                 // 로그에 휘도 출력
