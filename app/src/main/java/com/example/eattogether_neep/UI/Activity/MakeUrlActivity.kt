@@ -5,15 +5,19 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
+import com.example.eattogether_neep.Network.Post.PostMakeUrlRequest
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.UI.User
 import kotlinx.android.synthetic.main.activity_make_url.*
 import kotlin.random.Random
 
 class MakeUrlActivity : AppCompatActivity() {
     private lateinit var random_code: String
+    private lateinit var uuid: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +49,9 @@ class MakeUrlActivity : AppCompatActivity() {
 
     btn_make_url.setOnClickListener {
         // 랜덤 참여코드 생성
+
+
+
         random_code= String.format("%06d", Random.nextInt(0 , 999999))
         btn_make_url.text=random_code
 
@@ -53,6 +60,13 @@ class MakeUrlActivity : AppCompatActivity() {
         clipboard.setPrimaryClip(clip)
 
         Toast.makeText(this,random_code+" 코드가 복사되었습니다.", Toast.LENGTH_LONG ).show()
+        }
+    }
+
+    private fun requestMakeUrl(number:Int){
+        uuid = User.getUUID(this)
+        run {
+            //PostMakeUrlRequest.
         }
     }
 }
