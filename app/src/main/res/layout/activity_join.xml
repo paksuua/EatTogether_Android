@@ -89,6 +89,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:background="@drawable/btn_gray"
+                    android:clickable="false"
                     android:textSize="18dp"
                     android:textColor="#959595"
                     android:text="JOIN" />

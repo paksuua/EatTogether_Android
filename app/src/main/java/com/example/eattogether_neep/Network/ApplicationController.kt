@@ -32,7 +32,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object ApplicationController {
     var retrofit= Retrofit.Builder()
-        .baseUrl("http://13.209.144.115:3002")
+        .baseUrl("")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
