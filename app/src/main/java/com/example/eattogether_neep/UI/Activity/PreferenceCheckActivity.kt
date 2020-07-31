@@ -31,6 +31,11 @@ class PreferenceCheckActivity : AppCompatActivity() {
 
         val intent = Intent(this, WaitingActivity::class.java)
 
+        btn_close_preference.setOnClickListener {
+            val intent1 = Intent(this, MainActivity::class.java)
+            startActivity(intent1)
+        }
+
         edt_favorite.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}

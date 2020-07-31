@@ -1,14 +1,12 @@
 package com.example.eattogether_neep.UI.Activity
 
 import android.Manifest
-import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
-import android.text.TextUtils
 import android.util.Log
 import android.util.Rational
 import android.util.Size
@@ -19,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.eattogether_neep.Data.PreferenceModel
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import com.example.eattogether_neep.R
