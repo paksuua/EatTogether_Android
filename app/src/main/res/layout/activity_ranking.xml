@@ -34,16 +34,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></View>
 
-    <TextView
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="182dp"
         android:layout_marginTop="50dp"
-        android:text="랭킹"
-        android:textColor="#101010"
-        android:textSize="26sp"
+        android:src="@drawable/ranking_text_title"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"></TextView>
+        app:layout_constraintTop_toTopOf="parent"></ImageView>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

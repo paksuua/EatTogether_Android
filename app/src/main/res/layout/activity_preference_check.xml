@@ -46,16 +46,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></View>
 
-        <TextView
+        <ImageView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_marginTop="120dp"
-            android:text="선호도 조사"
+            android:src="@drawable/prefer_text_title"
             android:textSize="26sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></TextView>
+            app:layout_constraintTop_toTopOf="parent"></ImageView>
 
         <TextView
             android:layout_width="wrap_content"
@@ -64,6 +64,8 @@
             android:layout_marginTop="197dp"
             android:text="❤ 지금 먹고 싶은 음식은?"
             android:textSize="15dp"
+            android:textColor="#101010"
+            android:fontFamily="@font/nanumsquareb"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></TextView>
 
@@ -96,8 +98,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="22dp"
             android:layout_marginTop="297dp"
+            android:fontFamily="@font/nanumsquareb"
             android:text="😖 지금 먹기 싫은 음식은?"
             android:textSize="15dp"
+            android:textColor="#101010"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"></TextView>
 
