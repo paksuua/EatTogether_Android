@@ -70,6 +70,7 @@
             app:layout_constraintTop_toTopOf="parent"></TextView>
 
         <View
+            android:id="@+id/null_check_bd1"
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="22dp"
@@ -106,6 +107,7 @@
             app:layout_constraintTop_toTopOf="parent"></TextView>
 
         <View
+            android:id="@+id/null_check_bd2"
             android:layout_width="336dp"
             android:layout_height="32dp"
             android:layout_marginStart="22dp"

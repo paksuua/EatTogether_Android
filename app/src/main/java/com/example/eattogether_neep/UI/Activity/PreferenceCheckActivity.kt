@@ -40,8 +40,12 @@ class PreferenceCheckActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (edt_favorite.text.toString() != "" &&
-                    edt_hate.text.toString() != "") {
+                if(edt_favorite.text.toString() != "")
+                    null_check_bd1.setBackgroundResource(R.drawable.yellow_bd)
+                else if(edt_favorite.text.toString() == "")
+                    null_check_bd1.setBackgroundResource(R.drawable.gray_bd)
+
+                if (edt_favorite.text.toString() != "" && edt_hate.text.toString() != "") {
                     btn_preference_check.isEnabled = true
                     btn_preference_check.setBackgroundResource(R.drawable.btn_yellow)
                     btn_preference_check.setTextColor(Color.parseColor("#101010"))
@@ -54,15 +58,20 @@ class PreferenceCheckActivity : AppCompatActivity() {
                 else {
                     btn_preference_check.isEnabled = false
                     btn_preference_check.setBackgroundResource(R.drawable.btn_gray)
-                    btn_preference_check.setTextColor(Color.parseColor("#959595"))                }
+                    btn_preference_check.setTextColor(Color.parseColor("#959595"))
+                }
             }
         })
         edt_hate.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (edt_favorite.text.toString() != "" &&
-                    edt_hate.text.toString() != "") {
+                if(edt_hate.text.toString() != "")
+                    null_check_bd2.setBackgroundResource(R.drawable.yellow_bd)
+                else if(edt_hate.text.toString() == "")
+                    null_check_bd2.setBackgroundResource(R.drawable.gray_bd)
+
+                if (edt_favorite.text.toString() != "" && edt_hate.text.toString() != "") {
                     btn_preference_check.isEnabled = true
                     btn_preference_check.setBackgroundResource(R.drawable.btn_yellow)
                     btn_preference_check.setTextColor(Color.parseColor("#101010"))
