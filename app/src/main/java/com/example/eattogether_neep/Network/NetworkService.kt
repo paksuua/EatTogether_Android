@@ -11,13 +11,13 @@ import retrofit2.http.*
 interface NetworkService {
     //참여 코드 입력
     @POST("/user/join")
-    fun postJoinResponse(
+    fun postJoinRequest(
         @Body body : PostJoinRequest
     ) : Call<PostJoinResponse>
 
     //방 생성
     @POST("/user/makeurl")
-    fun postMakeUrlResponse(
+    fun postMakeUrlRequest(
         @Body body : PostMakeUrlRequest
     ) : Call<PostMakeUrlResponse>
 

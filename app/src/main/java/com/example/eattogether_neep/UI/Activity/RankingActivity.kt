@@ -16,7 +16,7 @@ import retrofit2.Response
 class RankingActivity : AppCompatActivity() {
 
     val networkService: NetworkService by lazy {
-        ApplicationController.instance.networkService
+        ApplicationController.networkService
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
