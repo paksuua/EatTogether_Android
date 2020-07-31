@@ -16,6 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"></View>
     <ImageView
+        android:id="@+id/btn_close_ranking"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/btn_close_white"
@@ -56,7 +57,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_ranking"
-            android:layout_width="380dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent">
 
         </androidx.recyclerview.widget.RecyclerView>

@@ -19,6 +19,7 @@ interface NetworkService {
     //랭킹 조회
     @GET("/rank")
     fun getRankingResponse(
-        @Header("Content-Type") content_type:String
+        @Header("Content-Type") content_type:String,
+        @Path("postIdx") postIdx:Int
     ):Call<GetRankingResponse>
 }
