@@ -5,7 +5,7 @@ import com.example.eattogether_neep.Network.NetworkService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class ApplicationController : Application(){
+/*class ApplicationController : Application(){
 
     private val baseURL = ""
     lateinit var networkService: NetworkService
@@ -28,5 +28,14 @@ class ApplicationController : Application(){
 
         networkService = retrofit.create(NetworkService::class.java)
     }
+}*/
+
+object ApplicationController {
+    var retrofit= Retrofit.Builder()
+        .baseUrl("")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    var networkService :NetworkService= retrofit.create(NetworkService::class.java)
 }
 

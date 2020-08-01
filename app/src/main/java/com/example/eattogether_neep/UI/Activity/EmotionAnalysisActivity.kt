@@ -233,6 +233,25 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             return data // 바이트 배열 반환함
         }
 
+        /*override fun analyze(image: ImageProxy, rotationDegrees: Int) {
+            val currentTimestamp = System.currentTimeMillis()
+            // 매프레임을 계산하진 않고 1초마다 한번씩 정도 계산
+            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
+                // 이미지 포맷이 YUV이므로 image.planes[0]으로 Y값을 구할수 있다.
+                val buffer = image.planes[0].buffer
+                // 이미지 데이터를 바이트배열로 추출
+                val data:ByteArray = buffer.toByteArray()
+                // 픽셀 하나하나를 유의미한 데이터리스트로 만든다
+                val pixels:List<Int> = data.map { it.toInt() and 0xFF }
+                // 이미지의 평균 휘도를 구한다
+                val luma:Double = pixels.average()
+                // 로그에 휘도 출력
+                Log.d("우리 뭐 먹지", "Average luminosity: $luma")
+                // 마지막 분석한 프레임의 타임스탬프로 업데이트한다.
+                lastAnalyzedTimestamp = currentTimestamp
+            }
+        }*/
+
         override fun analyze(image: ImageProxy, rotationDegrees: Int) {
             val currentTimestamp = System.currentTimeMillis()
             // 매프레임을 계산하진 않고 1초마다 한번씩 정도 계산

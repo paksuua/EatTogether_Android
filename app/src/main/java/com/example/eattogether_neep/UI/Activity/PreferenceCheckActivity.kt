@@ -23,7 +23,7 @@ import retrofit2.Response
 class PreferenceCheckActivity : AppCompatActivity() {
 
     val networkService: NetworkService by lazy {
-        ApplicationController.instance.networkService
+        ApplicationController.networkService
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
