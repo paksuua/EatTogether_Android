@@ -12,26 +12,31 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import android.view.TextureView
+import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import com.example.eattogether_neep.R
-import com.github.nkzawa.emitter.Emitter
-import com.github.nkzawa.socketio.client.IO
-import com.github.nkzawa.socketio.client.Socket
+import com.example.eattogether_neep.UI.User
+import io.socket.client.IO
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_emotion_analysis.*
 import org.json.JSONException
 import org.json.JSONObject
+import retrofit2.http.Tag
+import java.net.Socket
+import java.net.URISyntaxException
 import java.text.SimpleDateFormat
 import java.util.*
-import com.bumptech.glide.Glide
 
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+private val SOCKET_URL="http://10.0.2.2:3001"
 
 internal lateinit var preferences: SharedPreferences
 private lateinit var food_img: ImageView
@@ -39,101 +44,26 @@ private lateinit var food_name: TextView
 
 private var hasConnection: Boolean = false
 //private var mSocket: Socket = IO.socket("[your server url]")
-private var mSocket: Socket = IO.socket("nothing")
+private var mSocket: io.socket.client.Socket? = null
 
 class EmotionAnalysisActivity : AppCompatActivity() {
-
     private lateinit var viewFinder: TextureView
-
-    private fun startCamera() {
-        //미리보기 설정 시작
-        val previewConfig = PreviewConfig.Builder().apply {
-            setTargetAspectRatio(Rational(1, 1))
-            setTargetResolution(Size(viewFinder.width, viewFinder.height))
-        }.build()
-
-        val preview = Preview(previewConfig)
-
-        preview.setOnPreviewOutputUpdateListener {
-            viewFinder.surfaceTexture = it.surfaceTexture
-            updateTransform()
-        }
-        //미리보기 설정 끝
-
-/*        //사진찍기 설정 시작
-        val imageCaptureConfig = ImageCaptureConfig.Builder()
-            .apply {
-                setTargetAspectRatio(Rational(1, 1))
-                setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
-            }.build()
-
-        val imageCapture = ImageCapture(imageCaptureConfig)
-        findViewById<ImageButton>(R.id.capture_button).setOnClickListener {
-            val file = File(externalMediaDirs.first(),
-                "${System.currentTimeMillis()}.jpg")
-            imageCapture.takePicture(file,
-                object : ImageCapture.OnImageSavedListener {
-                    override fun onError(error: ImageCapture.UseCaseError,
-                                         message: String, exc: Throwable?) {
-                        val msg = "Photo capture failed: $message"
-                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                        Log.e("CameraXApp", msg)
-                        exc?.printStackTrace()
-                    }
-
-                    override fun onImageSaved(file: File) {
-                        val msg = "사진 경로 : ${file.absolutePath}"
-                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                        Log.d("CameraXApp", msg)
-                    }
-                })
-        }
-        //사진찍기 설정 끝*/
-
-        //이미지 프로세싱 설정 시작
-        val analyzerConfig = ImageAnalysisConfig.Builder().apply {
-            // 이미지 분석을 위한 쓰레드를 하나 생성합니다.
-            val analyzerThread = HandlerThread("LuminosityAnalysis").apply { start() }
-            setCallbackHandler(Handler(analyzerThread.looper))
-            // 하나도 빠짐없이 프레임 전부를 분석하기보다는 매순간 가장 최근 프레임만을 가져와 분석하도록 합니다
-            setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
-        }.build()
-
-        // 커스텀 이미지 프로세싱 객체 생성
-        val analyzerUseCase = ImageAnalysis(analyzerConfig).apply {
-            analyzer = LuminosityAnalyzer()
-        }
-        //이미지 프로세싱 설정 끝
-
-        //유즈케이스들을 바인딩함
-        //CameraX.bindToLifecycle(this, preview, imageCapture, analyzerUseCase)
-        CameraX.bindToLifecycle(this, preview, analyzerUseCase)
-    }
-
-    private fun updateTransform() {
-        val matrix = Matrix()
-
-        // Compute the center of the view finder
-        val centerX = viewFinder.width / 2f
-        val centerY = viewFinder.height / 2f
-
-        // Correct preview output to account for display rotation
-        val rotationDegrees = when(viewFinder.display.rotation) {
-            Surface.ROTATION_0 -> 0
-            Surface.ROTATION_90 -> 90
-            Surface.ROTATION_180 -> 180
-            Surface.ROTATION_270 -> 270
-            else -> return
-        }
-        matrix.postRotate(-rotationDegrees.toFloat(), centerX, centerY)
-
-        viewFinder.setTransform(matrix)
-    }
-
+    private  lateinit var uuid: String
+    var images: Array<String> = arrayOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_emotion_analysis)
+
+        try {
+            //IO.socket 메소드는 은 저 URL 을 토대로 클라이언트 객체를 Return 합니다.
+            mSocket = IO.socket(SOCKET_URL)
+        } catch (e: URISyntaxException) {
+            Log.e("EmotionAnalysisActivity2", e.reason)
+        }
+
+        uuid = User.getUUID(this)
+
         viewFinder = findViewById(R.id.cam_emotion)
 
         if (allPermissionsGranted()) {
@@ -177,6 +107,13 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         hasConnection = true*/
     }
 
+    override fun onStop() {
+        super.onStop()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     internal var onNewMessage: Emitter.Listener = Emitter.Listener { args ->
         runOnUiThread(Runnable {
             val data = args[0] as JSONObject
@@ -186,6 +123,10 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 Log.e("asdasd", data.toString())
                 f_name = data.getString("name")
                 f_img = data.getString("profile_image")
+
+                //서버쪽으로 uuid 과 함께 보냄
+                mSocket?.emit("login", uuid)
+                Log.d("", "Socket is connected with ${uuid}")
 
                 Glide.with(this).load(f_img).into(img_food)
                 txt_food_name.setText(f_name)
@@ -262,6 +203,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 val data:ByteArray = buffer.toByteArray()
                 // 픽셀 하나하나를 유의미한 데이터리스트로 만든다
                 val pixels:List<Int> = data.map { it.toInt() and 0xFF }
+                // 바이트 배열을 Base64로 매핑
+                val base64=Base64.getEncoder().encodeToString(data)
+
                 // socket 통신으로 보내기
                 //sendIMG(pixels)
                 // 이미지의 평균 휘도를 구한다
@@ -270,6 +214,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 Log.d("우리 뭐 먹지", "Average luminosity: $luma")
                 // 로그로 data 어떻게 찍히는지 확인하기!
                 Log.d("우리 뭐 먹지", "Image Data: $pixels")
+                // 로그로 data 어떻게 찍히는지 확인하기!
+                Log.d("우리 뭐 먹지", "Image Base64 Data: $base64")
+
                 // 마지막 분석한 프레임의 타임스탬프로 업데이트한다.
                 lastAnalyzedTimestamp = currentTimestamp
             }
@@ -293,10 +240,99 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
-            Log.e("챗룸", "sendMessage: 1" + mSocket.emit("chat message", jsonObject))
+            Log.e("챗룸", "sendMessage: 1" + mSocket?.emit("chat message", jsonObject))
             Log.e("sendmmm",preferences.getString("name", "") )
 
         }
 
     }
+
+    private fun startCamera() {
+        //미리보기 설정 시작
+        val previewConfig = PreviewConfig.Builder().apply {
+            setTargetAspectRatio(Rational(1, 1))
+            setTargetResolution(Size(viewFinder.width, viewFinder.height))
+        }.build()
+
+        val preview = Preview(previewConfig)
+
+        preview.setOnPreviewOutputUpdateListener {
+            val parent = viewFinder.parent as ViewGroup
+            parent.removeView(viewFinder)
+            viewFinder.surfaceTexture = it.surfaceTexture
+            parent.addView(viewFinder, 0)
+            updateTransform()
+        }
+        //미리보기 설정 끝
+
+/*        //사진찍기 설정 시작
+        val imageCaptureConfig = ImageCaptureConfig.Builder()
+            .apply {
+                setTargetAspectRatio(Rational(1, 1))
+                setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
+            }.build()
+
+        val imageCapture = ImageCapture(imageCaptureConfig)
+        findViewById<ImageButton>(R.id.capture_button).setOnClickListener {
+            val file = File(externalMediaDirs.first(),
+                "${System.currentTimeMillis()}.jpg")
+            imageCapture.takePicture(file,
+                object : ImageCapture.OnImageSavedListener {
+                    override fun onError(error: ImageCapture.UseCaseError,
+                                         message: String, exc: Throwable?) {
+                        val msg = "Photo capture failed: $message"
+                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                        Log.e("CameraXApp", msg)
+                        exc?.printStackTrace()
+                    }
+
+                    override fun onImageSaved(file: File) {
+                        val msg = "사진 경로 : ${file.absolutePath}"
+                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                        Log.d("CameraXApp", msg)
+                    }
+                })
+        }
+        //사진찍기 설정 끝*/
+
+        //이미지 프로세싱 설정 시작
+        val analyzerConfig = ImageAnalysisConfig.Builder().apply {
+            // 이미지 분석을 위한 쓰레드를 하나 생성합니다.
+            val analyzerThread = HandlerThread("LuminosityAnalysis").apply { start() }
+            setCallbackHandler(Handler(analyzerThread.looper))
+            // 하나도 빠짐없이 프레임 전부를 분석하기보다는 매순간 가장 최근 프레임만을 가져와 분석하도록 합니다
+            setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
+        }.build()
+
+        // 커스텀 이미지 프로세싱 객체 생성
+        val analyzerUseCase = ImageAnalysis(analyzerConfig).apply {
+            analyzer = LuminosityAnalyzer()
+        }
+        //이미지 프로세싱 설정 끝
+
+        //유즈케이스들을 바인딩함
+        //CameraX.bindToLifecycle(this, preview, imageCapture, analyzerUseCase)
+        CameraX.bindToLifecycle(this, preview, analyzerUseCase)
+    }
+
+    private fun updateTransform() {
+        val matrix = Matrix()
+
+        // Compute the center of the view finder
+        val centerX = viewFinder.width / 2f
+        val centerY = viewFinder.height / 2f
+
+        // Correct preview output to account for display rotation
+        val rotationDegrees = when(viewFinder.display.rotation) {
+            Surface.ROTATION_0 -> 0
+            Surface.ROTATION_90 -> 90
+            Surface.ROTATION_180 -> 180
+            Surface.ROTATION_270 -> 270
+            else -> return
+        }
+        matrix.postRotate(-rotationDegrees.toFloat(), centerX, centerY)
+
+        viewFinder.setTransform(matrix)
+    }
+
 }

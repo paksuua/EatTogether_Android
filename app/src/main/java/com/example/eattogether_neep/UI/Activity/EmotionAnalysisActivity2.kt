@@ -34,7 +34,7 @@ class EmotionAnalysisActivity2 : AppCompatActivity() {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            setContentView(R.layout.activity_emotion_analysis)
+            //setContentView(R.layout.activity_emotion_analysis)
             try {
                 //IO.socket 메소드는 은 저 URL 을 토대로 클라이언트 객체를 Return 합니다.
                 mSocket = IO.socket("http://10.0.2.2:3001")

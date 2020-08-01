@@ -49,11 +49,11 @@ class PreferenceCheckActivity : AppCompatActivity() {
                     btn_preference_check.isEnabled = true
                     btn_preference_check.setBackgroundResource(R.drawable.btn_yellow)
                     btn_preference_check.setTextColor(Color.parseColor("#101010"))
-                    btn_preference_check.setOnClickListener {
+                    /*btn_preference_check.setOnClickListener {
                         val favorite: String = edt_favorite.text.toString()
                         val hate: String = edt_hate.text.toString()
                         //postPreferenceResponse(favorite, hate)
-                    }
+                    }*/
                 }
                 else {
                     btn_preference_check.isEnabled = false
@@ -87,6 +87,9 @@ class PreferenceCheckActivity : AppCompatActivity() {
                     btn_preference_check.setTextColor(Color.parseColor("#959595"))                }
             }
         })
+        btn_preference_check.setOnClickListener {
+            startActivity(intent)
+        }
     }
     fun postPreferenceResponse(u_favorite:String, u_hate: String) {
         var jsonObject = JSONObject()
