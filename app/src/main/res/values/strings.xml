@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">우리 뭐 먹지?</string>
+    <string name="main_make">방 만들기 </string>
+    <string name="main_join">참여하기 </string>
+    <string name="main_make_sub">친구들과 함께\n결정하기 위해 방 만들기 </string>
+    <string name="main_join_sub">코드 입력하고\n뭐 먹을지 추천 받자 </string>
 </resources>
