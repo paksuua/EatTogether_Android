@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
@@ -19,6 +20,7 @@ import com.example.eattogether_neep.R
 import com.example.eattogether_neep.UI.User
 import kotlinx.android.synthetic.main.activity_join.*
 import kotlinx.android.synthetic.main.activity_make_url.*
+import kotlinx.android.synthetic.main.activity_make_url.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -27,7 +29,7 @@ import kotlin.random.Random
 class MakeUrlActivity : AppCompatActivity() {
     private lateinit var random_code: String
     private lateinit var uuid: String
-    val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
+    //val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
     var flag_joincode=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +46,9 @@ class MakeUrlActivity : AppCompatActivity() {
         edt_makeurl_number.doOnTextChanged{ text1, start, count, after->
             if(!text1.isNullOrBlank()){
                 btn_makeurl_url.background =
-                    ContextCompat.getDrawable(this,
-                        R.drawable.btn_yellow
-                    )
+                    ContextCompat.getDrawable(this, R.drawable.btn_yellow)
+                edt_makeurl_number.background=
+                    ContextCompat.getDrawable(this, R.drawable.yellow_bd)
                 btn_makeurl_url.setTextColor(getColor(R.color.text_black))
             }else{
                 btn_makeurl_url.background =
@@ -62,8 +64,8 @@ class MakeUrlActivity : AppCompatActivity() {
                 Toast.makeText(this,"참여 인원을 입력하세요",Toast.LENGTH_SHORT).show()
             }else{
                 // 랜덤 참여코드 요청
-                requestMakeUrl()
-                //localMakeUrl()
+                //requestMakeUrl()
+                localMakeUrl()
 
                 // 생성 코드 텍스트뷰 visible
                 if (flag_joincode){   tv_makeurl_code.isVisible
@@ -81,7 +83,7 @@ class MakeUrlActivity : AppCompatActivity() {
     }
 
     // MakeURL By Server
-    private fun requestMakeUrl(){
+    /*private fun requestMakeUrl(){
         uuid = User.getUUID(this)
 
         requestToServer.networkService.postMakeUrlRequest(
@@ -111,12 +113,14 @@ class MakeUrlActivity : AppCompatActivity() {
                 }
             }
         })
-    }
+    }*/
 
     // MakeURL By Local
     private fun localMakeUrl(){
         // 랜덤 참여코드 생성
         random_code= String.format("%06d", Random.nextInt(0 , 999999))
-        btn_makeurl_url.text=random_code
+        tv_makeurl_code.text="생성코드 : "+random_code
+        tv_makeurl_code.visibility= View.VISIBLE
+        btn_makeurl_url.text="코드 복사"
     }
 }
