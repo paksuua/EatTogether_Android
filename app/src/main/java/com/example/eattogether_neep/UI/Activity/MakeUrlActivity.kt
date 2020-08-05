@@ -27,7 +27,7 @@ import kotlin.random.Random
 class MakeUrlActivity : AppCompatActivity() {
     private lateinit var random_code: String
     private lateinit var uuid: String
-    //val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
+    val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
     var flag_joincode=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,16 +62,12 @@ class MakeUrlActivity : AppCompatActivity() {
                 Toast.makeText(this,"참여 인원을 입력하세요",Toast.LENGTH_SHORT).show()
             }else{
                 // 랜덤 참여코드 요청
-                // requestMakeUrl()
-                localMakeUrl()
-                
+                requestMakeUrl()
+                //localMakeUrl()
 
                 // 생성 코드 텍스트뷰 visible
-                if (flag_joincode){
-                    tv_makeurl_code.isVisible
-                }else{
-                    tv_makeurl_code.isInvisible
-                }
+                if (flag_joincode){   tv_makeurl_code.isVisible
+                }else{  tv_makeurl_code.isInvisible  }
             }
 
             // 참여코드 자동 복사
@@ -85,7 +81,7 @@ class MakeUrlActivity : AppCompatActivity() {
     }
 
     // MakeURL By Server
-    /*private fun requestMakeUrl(){
+    private fun requestMakeUrl(){
         uuid = User.getUUID(this)
 
         requestToServer.networkService.postMakeUrlRequest(
@@ -115,7 +111,7 @@ class MakeUrlActivity : AppCompatActivity() {
                 }
             }
         })
-    }*/
+    }
 
     // MakeURL By Local
     private fun localMakeUrl(){
