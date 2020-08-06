@@ -36,16 +36,21 @@ class PreferenceCheckActivity : AppCompatActivity() {
             startActivity(intent1)
         }
 
+        var flag1:Boolean = false
+        var flag2:Boolean = false
+
         edt_favorite.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if(edt_favorite.text.toString() != "")
+                if(edt_favorite.text.toString() != "") {
                     null_check_bd1.setBackgroundResource(R.drawable.yellow_bd)
-                else if(edt_favorite.text.toString() == "")
+                    flag1 = true
+                } else if(edt_favorite.text.toString() == "") {
                     null_check_bd1.setBackgroundResource(R.drawable.gray_bd)
-
-                if (edt_favorite.text.toString() != "" && edt_hate.text.toString() != "") {
+                    flag1 = false
+                }
+                if (flag1 == true && flag2 == true) {
                     btn_preference_check.isEnabled = true
                     btn_preference_check.setBackgroundResource(R.drawable.btn_yellow)
                     btn_preference_check.setTextColor(Color.parseColor("#101010"))
@@ -66,29 +71,34 @@ class PreferenceCheckActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if(edt_hate.text.toString() != "")
+                if(edt_hate.text.toString() != ""){
                     null_check_bd2.setBackgroundResource(R.drawable.yellow_bd)
-                else if(edt_hate.text.toString() == "")
+                    flag2 = true
+                } else if(edt_hate.text.toString() == ""){
                     null_check_bd2.setBackgroundResource(R.drawable.gray_bd)
-
-                if (edt_favorite.text.toString() != "" && edt_hate.text.toString() != "") {
+                    flag2 = false
+                }
+                if (flag1 == true && flag2 == true) {
                     btn_preference_check.isEnabled = true
                     btn_preference_check.setBackgroundResource(R.drawable.btn_yellow)
                     btn_preference_check.setTextColor(Color.parseColor("#101010"))
-                    btn_preference_check.setOnClickListener {
+                    /*btn_preference_check.setOnClickListener {
                         val favorite: String = edt_favorite.text.toString()
                         val hate: String = edt_hate.text.toString()
                         //postPreferenceResponse(favorite, hate)
-                    }
+                    }*/
                 }
                 else {
                     btn_preference_check.isEnabled = false
                     btn_preference_check.setBackgroundResource(R.drawable.btn_gray)
-                    btn_preference_check.setTextColor(Color.parseColor("#959595"))                }
+                    btn_preference_check.setTextColor(Color.parseColor("#959595"))
+                }
             }
         })
-        btn_preference_check.setOnClickListener {
-            startActivity(intent)
+        if(btn_preference_check.isEnabled == true){
+                btn_preference_check.setOnClickListener {
+                    startActivity(intent)
+                }
         }
     }
     fun postPreferenceResponse(u_favorite:String, u_hate: String) {
