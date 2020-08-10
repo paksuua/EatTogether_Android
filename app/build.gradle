@@ -67,4 +67,7 @@ dependencies {
     //gif Animation
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
+    // naver map
+    implementation 'com.naver.maps:map-sdk:3.5.0'
 }
