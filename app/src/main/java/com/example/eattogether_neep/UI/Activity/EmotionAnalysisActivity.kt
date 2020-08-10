@@ -36,14 +36,13 @@ import java.util.*
 
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
-private val SOCKET_URL="http://10.0.2.2:3001"
+private val SOCKET_URL="[your server url]"
 
 internal lateinit var preferences: SharedPreferences
 private lateinit var food_img: ImageView
 private lateinit var food_name: TextView
 
 private var hasConnection: Boolean = false
-//private var mSocket: Socket = IO.socket("[your server url]")
 private var mSocket: io.socket.client.Socket? = null
 
 class EmotionAnalysisActivity : AppCompatActivity() {
