@@ -3,6 +3,8 @@ package com.example.eattogether_neep.UI.Activity
 import android.Manifest
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
@@ -22,7 +24,12 @@ import com.bumptech.glide.Glide
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.UI.RectOverlay
 import com.example.eattogether_neep.UI.User
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
+import com.google.firebase.ml.vision.face.FirebaseVisionFace
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_emotion_analysis.*
@@ -207,12 +214,11 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
                 // socket 통신으로 보내기
                 //sendIMG(pixels)
+
                 // 이미지의 평균 휘도를 구한다
                 val luma:Double = pixels.average()
                 // 로그에 휘도 출력
                 Log.d("우리 뭐 먹지", "Average luminosity: $luma")
-                // 로그로 data 어떻게 찍히는지 확인하기!
-                Log.d("우리 뭐 먹지", "Image Data: $pixels")
                 // 로그로 data 어떻게 찍히는지 확인하기!
                 Log.d("우리 뭐 먹지", "Image Base64 Data: $base64")
 
@@ -220,6 +226,8 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 lastAnalyzedTimestamp = currentTimestamp
             }
         }
+
+
 
         fun sendIMG(pixels:List<Int>) {
             val now = System.currentTimeMillis()
@@ -264,36 +272,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         }
         //미리보기 설정 끝
 
-/*        //사진찍기 설정 시작
-        val imageCaptureConfig = ImageCaptureConfig.Builder()
-            .apply {
-                setTargetAspectRatio(Rational(1, 1))
-                setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
-            }.build()
-
-        val imageCapture = ImageCapture(imageCaptureConfig)
-        findViewById<ImageButton>(R.id.capture_button).setOnClickListener {
-            val file = File(externalMediaDirs.first(),
-                "${System.currentTimeMillis()}.jpg")
-            imageCapture.takePicture(file,
-                object : ImageCapture.OnImageSavedListener {
-                    override fun onError(error: ImageCapture.UseCaseError,
-                                         message: String, exc: Throwable?) {
-                        val msg = "Photo capture failed: $message"
-                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                        Log.e("CameraXApp", msg)
-                        exc?.printStackTrace()
-                    }
-
-                    override fun onImageSaved(file: File) {
-                        val msg = "사진 경로 : ${file.absolutePath}"
-                        Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                        Log.d("CameraXApp", msg)
-                    }
-                })
-        }
-        //사진찍기 설정 끝*/
-
         //이미지 프로세싱 설정 시작
         val analyzerConfig = ImageAnalysisConfig.Builder().apply {
             // 이미지 분석을 위한 쓰레드를 하나 생성합니다.
@@ -310,7 +288,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         //이미지 프로세싱 설정 끝
 
         //유즈케이스들을 바인딩함
-        //CameraX.bindToLifecycle(this, preview, imageCapture, analyzerUseCase)
         CameraX.bindToLifecycle(this, preview, analyzerUseCase)
     }
 
@@ -334,4 +311,29 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         viewFinder.setTransform(matrix)
     }
 
+    // firebase
+    private fun runDetector(bitmap: Bitmap) {
+        val image = FirebaseVisionImage.fromBitmap(bitmap)
+        val options = FirebaseVisionFaceDetectorOptions.Builder()
+            .build()
+
+        val detector = FirebaseVision.getInstance()
+            .getVisionFaceDetector(options)
+
+        detector.detectInImage(image)
+            .addOnSuccessListener { faces ->
+                processFaceResult(faces)
+
+            }.addOnFailureListener {
+                it.printStackTrace()
+            }
+
+    }
+    private fun processFaceResult(faces: MutableList<FirebaseVisionFace>) {
+        faces.forEach {
+            val bounds = it.boundingBox
+            val rectOverLay = RectOverlay(graphic_overlay, bounds)
+            graphic_overlay.add(rectOverLay)
+        }
+    }
 }

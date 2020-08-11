@@ -20,6 +20,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="face"/>
+
         <activity android:name="com.example.eattogether_neep.UI.Activity.LaunchActivity"></activity>
         <activity android:name="com.example.eattogether_neep.UI.Activity.RankingActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.EmotionAnalysisActivity" />
