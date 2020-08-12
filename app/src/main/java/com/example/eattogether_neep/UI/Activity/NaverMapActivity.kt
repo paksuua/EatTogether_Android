@@ -11,6 +11,7 @@ import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.NaverMapSdk.NaverCloudPlatformClient
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
+
 import net.daum.mf.map.api.MapPoint
 import net.daum.mf.map.api.MapView
 
@@ -33,7 +34,7 @@ class NaverMapActivity : Activity(), OnMapReadyCallback {
 
         //Naver Map MapView
 
-        var mapView: MapView? = MapView(this)
+        //var mapView: MapView? = MapView(this)
 
         val mapViewContainer =
             findViewById<View>(R.id.map_view) as ViewGroup

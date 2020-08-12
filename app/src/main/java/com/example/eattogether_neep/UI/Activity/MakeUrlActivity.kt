@@ -27,9 +27,9 @@ import retrofit2.Response
 import kotlin.random.Random
 
 class MakeUrlActivity : AppCompatActivity() {
-    private lateinit var random_code: String
+    private var random_code: String =""
     private lateinit var uuid: String
-    //val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
+    val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
     var flag_joincode=false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,8 +64,8 @@ class MakeUrlActivity : AppCompatActivity() {
                 Toast.makeText(this,"참여 인원을 입력하세요",Toast.LENGTH_SHORT).show()
             }else{
                 // 랜덤 참여코드 요청
-                //requestMakeUrl()
-                localMakeUrl()
+                requestMakeUrl()
+                //localMakeUrl()
 
                 // 생성 코드 텍스트뷰 visible
                 if (flag_joincode){   tv_makeurl_code.isVisible
@@ -83,17 +83,17 @@ class MakeUrlActivity : AppCompatActivity() {
     }
 
     // MakeURL By Server
-    /*private fun requestMakeUrl(){
+    private fun requestMakeUrl(){
         uuid = User.getUUID(this)
 
         requestToServer.networkService.postMakeUrlRequest(
             PostMakeUrlRequest(
-                uuid, Integer.parseInt(edt_makeurl_number.text.toString())
+                Integer.parseInt(edt_makeurl_number.text.toString())
             )
         ).enqueue(object : Callback<PostMakeUrlResponse> {
             override fun onFailure(call: Call<PostMakeUrlResponse>, t: Throwable){
                 // 통신 실패
-                Log.e("에러", t.toString())
+                Log.d("에러", t.message.toString())
                 Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 실패",
                     Toast.LENGTH_SHORT).show()
             }
@@ -103,23 +103,32 @@ class MakeUrlActivity : AppCompatActivity() {
                 response: Response<PostMakeUrlResponse>
             ) {
                 //통신 성공
+                Log.d("통신 성공", ": status "
+                        +response.body()!!.status+ "  success "+response.body()!!.success+"  data "+response.body()!!.data!!.roomID)
+
                 if(response.isSuccessful){ // statusCode가 200~300 사이일 때. 응답 body 이용 가능.
                     Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 성공", Toast.LENGTH_SHORT).show()
 
                     flag_joincode=true
-                    tv_makeurl_code.text="생성 코드 : "+response.body()!!.join_code
+                    tv_makeurl_code.text="생성 코드 : "+response.body()!!.data!!.roomID
+                    showCode()
                 }else{
+                    Toast.makeText(this@MakeUrlActivity, "통신 Status Error", Toast.LENGTH_SHORT).show()
                     flag_joincode=false
                 }
             }
         })
-    }*/
+    }
 
     // MakeURL By Local
     private fun localMakeUrl(){
         // 랜덤 참여코드 생성
         random_code= String.format("%06d", Random.nextInt(0 , 999999))
         tv_makeurl_code.text="생성코드 : "+random_code
+        showCode()
+    }
+
+    private fun showCode(){
         tv_makeurl_code.visibility= View.VISIBLE
         btn_makeurl_url.text="코드 복사"
     }
