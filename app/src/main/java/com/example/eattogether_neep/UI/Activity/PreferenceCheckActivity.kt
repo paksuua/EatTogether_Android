@@ -97,6 +97,11 @@ class PreferenceCheckActivity : AppCompatActivity() {
         })
         if(btn_preference_check.isEnabled == true){
                 btn_preference_check.setOnClickListener {
+                    val intent = Intent(this, WaitingActivity::class.java)
+                    intent.putExtra("like", edt_favorite.text.toString())
+                    intent.putExtra("hate", edt_hate.text.toString())
+                    intent.putExtra("roomName", "11111")
+                    intent.putExtra("fullNum", 5)
                     startActivity(intent)
                 }
         }
