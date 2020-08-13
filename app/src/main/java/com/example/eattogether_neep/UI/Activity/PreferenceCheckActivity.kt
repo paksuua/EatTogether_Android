@@ -12,6 +12,7 @@ import com.example.eattogether_neep.Network.Network.ApplicationController
 import com.example.eattogether_neep.Network.NetworkService
 import com.example.eattogether_neep.Network.Post.PostPreferenceResponse
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.UI.User
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_preference_check.*
@@ -19,6 +20,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 class PreferenceCheckActivity : AppCompatActivity() {
 
@@ -97,6 +99,10 @@ class PreferenceCheckActivity : AppCompatActivity() {
         })
         if(btn_preference_check.isEnabled == true){
                 btn_preference_check.setOnClickListener {
+                    intent.putExtra("UUID", User.getUUID(this))
+                    //intent.putExtra("roomNumber", roomNumber)
+                    intent.putExtra("favorite", edt_favorite.text)
+                    intent.putExtra("hate", edt_hate.text)
                     startActivity(intent)
                 }
         }
