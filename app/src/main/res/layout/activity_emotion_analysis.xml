@@ -78,4 +78,8 @@
                 android:text="마라샹궈" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.example.eattogether_neep.UI.GraphicOverlay
+        android:id="@+id/graphic_overlay"
+        android:layout_width="match_parent" android:layout_height="match_parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
