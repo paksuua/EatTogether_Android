@@ -18,7 +18,7 @@ class SocketService : JobIntentService() {
     private val TAG = SocketService::class.simpleName
     private var mSocket: Socket = SingleSocket.getInstance(this@SocketService)
     private var isSocketExist = false
-    private val mHost = "링크"
+    private val mHost = "http://13.125.224.168:8000/ranking"
     private var roomName: String = ""
 
 
@@ -47,11 +47,17 @@ class SocketService : JobIntentService() {
                 mSocket.emit("joinRoom", uuid, like, hate, roomName)
                 //"Send JoinRoom".logDebug(this@SocketService)
             }
+            "createRoom" -> {
+                val roomName = intent.getStringExtra("roomName")
+                val uuid = intent.getStringExtra("uuid")
+
+                mSocket.emit("createRoom", roomName, uuid)
+            }
         }
     }
 
     companion object {
-        const val JOB_ID = 1001
+        const val JOB_ID = 812057698
         fun enqueueWork(context: Context, work: Intent) {
             enqueueWork(context, SocketService::class.java,
                 JOB_ID, work)

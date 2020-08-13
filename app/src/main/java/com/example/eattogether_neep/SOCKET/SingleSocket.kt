@@ -20,7 +20,7 @@ class SingleSocket {
         fun getInstance(context: Context): Socket = instance
             ?: synchronized(this) {
                 instance ?: try {
-                    IO.socket("url")
+                    IO.socket("http://13.125.224.168:8000/ranking")
                 } catch (e: URISyntaxException) {
                     throw RuntimeException(e)
                 }.also {
@@ -54,6 +54,10 @@ class SingleSocket {
                         this?.on(
                             "joinRoom",
                             onJoinRoom
+                        ) //
+                        this?.on(
+                            "createRoom",
+                            onCreateRoom
                         ) //
                         this?.on(
                             Socket.EVENT_PING,
@@ -92,8 +96,19 @@ class SingleSocket {
         }
 
         private val onJoinRoom: Emitter.Listener = Emitter.Listener {
-            val token = it[0].toString()
-            Log.d(TAG, "Socket onJoinRoom, (token: $token)")
+           // val token = it[0].toString()
+           // Log.d(TAG, "Socket onJoinRoom, (token: $token)")
+        }
+
+        private val onCreateRoom: Emitter.Listener = Emitter.Listener {
+            val suc = it[0] as Int
+            Log.d(TAG, "Socket onCreateRoom Suc: $suc")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.RESULT_JOIN"
+                intent.putExtra("suc", suc)
+                context.sendBroadcast(intent)
+            }
         }
 
 
@@ -122,6 +137,11 @@ class SingleSocket {
                 this.off(
                     "joinRoom",
                     onJoinRoom
+                )
+
+                this.off(
+                    "createRoom",
+                    onCreateRoom
                 )
 
                 this.off(

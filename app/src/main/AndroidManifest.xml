@@ -14,12 +14,17 @@
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <service
+            android:name=".SOCKET.SocketService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <meta-data
             android:name="com.google.firebase.ml.vision.DEPENDENCIES"
@@ -28,12 +33,12 @@
         <activity android:name="com.example.eattogether_neep.UI.Activity.LaunchActivity"></activity>
         <activity android:name="com.example.eattogether_neep.UI.Activity.RankingActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.EmotionAnalysisActivity" />
-        <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity" />
+        <activity android:name="com.example.eattogether_neep.UI.Activity.PreferenceCheckActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.WaitingActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.MakeUrlActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.JoinActivity" />
         <!--<activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />-->
-        <activity android:name="com.example.eattogether_neep.UI.Activity.PreferenceCheckActivity">
+        <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
