@@ -28,30 +28,26 @@ class JoinActivity : AppCompatActivity() {
 
         uuid = User.getUUID(this)
         Log.d("Device UUID:", uuid)
-        roomName = "835197"
+        roomName = "835197" // 입력값을 넣어주는 작업 해야함 지금 귀찮아서..
 
         // 인원 입력 시 버튼 활성화
         edt_join_url.doOnTextChanged { text1, start, count, after ->
             if (!text1.isNullOrBlank()) {
+                edt_join_url.setBackgroundResource(R.drawable.yellow_bd)
                 btn_join_url.background =
-                    ContextCompat.getDrawable(
-                        this,
-                        R.drawable.btn_yellow
-                    )
+                    ContextCompat.getDrawable(this, R.drawable.btn_yellow)
                 btn_join_url.setTextColor(getColor(R.color.text_black))
             } else {
+                edt_join_url.setBackgroundResource(R.drawable.gray_bd)
                 btn_join_url.background =
-                    ContextCompat.getDrawable(
-                        this,
-                        R.drawable.btn_gray
-                    )
+                    ContextCompat.getDrawable(this, R.drawable.btn_gray)
                 btn_join_url.setTextColor(getColor(R.color.text_gray2))
             }
         }
 
         btn_join_url.setOnClickListener {
             if (edt_join_url.text.isNullOrBlank()) {
-                Toast.makeText(this, "참여코드를 다시 확인해주세요.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "입장 코드를 입력해주세요", Toast.LENGTH_SHORT).show()
             } else {
                 sendJoinRoom(roomName, uuid)
                 //requestJoin(Integer.parseInt(edt_join_url.text.toString()))
@@ -69,6 +65,7 @@ class JoinActivity : AppCompatActivity() {
     // Join By Local
     private fun localJoin(number: String) {
         val intent = Intent(this@JoinActivity, PreferenceCheckActivity::class.java)
+        intent.putExtra("roomName", roomName)
         startActivity(intent)
         finish()
     }
@@ -96,10 +93,9 @@ class JoinActivity : AppCompatActivity() {
                 "com.example.eattogether_neep.RESULT_JOIN" -> {
                     resultFromServer = intent.getIntExtra("result", -1)
                     if (resultFromServer == 200) {
-                        //Toast.makeText(this, "입장 성공.", Toast.LENGTH_SHORT).show()
                         localJoin(edt_join_url.text.toString())
                     } else if (resultFromServer == 400) {
-                        Log.d("enter fail","real")
+                        Toast.makeText(this@JoinActivity,"입장 코드를 다시 확인해주세요.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }

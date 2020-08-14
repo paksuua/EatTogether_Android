@@ -10,6 +10,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
@@ -40,6 +41,7 @@ class WaitingActivity : AppCompatActivity() {
         hate = intent.getStringExtra("hate")
         roomName = intent.getStringExtra("roomName")
         uuid = User.getUUID(this)
+
         fullNumber = intent.getIntExtra("fullNum", -1)
         fullNum.setText(" / " + fullNumber.toString())
         socketReceiver = WaitingReceiver()
@@ -76,16 +78,15 @@ class WaitingActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.example.eattogether_neep.FOOD_LIST" -> {
-                    val list = intent.getShortArrayExtra("foodList")!!
-
+                    val list = intent.getStringArrayListExtra("foodList")!!
                     val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
                     with(intent) {
                         putExtra("foodList", list)
                     }
 
                     if(enterNumber == fullNumber){
-                        this@WaitingActivity.startActivity(intent)
-                        this@WaitingActivity.finish()
+                        //this@WaitingActivity.startActivity(intent)
+                        //this@WaitingActivity.finish()
                     }
                 }
                 "com.example.eattogether_neep.ENTER_COUNT" ->{

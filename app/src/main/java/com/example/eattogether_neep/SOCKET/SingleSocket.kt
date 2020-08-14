@@ -5,11 +5,14 @@ import android.content.Intent
 import android.os.SystemClock
 import android.util.Log
 import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
 import java.net.URISyntaxException
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class SingleSocket {
@@ -52,10 +55,6 @@ class SingleSocket {
                             Socket.EVENT_ERROR,
                             onEventError
                         )
-                        this?.on(
-                            "joinRoom",
-                            onJoinRoom
-                        ) //
                         this?.on(
                             "result",
                             onCreateRoom
@@ -104,11 +103,6 @@ class SingleSocket {
             Log.d(TAG, "Socket AutoMatically onEventError (error: ${error})")
         }
 
-        private val onJoinRoom: Emitter.Listener = Emitter.Listener {
-           // val token = it[0].toString()
-           // Log.d(TAG, "Socket onJoinRoom, (token: $token)")
-        }
-
         private val onCreateRoom: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onCreateRoom")
             val result = it[0] as Int
@@ -122,14 +116,14 @@ class SingleSocket {
         }
         private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference")
-            val foodList = it[0] as JsonArray
+            val foodList = it[0] as JSONArray
             val listdata = ArrayList<String>()
             if (foodList != null) {
-                for (i in 0 until foodList.size()) {
-                    listdata.add(foodList.asString)
+                for (i in 0 until foodList.length()) {
+                    listdata.add(foodList[i].toString())
                 }
             }
-            Log.d(TAG, "Socket onPreference Suc: $foodList")
+            Log.d(TAG, "Socket onPreference Suc: $listdata")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.FOOD_LIST"
@@ -140,7 +134,7 @@ class SingleSocket {
 
         private val onPreferenceRoom2: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference count")
-            val count = it[1] as Int
+            val count = it[0] as Int
             Log.d(TAG, "Socket onPreference count: $count")
 
             Intent().also { intent ->
@@ -172,11 +166,6 @@ class SingleSocket {
                     Socket.EVENT_ERROR,
                     onEventError
                 )
-                this.off(
-                    "joinRoom",
-                    onJoinRoom
-                )
-
                 this.off(
                     "result",
                     onCreateRoom
