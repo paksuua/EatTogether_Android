@@ -181,7 +181,14 @@ class SingleSocket {
                     "result",
                     onCreateRoom
                 )
-
+                this?.off(
+                    "finishPref",
+                    onPreferenceRoom
+                )
+                this?.off(
+                    "currentCount",
+                    onPreferenceRoom2
+                )
                 this.off(
                     Socket.EVENT_PING,
                     onPing

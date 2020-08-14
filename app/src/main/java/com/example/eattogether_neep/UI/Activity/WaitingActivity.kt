@@ -19,7 +19,6 @@ import com.example.eattogether_neep.UI.User
 import kotlinx.android.synthetic.main.activity_ranking.*
 import kotlinx.android.synthetic.main.activity_waiting.*
 
-
 class WaitingActivity : AppCompatActivity() {
     private var like = ""
     private var hate = ""
@@ -39,11 +38,10 @@ class WaitingActivity : AppCompatActivity() {
 
         like = intent.getStringExtra("like")
         hate = intent.getStringExtra("hate")
-        roomName = intent.getStringExtra("835197")
+        roomName = intent.getStringExtra("roomName")
         uuid = User.getUUID(this)
         fullNumber = intent.getIntExtra("fullNum", -1)
         fullNum.setText(" / " + fullNumber.toString())
-        enterNum.setText(enterNumber.toString())
         socketReceiver = WaitingReceiver()
         intentFilter = IntentFilter()
         with(intentFilter){
@@ -52,18 +50,6 @@ class WaitingActivity : AppCompatActivity() {
         }
 
         registerReceiver(socketReceiver, intentFilter)
-
-        /*cst_wait.setOnClickListener {
-            val intent = Intent(this, LaunchActivity::class.java)
-            startActivity(intent)
-        }*/
-    }
-
-    private fun animationRotate(){
-        val rotate=AnimationUtils.loadAnimation(this,
-            R.anim.rotate_figure
-        )
-        img_rotate.animation=rotate
     }
 
     override fun onStart() {
@@ -102,13 +88,12 @@ class WaitingActivity : AppCompatActivity() {
                         this@WaitingActivity.finish()
                     }
                 }
-                "com.example.eattogether_neep.ENTER_COUNT" ->
+                "com.example.eattogether_neep.ENTER_COUNT" ->{
                     enterNumber = intent.getIntExtra("count",-1)
-
+                    enterNum.setText(enterNumber.toString())
+                }
                 else -> return
             }
         }
     }
 }
-
-
