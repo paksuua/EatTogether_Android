@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <meta-data android:name="com.kakao.sdk.AppKey" android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
 
