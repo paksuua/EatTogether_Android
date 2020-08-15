@@ -1,14 +1,14 @@
-package com.example.eattogether_neep.Socket
+package com.example.eattogether_neep.SOCKET
 
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
-import android.widget.Toast
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import org.json.JSONArray
 import java.lang.RuntimeException
 import java.net.URISyntaxException
 
@@ -21,7 +21,7 @@ class SingleSocket {
         fun getInstance(context: Context): Socket = instance
             ?: synchronized(this) {
                 instance ?: try {
-                    IO.socket(" http://13.125.224.168:8000/ranking")
+                    IO.socket("http://13.125.224.168:8000/ranking")
                 } catch (e: URISyntaxException) {
                     throw RuntimeException(e)
                 }.also {
@@ -51,10 +51,22 @@ class SingleSocket {
                         this?.on(
                             Socket.EVENT_ERROR,
                             onEventError
+                        )
+                        this?.on(
+                            "result",
+                            onCreateRoom
                         ) //
                         this?.on(
-                            "createRoom",
-                            onCreateRoom
+                            "finishPref",
+                            onPreferenceRoom
+                        ) //
+                        this?.on(
+                            "currentCount",
+                            onPreferenceRoom2
+                        ) //
+                        this?.on(
+                            "error",
+                            onError
                         ) //
                         this?.on(
                             Socket.EVENT_PING,
@@ -65,10 +77,6 @@ class SingleSocket {
                     }
                 }
             }
-
-        private val onStart: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onStart")
-        }
 
         private val onReconnect: Emitter.Listener = Emitter.Listener { time ->
             Log.d(TAG, "Socket onReconnect (time: $time)")
@@ -96,42 +104,58 @@ class SingleSocket {
             Log.d(TAG, "Socket AutoMatically onEventError (error: ${error})")
         }
 
-        private val onJoinRoom: Emitter.Listener = Emitter.Listener {
-            val token = it[0].toString()
-            Log.d(TAG, "Socket onJoinRoom, (token: $token)")
-        }
-
         private val onCreateRoom: Emitter.Listener = Emitter.Listener {
-            val suc = it[0] as Int
-            Log.d(TAG, "Socket onCreateRoom Suc: $suc")
+            Log.d(TAG, "Socket onCreateRoom")
+            val result = it[0] as Int
+            Log.d(TAG, "Socket onCreateRoom Suc: $result")
 
             Intent().also { intent ->
-                intent.action = "com.example.eattogether_neep.RESULT_ENTERENCE"
-                intent.putExtra("suc", suc)
+                intent.action = "com.example.eattogether_neep.RESULT_JOIN"
+                intent.putExtra("result", result)
+                context.sendBroadcast(intent)
+            }
+        }
+        private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onPreference")
+            val foodList = it[0] as JSONArray
+            val listdata = ArrayList<String>()
+            if (foodList != null) {
+                for (i in 0 until foodList.length()) {
+                    listdata.add(foodList[i].toString())
+                }
+            }
+            Log.d(TAG, "Socket onPreference Suc: $listdata")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.FOOD_LIST"
+                intent.putStringArrayListExtra("foodList", listdata)
                 context.sendBroadcast(intent)
             }
         }
 
-       /* private val onTimeLeft: Emitter.Listener = Emitter.Listener {
-            val leftTime = it[0] as Int
-            Log.d(TAG, "Socket onTimeLeft LeftTime: $leftTime")
+        private val onPreferenceRoom2: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onPreference count")
+            val count = it[0] as Int
+            Log.d(TAG, "Socket onPreference count: $count")
 
             Intent().also { intent ->
-                intent.action = "com.team.runnershi.RESULT_LEFT_TIME"
-                intent.putExtra("leftTIme", leftTime)
+                intent.action = "com.example.eattogether_neep.ENTER_COUNT"
+                intent.putExtra("count", count)
                 context.sendBroadcast(intent)
             }
         }
 
-        private val onEndCount: Emitter.Listener = Emitter.Listener {
-            val roomName = it[0].toString()
-            Log.d(TAG, "Socket onEndCount (Room Name :$roomName)")
-        }
+        private val onError: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket Error")
+            //val result = it[0] as Int
+            //Log.d(TAG, "Socket onCreateRoom Suc: $error")
 
-        private val onTimeOver: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onTimeOver")
-            socketDisconnect()
-        }*/
+            /*Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.RESULT_ERROR"
+                intent.putExtra("result", error)
+                context.sendBroadcast(intent)
+            }*/
+        }
 
         fun socketDisconnect() {
             instance?.apply {
@@ -156,13 +180,21 @@ class SingleSocket {
                     onEventError
                 )
                 this.off(
-                    "start",
-                    onStart
-                )
-                this.off(
-                    "createRoom",
+                    "result",
                     onCreateRoom
                 )
+                this.off(
+                    "finishPref",
+                    onPreferenceRoom
+                )
+                this.off(
+                    "currentCount",
+                    onPreferenceRoom2
+                )
+                this.off()
+                "error"
+                onError
+
                 this.off(
                     Socket.EVENT_PING,
                     onPing
@@ -172,101 +204,6 @@ class SingleSocket {
 
             }
         }
-
-       /* private val onStopCount: Emitter.Listener = Emitter.Listener {
-            val leftTime = it[0] as Int
-            Log.d(TAG, "Socket onStopCount (leftTime: $leftTime)")
-        }
-
-        private val onMatched: Emitter.Listener = Emitter.Listener {
-            val roomName = it[0].toString()
-            Log.d(TAG, "Socket onMatched (Room Name :$roomName)")
-            instance?.emit("endCount", roomName)
-            Log.d(TAG, "Send Socket endCount (Room Name :$roomName)")
-        }
-        private val onRoomFull: Emitter.Listener = Emitter.Listener {
-            val roomName = it[0].toString()
-            Log.d(TAG, "Socket onRoomFull (roomName: $roomName)")
-            instance?.emit("opponentInfo", roomName)
-            Log.d(TAG, "Send Socket opponentInfo (roomName: $roomName)")
-        }
-
-        private val onOpponentInfo: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onOpponenetInfo")
-            val roomName = it[0].toString()
-
-            val strBase64UrlDecode = Base64.decode(it[1].toString(), Base64.URL_SAFE)
-            val name = String(strBase64UrlDecode)
-            val level = it[2] as Int
-            val win = it[3] as Int
-            val lose = it[4] as Int
-            val image = it[5] as Int
-            Log.d(
-                TAG,
-                "(roomName: $roomName) (name: $name) (level: $level)  (win: $win) (lose: $lose) (image: $image)"
-            )
-
-            Intent().also { intent ->
-                intent.action = "com.team.runnershi.RESULT_OPPONENT_INFO"
-                intent.putExtra("roomName", roomName)
-                intent.putExtra("name", name)
-                intent.putExtra("level", level)
-                intent.putExtra("win", win)
-                intent.putExtra("lose", lose)
-                intent.putExtra("image", image)
-                context.sendBroadcast(intent)
-            }
-        }
-
-        private val onOpponentNotReady: Emitter.Listener = Emitter.Listener {
-        }
-
-        private val onLetsRun: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onLetsRun")
-            Intent().also { intent ->
-                intent.action = "com.team.runnershi.RESULT_LETS_RUN"
-                context.sendBroadcast(intent)
-            }
-        }
-
-        private val onKmPassed: Emitter.Listener = Emitter.Listener {
-            val opponentKm = it[0] as Int
-            Log.d(TAG, "Socket onKmPassed (Opponent Km: $opponentKm")
-            // todo 음성 알림 보내기 = TTS
-        }
-
-        private val onStopRunning: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onStopRunning")
-            socketDisconnect()
-        }
-
-        private val onOpponentStopped: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onOpponentStopped")
-        }
-
-        private val onEndRunning: Emitter.Listener = Emitter.Listener {
-            val roomName = it[0].toString()
-            Log.d(TAG, "Socket onEndRunning (roomName: ${it[0]}")
-            Intent().also { intent ->
-                intent.action = "com.team.runnershi.RESULT_END_RUNNING"
-                intent.putExtra("roomName", roomName)
-                context.sendBroadcast(intent)
-            }
-        }
-
-        private val onCompareResult: Emitter.Listener = Emitter.Listener {
-            val gameIdx = it[0] as Int
-            val runIdx = it[1] as Int
-            Log.d(TAG, "Socket onCompareResult (gameIdx: $gameIdx) (runIdx: $runIdx)")
-            Intent().also { intent ->
-                intent.action = "com.team.runnershi.RESULT_COMPARE"
-                intent.putExtra("gameIdx", gameIdx)
-                intent.putExtra("runIdx", runIdx)
-                context.sendBroadcast(intent)
-            }
-            socketDisconnect()
-        }*/
-
 
         private val onPing: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPing")

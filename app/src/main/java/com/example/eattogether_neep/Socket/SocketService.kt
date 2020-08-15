@@ -1,24 +1,33 @@
-package com.example.eattogether_neep.Socket
+package com.example.eattogether_neep.SOCKET
 
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
+import android.util.Base64
 import android.util.Log
 import androidx.core.app.JobIntentService
-import androidx.core.util.DebugUtils
+import com.example.eattogether_neep.Data.FoodItem
+import com.example.eattogether_neep.Data.MenuItem
+import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import java.net.URISyntaxException
 
-class SocketService: JobIntentService(){
+class SocketService : JobIntentService() {
     private val TAG = SocketService::class.simpleName
     private var mSocket: Socket = SingleSocket.getInstance(this@SocketService)
     private var isSocketExist = false
     private val mHost = "http://13.125.224.168:8000/ranking"
     private var roomName: String = ""
 
+
     override fun onHandleWork(intent: Intent) {
         if (!isSocketExist) {
             try {
-                // socketConnect()
+//                socketConnect()
             } catch (e: URISyntaxException) {
                 Log.d(
                     TAG,
@@ -28,31 +37,36 @@ class SocketService: JobIntentService(){
             isSocketExist = true
         }
         //"Appear on onHandleWork".logDebug(this@SocketService)
-        when (intent.getStringExtra("serviceFlag")) { // serviceFlag
-            "createRoom" -> { // joinRoom
-                val roomID = intent.getStringExtra("roomID")
-                val deviceNum = intent.getStringExtra("deviceNum")
-                /*"JoinRoom (roomID: $roomID) (deviceNum: $deviceNum) (SocketId: ${mSocket.id()})".logDebug(
-                    this@SocketService)*/
+        when (intent.getStringExtra("serviceFlag")) {
+            "createRoom" -> {
+                val roomName = intent.getStringExtra("roomName")
+                val uuid = intent.getStringExtra("uuid")
 
-                mSocket.emit("createRoom", roomID, deviceNum)
-                //"Send JoinRoom".logDebug(this@SocketService)
+                mSocket.emit("createRoom", roomName, uuid)
             }
+            "preference" -> {
+                val like = intent.getStringExtra("like")
+                val hate = intent.getStringExtra("hate")
+                val uuid = intent.getStringExtra("uuid")
+                val roomName = intent.getStringExtra("roomName")
 
-            "result" -> {
-                val flag_success=intent.getIntExtra("flag_success", -1)
-                val flag_fail=intent.getIntExtra("flag_fail", -1)
-                mSocket.emit("result", flag_success, flag_fail)
+                mSocket.emit("preference", like, hate, uuid, roomName)
+            }
+            "saveImage" -> {
+                val image = intent.getStringExtra("img")
+                val deviceNum = intent.getStringExtra("deviceNum")
+                val imgOrder=intent.getStringExtra("imgOrder")
+
+                mSocket.emit("saveImage", image, deviceNum, imgOrder)
             }
         }
     }
 
     companion object {
-        const val JOB_ID = 1001
+        const val JOB_ID = 812057698
         fun enqueueWork(context: Context, work: Intent) {
             enqueueWork(context, SocketService::class.java,
                 JOB_ID, work)
-            Log.d(this.toString(), "SocketService companion object")
         }
     }
 }
