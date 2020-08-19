@@ -17,59 +17,59 @@ import kotlinx.android.synthetic.main.activity_join.*
 
 class JoinActivity : AppCompatActivity() {
     private var roomName = ""
-    private var suc = -1
     private lateinit var uuid: String
     private lateinit var intentFilter: IntentFilter
+    //val requestToServer= ApplicationController // 싱글톤 그대로 가져옴
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-                setContentView(R.layout.activity_join)
+        setContentView(R.layout.activity_join)
 
-                uuid = User.getUUID(this)
-                Log.d("Device UUID:",uuid)
-                roomName = "835197"
+        uuid = User.getUUID(this)
+        Log.d("Device UUID:", uuid)
+        roomName = "835197" // 입력값을 넣어주는 작업 해야함 지금 귀찮아서..
 
-                // 인원 입력 시 버튼 활성화
-                edt_join_url.doOnTextChanged{ text1, start, count, after->
-                    if(!text1.isNullOrBlank()){
-                        btn_join_url.background =
-                            ContextCompat.getDrawable(this,
-                                R.drawable.btn_yellow
-                            )
-                        btn_join_url.setTextColor(getColor(R.color.text_black))
-                    }else{
-                        btn_join_url.background =
-                            ContextCompat.getDrawable(this,
-                                R.drawable.btn_gray
-                            )
-                        btn_join_url.setTextColor(getColor(R.color.text_gray2))
+        // 인원 입력 시 버튼 활성화
+        edt_join_url.doOnTextChanged { text1, start, count, after ->
+            if (!text1.isNullOrBlank()) {
+                edt_join_url.setBackgroundResource(R.drawable.yellow_bd)
+                btn_join_url.background =
+                    ContextCompat.getDrawable(this, R.drawable.btn_yellow)
+                btn_join_url.setTextColor(getColor(R.color.text_black))
+            } else {
+                edt_join_url.setBackgroundResource(R.drawable.gray_bd)
+                btn_join_url.background =
+                    ContextCompat.getDrawable(this, R.drawable.btn_gray)
+                btn_join_url.setTextColor(getColor(R.color.text_gray2))
             }
         }
 
-        btn_join_url.setOnClickListener{
-            if (edt_join_url.text.isNullOrBlank()){
-                Toast.makeText(this, "참여코드를 다시 확인해주세요.", Toast.LENGTH_SHORT).show()
-            }else{
+        btn_join_url.setOnClickListener {
+            if (edt_join_url.text.isNullOrBlank()) {
+                Toast.makeText(this, "입장 코드를 입력해주세요", Toast.LENGTH_SHORT).show()
+            } else {
                 sendJoinRoom(roomName, uuid)
                 //requestJoin(Integer.parseInt(edt_join_url.text.toString()))
                 //localJoin(edt_join_url.text.toString())
             }
         }
-
-        socketReceiver = JoinReciver()
-        intentFilter = IntentFilter()
-        with(intentFilter){
+        socketReceiver = JoinReceiver()
+        val intentFilter = IntentFilter().apply {
             addAction("com.example.eattogether_neep.RESULT_JOIN")
         }
         registerReceiver(socketReceiver, intentFilter)
+
     }
 
     // Join By Local
-    private fun localJoin(number:String) {
-        val intent=Intent(this@JoinActivity, PreferenceCheckActivity::class.java)
+    private fun localJoin(number: String) {
+        val intent = Intent(this@JoinActivity, PreferenceCheckActivity::class.java)
+        intent.putExtra("roomName", roomName)
         startActivity(intent)
         finish()
     }
+
     override fun onStart() {
         super.onStart()
     }
@@ -87,14 +87,15 @@ class JoinActivity : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
-    inner class JoinReciver() : BroadcastReceiver() {
+    inner class JoinReceiver() : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.example.eattogether_neep.RESULT_JOIN" -> {
-                    suc = intent.getIntExtra("suc", -1)
-                    if(suc == 0) {
-                        Log.d("enter","success")
-                        //localJoin(edt_join_url.text.toString())
+                    resultFromServer = intent.getIntExtra("result", -1)
+                    if (resultFromServer == 200) {
+                        localJoin(edt_join_url.text.toString())
+                    } else if (resultFromServer == 400) {
+                        Toast.makeText(this@JoinActivity,"입장 코드를 다시 확인해주세요.", Toast.LENGTH_SHORT).show()
                     }
                 }
             }

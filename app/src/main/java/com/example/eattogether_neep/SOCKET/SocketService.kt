@@ -36,22 +36,19 @@ class SocketService : JobIntentService() {
         }
         //"Appear on onHandleWork".logDebug(this@SocketService)
         when (intent.getStringExtra("serviceFlag")) {
-            "joinRoom" -> {
-                val uuid = intent.getStringExtra("uuid")
-                val like = intent.getStringExtra("like")
-                val hate = intent.getStringExtra("hate")
-                val roomName = intent.getStringExtra("roomName")
-                /*"JoinRoom (uuid: $uuid) (like: $like) (hate: $hate) (SocketId: ${mSocket.id()})".logDebug(
-                    this@SocketService
-                )*/
-                mSocket.emit("joinRoom", uuid, like, hate, roomName)
-                //"Send JoinRoom".logDebug(this@SocketService)
-            }
             "createRoom" -> {
                 val roomName = intent.getStringExtra("roomName")
                 val uuid = intent.getStringExtra("uuid")
 
                 mSocket.emit("createRoom", roomName, uuid)
+            }
+            "preference" -> {
+                val like = intent.getStringExtra("like")
+                val hate = intent.getStringExtra("hate")
+                val uuid = intent.getStringExtra("uuid")
+                val roomName = intent.getStringExtra("roomName")
+
+                mSocket.emit("preference", like, hate, uuid, roomName)
             }
         }
     }
