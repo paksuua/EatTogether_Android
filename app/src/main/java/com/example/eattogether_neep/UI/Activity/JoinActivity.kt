@@ -36,9 +36,9 @@ class JoinActivity : AppCompatActivity() {
                 edt_join_url.doOnTextChanged{ text1, start, count, after->
                     if(!text1.isNullOrBlank()){
                         btn_join_url.background =
-                            ContextCompat.getDrawable(this,
-                                R.drawable.btn_yellow
-                            )
+                            ContextCompat.getDrawable(this, R.drawable.btn_yellow)
+                        edt_join_url.background=
+                            ContextCompat.getDrawable(this, R.drawable.yellow_bd)
                         btn_join_url.setTextColor(getColor(R.color.text_black))
                     }else{
                         btn_join_url.background =

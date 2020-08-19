@@ -60,7 +60,7 @@
             android:fontFamily="@font/nanumsquareb"
             app:layout_constraintStart_toStartOf="@id/v_make"
             app:layout_constraintBottom_toTopOf="@id/v_make"
-            tools:text="방 만들기"/>
+            android:text="@string/main_make"/>
 
         <View
             android:id="@+id/v_make"
@@ -82,7 +82,7 @@
             android:layout_marginTop="23dp"
             app:layout_constraintTop_toBottomOf="@id/v_make"
             app:layout_constraintStart_toStartOf="@id/v_make"
-            tools:text="친구들과 함께\n결정하기 위해 방 만들기" />
+            android:text="@string/main_make_sub" />
 
         <ImageView
             android:layout_width="92dp"
@@ -116,7 +116,7 @@
             android:layout_marginBottom="10dp"
             app:layout_constraintStart_toStartOf="@id/v_join"
             app:layout_constraintBottom_toTopOf="@id/v_join"
-            android:text="참여하기"/>
+            android:text="@string/main_join"/>
 
         <View
             android:id="@+id/v_join"
@@ -138,7 +138,7 @@
             android:layout_marginTop="23dp"
             app:layout_constraintTop_toBottomOf="@id/v_join"
             app:layout_constraintStart_toStartOf="@id/v_join"
-            android:text="코드 입력하고\n뭐 먹을지 추천 받자!" />
+            android:text="@string/main_join_sub" />
 
         <ImageView
             android:layout_width="92dp"
