@@ -1,6 +1,5 @@
 package com.example.eattogether_neep.UI.Activity
 
-
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -64,6 +63,38 @@ class WaitingActivity : AppCompatActivity() {
         super.onDestroy()
         unregisterReceiver(socketReceiver)
     }
+
+    private fun sendPreference(like: String, hate: String, uuid:String, roomName:String) {
+        val work = Intent()
+        work.putExtra("serviceFlag", "preference")
+        work.putExtra("like", like)
+        work.putExtra("hate", hate)
+        work.putExtra("uuid", uuid)
+        work.putExtra("roomName", roomName)
+        SocketService.enqueueWork(this, work)
+    }
+
+    inner class WaitingReceiver() : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "com.example.eattogether_neep.FOOD_LIST" -> {
+                    val list = intent.getStringArrayListExtra("foodList")!!
+                    val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
+                    with(intent) {
+                        putExtra("foodList", list)
+                    }
+
+                    if(enterNumber == fullNumber){
+                        //this@WaitingActivity.startActivity(intent)
+                        //this@WaitingActivity.finish()
+                    }
+                }
+                "com.example.eattogether_neep.ENTER_COUNT" ->{
+                    enterNumber = intent.getIntExtra("count",-1)
+                    enterNum.setText(enterNumber.toString())
+                }
+                else -> return
+            }
+        }
+    }
 }
-
-

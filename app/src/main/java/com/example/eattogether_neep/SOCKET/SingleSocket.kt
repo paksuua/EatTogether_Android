@@ -3,13 +3,17 @@ package com.example.eattogether_neep.SOCKET
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
-import android.util.Base64
 import android.util.Log
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
-import java.lang.RuntimeException
+import org.json.JSONArray
 import java.net.URISyntaxException
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class SingleSocket {
     companion object {
@@ -52,12 +56,16 @@ class SingleSocket {
                             onEventError
                         )
                         this?.on(
-                            "joinRoom",
-                            onJoinRoom
+                            "result",
+                            onCreateRoom
                         ) //
                         this?.on(
-                            "createRoom",
-                            onCreateRoom
+                            "finishPref",
+                            onPreferenceRoom
+                        ) //
+                        this?.on(
+                            "currentCount",
+                            onPreferenceRoom2
                         ) //
                         this?.on(
                             Socket.EVENT_PING,
@@ -95,22 +103,46 @@ class SingleSocket {
             Log.d(TAG, "Socket AutoMatically onEventError (error: ${error})")
         }
 
-        private val onJoinRoom: Emitter.Listener = Emitter.Listener {
-           // val token = it[0].toString()
-           // Log.d(TAG, "Socket onJoinRoom, (token: $token)")
-        }
-
         private val onCreateRoom: Emitter.Listener = Emitter.Listener {
-            val suc = it[0] as Int
-            Log.d(TAG, "Socket onCreateRoom Suc: $suc")
+            Log.d(TAG, "Socket onCreateRoom")
+            val result = it[0] as Int
+            Log.d(TAG, "Socket onCreateRoom Suc: $result")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.RESULT_JOIN"
-                intent.putExtra("suc", suc)
+                intent.putExtra("result", result)
+                context.sendBroadcast(intent)
+            }
+        }
+        private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onPreference")
+            val foodList = it[0] as JSONArray
+            val listdata = ArrayList<String>()
+            if (foodList != null) {
+                for (i in 0 until foodList.length()) {
+                    listdata.add(foodList[i].toString())
+                }
+            }
+            Log.d(TAG, "Socket onPreference Suc: $listdata")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.FOOD_LIST"
+                intent.putStringArrayListExtra("foodList", listdata)
                 context.sendBroadcast(intent)
             }
         }
 
+        private val onPreferenceRoom2: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onPreference count")
+            val count = it[0] as Int
+            Log.d(TAG, "Socket onPreference count: $count")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.ENTER_COUNT"
+                intent.putExtra("count", count)
+                context.sendBroadcast(intent)
+            }
+        }
 
         fun socketDisconnect() {
             instance?.apply {
@@ -135,15 +167,17 @@ class SingleSocket {
                     onEventError
                 )
                 this.off(
-                    "joinRoom",
-                    onJoinRoom
-                )
-
-                this.off(
-                    "createRoom",
+                    "result",
                     onCreateRoom
                 )
-
+                this?.off(
+                    "finishPref",
+                    onPreferenceRoom
+                )
+                this?.off(
+                    "currentCount",
+                    onPreferenceRoom2
+                )
                 this.off(
                     Socket.EVENT_PING,
                     onPing

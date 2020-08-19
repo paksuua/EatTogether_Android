@@ -9,6 +9,8 @@ import java.io.ByteArrayOutputStream
 private const val BASE64_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 private val RX_BASE64_CLEANR = "[^=" + BASE64_SET + "]".toRegex()
 
+/*Extention Funtion*/
+
 fun String.showErrLog(){
     Log.d("Error", this)
 }
