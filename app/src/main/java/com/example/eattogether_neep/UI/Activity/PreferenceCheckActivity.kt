@@ -6,7 +6,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.widget.Toast
+import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.MultiAutoCompleteTextView
+import android.widget.MultiAutoCompleteTextView.CommaTokenizer
 import androidx.appcompat.app.AppCompatActivity
 import com.example.eattogether_neep.Network.Network.ApplicationController
 import com.example.eattogether_neep.Network.NetworkService
@@ -20,16 +24,32 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class PreferenceCheckActivity : AppCompatActivity() {
 
-    val networkService: NetworkService by lazy {
-        ApplicationController.networkService
-    }
+class PreferenceCheckActivity : AppCompatActivity() {
+    private var roomName = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_preference_check)
 
-        val intent = Intent(this, WaitingActivity::class.java)
+        val COLORS = arrayOf(
+            "RED",
+            "GREEN",
+            "ORANGE",
+            "BLUE",
+            "PURBLE",
+            "BLACK",
+            "YELLOW",
+            "CYAN",
+            "MAGENTA"
+        )
+
+        val color_adapter = ArrayAdapter(this, R.layout.simple_dropdown_item_1line, COLORS)
+        edt_favorite.setAdapter(color_adapter)
+        edt_hate.setAdapter(color_adapter)
+
+
+        roomName = intent.getStringExtra("roomName")
 
         btn_close_preference.setOnClickListener {
             val intent1 = Intent(this, MainActivity::class.java)
@@ -97,11 +117,16 @@ class PreferenceCheckActivity : AppCompatActivity() {
         })
         if(btn_preference_check.isEnabled == true){
                 btn_preference_check.setOnClickListener {
+                    val intent = Intent(this, WaitingActivity::class.java)
+                    intent.putExtra("like", edt_favorite.text.toString())
+                    intent.putExtra("hate", edt_hate.text.toString())
+                    intent.putExtra("roomName", roomName)
+                    intent.putExtra("fullNum", 5)
                     startActivity(intent)
                 }
         }
     }
-    fun postPreferenceResponse(u_favorite:String, u_hate: String) {
+    /*fun postPreferenceResponse(u_favorite:String, u_hate: String) {
         var jsonObject = JSONObject()
         jsonObject.put("favorite", u_favorite)
         jsonObject.put("hate", u_hate)
@@ -125,5 +150,5 @@ class PreferenceCheckActivity : AppCompatActivity() {
             }
         })
     }
-
+*/
 }
