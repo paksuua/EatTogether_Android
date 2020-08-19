@@ -1,5 +1,7 @@
 package com.example.eattogether_neep.UI.Activity
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -12,9 +14,11 @@ import com.example.eattogether_neep.Network.Network.ApplicationController
 import com.example.eattogether_neep.Network.NetworkService
 import com.example.eattogether_neep.Network.Post.PostPreferenceResponse
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.SOCKET.SocketService
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_preference_check.*
+import kotlinx.android.synthetic.main.activity_waiting.*
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
@@ -97,15 +101,51 @@ class PreferenceCheckActivity : AppCompatActivity() {
         })
         if(btn_preference_check.isEnabled == true){
                 btn_preference_check.setOnClickListener {
-                    val intent = Intent(this, WaitingActivity::class.java)
+                    //sendPreference(like, uuid)
+                    /*val intent = Intent(this, WaitingActivity::class.java)
                     intent.putExtra("like", edt_favorite.text.toString())
                     intent.putExtra("hate", edt_hate.text.toString())
-                    intent.putExtra("roomName", "11111")
+                    intent.putExtra("roomName", "835197")
                     intent.putExtra("fullNum", 5)
-                    startActivity(intent)
+                    startActivity(intent)*/
                 }
         }
     }
+
+    private fun sendPreference(like: String, hate: String, uuid:String, roomName:String) {
+        val work = Intent()
+        work.putExtra("serviceFlag", "preference")
+        work.putExtra("like", like)
+        work.putExtra("hate", hate)
+        work.putExtra("uuid", uuid)
+        work.putExtra("roomName", roomName)
+        SocketService.enqueueWork(this, work)
+    }
+
+    inner class WaitingReceiver() : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "com.example.eattogether_neep.FOOD_LIST" -> {
+                    val list = intent.getStringArrayListExtra("foodList")!!
+                    val intent = Intent(this@PreferenceCheckActivity, WaitingActivity::class.java)
+                    with(intent) {
+                        putExtra("foodList", list)
+                    }
+
+                    /*if(enterNumber == fullNumber){
+                        //this@WaitingActivity.startActivity(intent)
+                        //this@WaitingActivity.finish()
+                    }*/
+                }
+               /* "com.example.eattogether_neep.ENTER_COUNT" ->{
+                    enterNumber = intent.getIntExtra("count",-1)
+                    enterNum.setText(enterNumber.toString())
+                }*/
+                else -> return
+            }
+        }
+    }
+
     fun postPreferenceResponse(u_favorite:String, u_hate: String) {
         var jsonObject = JSONObject()
         jsonObject.put("favorite", u_favorite)
