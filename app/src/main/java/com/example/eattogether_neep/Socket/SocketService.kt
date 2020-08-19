@@ -6,8 +6,6 @@ import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
 import androidx.core.app.JobIntentService
-import com.example.eattogether_neep.Data.FoodItem
-import com.example.eattogether_neep.Data.MenuItem
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -51,13 +49,6 @@ class SocketService : JobIntentService() {
                 val roomName = intent.getStringExtra("roomName")
 
                 mSocket.emit("preference", like, hate, uuid, roomName)
-            }
-            "saveImage" -> {
-                val image = intent.getStringExtra("img")
-                val deviceNum = intent.getStringExtra("deviceNum")
-                val imgOrder=intent.getStringExtra("imgOrder")
-
-                mSocket.emit("saveImage", image, deviceNum, imgOrder)
             }
         }
     }

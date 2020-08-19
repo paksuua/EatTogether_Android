@@ -3,14 +3,17 @@ package com.example.eattogether_neep.SOCKET
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
-import android.util.Base64
 import android.util.Log
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
-import java.lang.RuntimeException
 import java.net.URISyntaxException
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class SingleSocket {
     companion object {
@@ -63,10 +66,6 @@ class SingleSocket {
                         this?.on(
                             "currentCount",
                             onPreferenceRoom2
-                        ) //
-                        this?.on(
-                            "error",
-                            onError
                         ) //
                         this?.on(
                             Socket.EVENT_PING,
@@ -145,18 +144,6 @@ class SingleSocket {
             }
         }
 
-        private val onError: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket Error")
-            //val result = it[0] as Int
-            //Log.d(TAG, "Socket onCreateRoom Suc: $error")
-
-            /*Intent().also { intent ->
-                intent.action = "com.example.eattogether_neep.RESULT_ERROR"
-                intent.putExtra("result", error)
-                context.sendBroadcast(intent)
-            }*/
-        }
-
         fun socketDisconnect() {
             instance?.apply {
                 this.off(
@@ -183,18 +170,14 @@ class SingleSocket {
                     "result",
                     onCreateRoom
                 )
-                this.off(
+                this?.off(
                     "finishPref",
                     onPreferenceRoom
                 )
-                this.off(
+                this?.off(
                     "currentCount",
                     onPreferenceRoom2
                 )
-                this.off()
-                "error"
-                onError
-
                 this.off(
                     Socket.EVENT_PING,
                     onPing
