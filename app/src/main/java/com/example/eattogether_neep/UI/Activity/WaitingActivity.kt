@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
@@ -80,6 +81,7 @@ class WaitingActivity : AppCompatActivity() {
                 "com.example.eattogether_neep.FOOD_LIST" -> {
                     val list = intent.getStringArrayListExtra("foodList")!!
                     val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
+                    Log.d("Waiting food list", list[0].toString()+" "+list[1].toString())
                     with(intent) {
                         putExtra("foodList", list)
                     }
