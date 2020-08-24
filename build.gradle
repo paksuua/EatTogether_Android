@@ -19,6 +19,11 @@ allprojects {
         mavenCentral()
         google()
         jcenter()
+        
+        // naver map
+        maven{
+            url 'https://navercorp.bintray.com/maps'
+        }
     }
 }
 

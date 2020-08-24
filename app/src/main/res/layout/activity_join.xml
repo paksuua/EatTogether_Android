@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#f8f8f8"
     tools:context=".UI.Activity.JoinActivity">
 
         <View
@@ -19,7 +20,7 @@
             android:id="@+id/btn_join_back"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/btn_close"
+            android:src="@drawable/btn_close_white"
             android:layout_margin="16dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
@@ -48,11 +49,13 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/cst_join_center"
             android:layout_width="match_parent"
-            android:layout_height="248dp"
+            android:layout_height="match_parent"
             android:layout_marginHorizontal="16dp"
             android:elevation="3dp"
             android:layout_marginTop="146dp"
+            android:layout_marginBottom="31dp"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:background="@drawable/bg_white">
@@ -84,9 +87,10 @@
                     android:id="@+id/btn_join_url"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="90dp"
                     android:layout_marginHorizontal="22dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edt_join_url"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:background="@drawable/btn_gray"
                     android:clickable="false"

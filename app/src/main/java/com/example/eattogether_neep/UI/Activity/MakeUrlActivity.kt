@@ -7,6 +7,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
@@ -19,13 +20,14 @@ import com.example.eattogether_neep.R
 import com.example.eattogether_neep.UI.User
 import kotlinx.android.synthetic.main.activity_join.*
 import kotlinx.android.synthetic.main.activity_make_url.*
+import kotlinx.android.synthetic.main.activity_make_url.view.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.random.Random
 
 class MakeUrlActivity : AppCompatActivity() {
-    private lateinit var random_code: String
+    private var random_code: String =""
     private lateinit var uuid: String
     val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
     var flag_joincode=false
@@ -44,9 +46,9 @@ class MakeUrlActivity : AppCompatActivity() {
         edt_makeurl_number.doOnTextChanged{ text1, start, count, after->
             if(!text1.isNullOrBlank()){
                 btn_makeurl_url.background =
-                    ContextCompat.getDrawable(this,
-                        R.drawable.btn_yellow
-                    )
+                    ContextCompat.getDrawable(this, R.drawable.btn_yellow)
+                edt_makeurl_number.background=
+                    ContextCompat.getDrawable(this, R.drawable.yellow_bd)
                 btn_makeurl_url.setTextColor(getColor(R.color.text_black))
             }else{
                 btn_makeurl_url.background =
@@ -86,12 +88,12 @@ class MakeUrlActivity : AppCompatActivity() {
 
         requestToServer.networkService.postMakeUrlRequest(
             PostMakeUrlRequest(
-                uuid, Integer.parseInt(edt_makeurl_number.text.toString())
+                Integer.parseInt(edt_makeurl_number.text.toString())
             )
         ).enqueue(object : Callback<PostMakeUrlResponse> {
             override fun onFailure(call: Call<PostMakeUrlResponse>, t: Throwable){
                 // 통신 실패
-                Log.e("에러", t.toString())
+                Log.d("에러", t.message.toString())
                 Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 실패",
                     Toast.LENGTH_SHORT).show()
             }
@@ -101,12 +103,17 @@ class MakeUrlActivity : AppCompatActivity() {
                 response: Response<PostMakeUrlResponse>
             ) {
                 //통신 성공
+                Log.d("통신 성공", ": status "
+                        +response.body()!!.status+ "  success "+response.body()!!.success+"  data "+response.body()!!.data!!.roomID)
+
                 if(response.isSuccessful){ // statusCode가 200~300 사이일 때. 응답 body 이용 가능.
                     Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 성공", Toast.LENGTH_SHORT).show()
 
                     flag_joincode=true
-                    tv_makeurl_code.text="생성 코드 : "+response.body()!!.join_code
+                    tv_makeurl_code.text="생성 코드 : "+response.body()!!.data!!.roomID
+                    showCode()
                 }else{
+                    Toast.makeText(this@MakeUrlActivity, "통신 Status Error", Toast.LENGTH_SHORT).show()
                     flag_joincode=false
                 }
             }
@@ -117,6 +124,12 @@ class MakeUrlActivity : AppCompatActivity() {
     private fun localMakeUrl(){
         // 랜덤 참여코드 생성
         random_code= String.format("%06d", Random.nextInt(0 , 999999))
-        btn_makeurl_url.text=random_code
+        tv_makeurl_code.text="생성코드 : "+random_code
+        showCode()
+    }
+
+    private fun showCode(){
+        tv_makeurl_code.visibility= View.VISIBLE
+        btn_makeurl_url.text="코드 복사"
     }
 }
