@@ -68,6 +68,10 @@ class SingleSocket {
                             onPreferenceRoom2
                         ) //
                         this?.on(
+                            "ranking",
+                            onRanking
+                        ) //
+                        this?.on(
                             Socket.EVENT_PING,
                             onPing
                         ) //
@@ -144,6 +148,25 @@ class SingleSocket {
             }
         }
 
+        private val onRanking: Emitter.Listener = Emitter.Listener {
+            val foodList = it[0] as JSONArray
+            val list_cnt = foodList.length()
+            val getName = arrayOf<String>()
+            val getImg = arrayOf<String>()
+
+            for(i in 0..list_cnt) {
+                val obj = foodList.getJSONObject(i)
+                getName[i] = obj.getString("name")
+                getImg[i] = obj.getString("image")
+            }
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.FOOD_LIST_RANK"
+                intent.putExtra("food_name", getName)
+                intent.putExtra("food_img", getImg)
+                context.sendBroadcast(intent)
+            }
+        }
+
         fun socketDisconnect() {
             instance?.apply {
                 this.off(
@@ -177,6 +200,10 @@ class SingleSocket {
                 this?.off(
                     "currentCount",
                     onPreferenceRoom2
+                )
+                this?.off(
+                    "ranking",
+                    onRanking
                 )
                 this.off(
                     Socket.EVENT_PING,
