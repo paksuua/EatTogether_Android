@@ -50,6 +50,11 @@ class SocketService : JobIntentService() {
 
                 mSocket.emit("preference", like, hate, uuid, roomName)
             }
+            "showRank" -> {
+                val roomName = intent.getStringExtra("roomName")
+
+                mSocket.emit("showRank", roomName)
+            }
         }
     }
 

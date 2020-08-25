@@ -68,6 +68,10 @@ class SingleSocket {
                             onPreferenceRoom2
                         ) //
                         this?.on(
+                            "finishRank",
+                            onRanking
+                        ) //
+                        this?.on(
                             Socket.EVENT_PING,
                             onPing
                         ) //
@@ -117,17 +121,23 @@ class SingleSocket {
         private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference")
             val foodList = it[0] as JSONArray
-            val listdata = ArrayList<String>()
-            if (foodList != null) {
-                for (i in 0 until foodList.length()) {
-                    listdata.add(foodList[i].toString())
-                }
+            val list_cnt = foodList.length()
+            val getName = Array(list_cnt,{""})
+            val getImg = Array(list_cnt,{""})
+            Log.d(TAG, "Socket onRanking getName: ${getName.size}")
+            Log.d(TAG, "Socket onRanking getImg: ${getImg.size}")
+
+            for(i in 0..(list_cnt-1)) {
+                val obj = foodList.getJSONObject(i)
+                getName[i] = obj.getString("name")
+                getImg[i] = obj.getString("image")
             }
-            Log.d(TAG, "Socket onPreference Suc: $listdata")
+            Log.d(TAG, "Socket onPreference Suc: ${getImg[1]}")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.FOOD_LIST"
-                intent.putStringArrayListExtra("foodList", listdata)
+                intent.putExtra("food_name", getName)
+                intent.putExtra("food_img", getImg)
                 context.sendBroadcast(intent)
             }
         }
@@ -135,11 +145,37 @@ class SingleSocket {
         private val onPreferenceRoom2: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference count")
             val count = it[0] as Int
+            val full = it[1] as Int
             Log.d(TAG, "Socket onPreference count: $count")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.ENTER_COUNT"
                 intent.putExtra("count", count)
+                intent.putExtra("full", full)
+                context.sendBroadcast(intent)
+            }
+        }
+
+        private val onRanking: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onRanking")
+
+            val foodList = it[0] as JSONArray
+            val list_cnt = foodList.length()
+            val getName = Array(list_cnt,{""})
+            val getImg = Array(list_cnt,{""})
+            Log.d(TAG, "Socket onRanking getName: ${getName.size}")
+            Log.d(TAG, "Socket onRanking getImg: ${getImg.size}")
+
+            for(i in 0..(list_cnt-1)) {
+                val obj = foodList.getJSONObject(i)
+                getName[i] = obj.getString("name")
+                getImg[i] = obj.getString("image")
+            }
+            Log.d(TAG, "Socket onRanking Suc: ${getName[1]}")
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.FOOD_LIST_RANK"
+                intent.putExtra("food_name", getName)
+                intent.putExtra("food_img", getImg)
                 context.sendBroadcast(intent)
             }
         }
@@ -177,6 +213,10 @@ class SingleSocket {
                 this?.off(
                     "currentCount",
                     onPreferenceRoom2
+                )
+                this?.off(
+                    "finishRank",
+                    onRanking
                 )
                 this.off(
                     Socket.EVENT_PING,

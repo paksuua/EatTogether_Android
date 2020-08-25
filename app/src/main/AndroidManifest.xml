@@ -32,7 +32,7 @@
             android:name="com.kakao.sdk.AppKey"
             android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
-  
+
         <service
             android:name=".SOCKET.SocketService"
             android:exported="false"
@@ -64,10 +64,8 @@
         <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>

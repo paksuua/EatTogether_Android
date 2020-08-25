@@ -1,28 +1,32 @@
 package com.example.eattogether_neep.UI.Activity
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.eattogether_neep.Data.RankingItem
 import com.example.eattogether_neep.Network.Get.GetRankingResponse
 import com.example.eattogether_neep.Network.Network.ApplicationController
 import com.example.eattogether_neep.Network.NetworkService
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.Adapter.RankingItemRVAdapter
 import kotlinx.android.synthetic.main.activity_ranking.*
+import kotlinx.android.synthetic.main.activity_waiting.*
 import retrofit2.Call
 import retrofit2.Response
 
 class RankingActivity : AppCompatActivity() {
 
-    val networkService: NetworkService by lazy {
-        ApplicationController.networkService
-    }
-
-    lateinit var rankingItemRVAdaptter: RankingItemRVAdapter
+    private var roomName = ""
+    private lateinit var socketReceiver: RankingReceiver
+    private lateinit var intentFilter: IntentFilter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,74 +38,64 @@ class RankingActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        var dataList:ArrayList<RankingItem> = ArrayList()
-        dataList.add(RankingItem(
-            1,
-            "https://www.lark.com/wp-content/uploads/2019/11/jason-briscoe-7MAjXGUmaPw-unsplash.jpg",
-            1,
-             "마라샹궈"))
-        dataList.add(RankingItem(
-            2,
-            "https://www.lark.com/wp-content/uploads/2019/11/jason-briscoe-7MAjXGUmaPw-unsplash.jpg",
-            2,
-            "마라샹궈"))
-        dataList.add(RankingItem(
-            3,
-            "https://www.lark.com/wp-content/uploads/2019/11/jason-briscoe-7MAjXGUmaPw-unsplash.jpg",
-            3,
-            "마라샹궈"))
-        dataList.add(RankingItem(
-            4,
-            "https://www.lark.com/wp-content/uploads/2019/11/jason-briscoe-7MAjXGUmaPw-unsplash.jpg",
-            4,
-            "마라샹궈"))
-        dataList.add(RankingItem(
-            5,
-            "https://www.lark.com/wp-content/uploads/2019/11/jason-briscoe-7MAjXGUmaPw-unsplash.jpg",
-            5,
-            "마라샹궈"))
-        dataList.add(RankingItem(
-            6,
-            "https://www.lark.com/wp-content/uploads/2019/11/jason-briscoe-7MAjXGUmaPw-unsplash.jpg",
-            6,
-            "마라샹궈"))
-        dataList.add(RankingItem(
-            7,
-            "https://www.lark.com/wp-content/uploads/2019/11/jason-briscoe-7MAjXGUmaPw-unsplash.jpg",
-            7,
-            "마라샹궈"))
+        //roomName = intent.getStringExtra("roomName")
+        roomName = "835197"
+        socketReceiver = RankingReceiver()
+        intentFilter = IntentFilter()
+        with(intentFilter){
+            addAction("com.example.eattogether_neep.FOOD_LIST_RANK")
+        }
 
-        rankingItemRVAdaptter = RankingItemRVAdapter(this, dataList)
-        rv_ranking.adapter = rankingItemRVAdaptter
-        rv_ranking.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-
-        //getRankingResponse()
+        registerReceiver(socketReceiver, intentFilter)
     }
 
-    private fun getRankingResponse(){
-        //val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWR4IjoxLCJuaWNrbmFtZSI6IuyEne2ZqSIsImlhdCI6MTU2ODIxNzMyNCwiZXhwIjoxNTc5MDE3MzI0LCJpc3MiOiJiYWJ5Q2xvc2V0In0.pGluiC04m2sXWdtHwWKR8SdSMQYS_kSd_uumifKBz18"
-        //val token = SharedPreference.getUserToken(ctx)
+    override fun onStart() {
+        super.onStart()
+        sendRoomName(roomName)
+    }
 
-        val postIdx = 1
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(socketReceiver)
+    }
 
-        val getRankingResponse = networkService.getRankingResponse("application/json", postIdx)
-        getRankingResponse.enqueue(object : retrofit2.Callback<GetRankingResponse>{
-            override fun onFailure(call: Call<GetRankingResponse>, t: Throwable) {
-                t.printStackTrace()
-            }
-            override fun onResponse(call: Call<GetRankingResponse>, response: Response<GetRankingResponse>) {
-                if(response.isSuccessful){
-                    if(response.body()!!.status == 200){
-                        val tmp: ArrayList<RankingItem> = response.body()!!.data!!
-                        rankingItemRVAdaptter.dataList = tmp
-                        rankingItemRVAdaptter.notifyDataSetChanged()
-                    }
-                    else if (response.body()!!.status == 400){
-                        Log.e("tag", "No token")
-                    }
+    private fun sendRoomName(roomName:String) {
+        val work = Intent()
+        work.putExtra("serviceFlag", "showRank")
+        work.putExtra("roomName", roomName)
+        SocketService.enqueueWork(this, work)
+    }
+
+    inner class RankingReceiver() : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "com.example.eattogether_neep.FOOD_LIST_RANK" -> {
+                    val f_name = intent.getStringArrayExtra("food_name")!!
+                    val f_img = intent.getStringArrayExtra("food_img")!!
+
+                    Glide.with(this@RankingActivity).load(f_img[0]).into(rv_ranking_img1)
+                    rv_ranking_food_name1.text = f_name[0].toString()
+                    Glide.with(this@RankingActivity).load(f_img[1]).into(rv_ranking_img2)
+                    rv_ranking_food_name2.text = f_name[1].toString()
+                    Glide.with(this@RankingActivity).load(f_img[2]).into(rv_ranking_img3)
+                    rv_ranking_food_name3.text = f_name[2].toString()
+                    Glide.with(this@RankingActivity).load(f_img[3]).into(rv_ranking_img4)
+                    rv_ranking_food_name4.text = f_name[3].toString()
+                    Glide.with(this@RankingActivity).load(f_img[4]).into(rv_ranking_img5)
+                    rv_ranking_food_name5.text = f_name[4].toString()
+                    Glide.with(this@RankingActivity).load(f_img[5]).into(rv_ranking_img6)
+                    rv_ranking_food_name6.text = f_name[5].toString()
+                    Glide.with(this@RankingActivity).load(f_img[6]).into(rv_ranking_img7)
+                    rv_ranking_food_name7.text = f_name[6].toString()
+                    Glide.with(this@RankingActivity).load(f_img[7]).into(rv_ranking_img8)
+                    rv_ranking_food_name8.text = f_name[7].toString()
+                    Glide.with(this@RankingActivity).load(f_img[8]).into(rv_ranking_img9)
+                    rv_ranking_food_name9.text = f_name[8].toString()
+                    Glide.with(this@RankingActivity).load(f_img[9]).into(rv_ranking_img10)
+                    rv_ranking_food_name10.text = f_name[9].toString()
                 }
+                else -> return
             }
-        })
+        }
     }
-
 }
