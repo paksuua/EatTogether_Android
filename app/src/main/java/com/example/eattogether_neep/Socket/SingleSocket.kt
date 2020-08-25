@@ -68,6 +68,10 @@ class SingleSocket {
                             onPreferenceRoom2
                         ) //
                         this?.on(
+                            "saveImage",
+                            onSaveImage
+                        ) //
+                        this?.on(
                             Socket.EVENT_PING,
                             onPing
                         ) //
@@ -144,6 +148,18 @@ class SingleSocket {
             }
         }
 
+        private val onSaveImage: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onSaveImage")
+            val result = it[0] as Int
+            //Log.d(TAG, "Socket onSaveImage Suc: $result")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.RESULT_SAVE_IMAGE"
+                intent.putExtra("result", result)
+                context.sendBroadcast(intent)
+            }
+        }
+
         fun socketDisconnect() {
             instance?.apply {
                 this.off(
@@ -178,6 +194,10 @@ class SingleSocket {
                     "currentCount",
                     onPreferenceRoom2
                 )
+                this?.off(
+                    "saveImage",
+                    onSaveImage
+                ) //
                 this.off(
                     Socket.EVENT_PING,
                     onPing

@@ -78,7 +78,7 @@ class WaitingActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.example.eattogether_neep.FOOD_LIST" -> {
-                    val list = intent.getStringArrayListExtra("foodList")!!
+                    val list = intent.getStringArrayListExtra("foodList")
                     val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
                     with(intent) {
                         putExtra("foodList", list)
