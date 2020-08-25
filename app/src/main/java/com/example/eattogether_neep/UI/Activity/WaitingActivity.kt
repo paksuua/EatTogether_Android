@@ -42,8 +42,6 @@ class WaitingActivity : AppCompatActivity() {
         roomName = intent.getStringExtra("roomName")
         uuid = User.getUUID(this)
 
-        fullNumber = intent.getIntExtra("fullNum", -1)
-        fullNum.setText(" / " + fullNumber.toString())
         socketReceiver = WaitingReceiver()
         intentFilter = IntentFilter()
         with(intentFilter){
@@ -78,19 +76,20 @@ class WaitingActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.example.eattogether_neep.FOOD_LIST" -> {
-                    val list = intent.getStringArrayListExtra("foodList")!!
+                    val f_name = intent.getStringArrayExtra("food_name")!!
+                    val f_img = intent.getStringArrayExtra("food_img")!!
                     val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
                     with(intent) {
-                        putExtra("foodList", list)
+                        intent.putExtra("food_name", f_name)
+                        intent.putExtra("food_img", f_img)
                     }
-
-                    if(enterNumber == fullNumber){
-                        //this@WaitingActivity.startActivity(intent)
-                        //this@WaitingActivity.finish()
-                    }
+                    this@WaitingActivity.startActivity(intent)
+                    this@WaitingActivity.finish()
                 }
                 "com.example.eattogether_neep.ENTER_COUNT" ->{
                     enterNumber = intent.getIntExtra("count",-1)
+                    fullNumber = intent.getIntExtra("full", -1)
+                    fullNum.setText(" / " + fullNumber.toString())
                     enterNum.setText(enterNumber.toString())
                 }
                 else -> return
