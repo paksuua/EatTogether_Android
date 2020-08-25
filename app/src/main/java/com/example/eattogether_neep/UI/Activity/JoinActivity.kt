@@ -12,13 +12,16 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.User
 import kotlinx.android.synthetic.main.activity_join.*
 
 class JoinActivity : AppCompatActivity() {
     private var roomName = ""
     private lateinit var uuid: String
+    private lateinit var socketReceiver: JoinReceiver
     private lateinit var intentFilter: IntentFilter
+    private var resultFromServer = -1
     //val requestToServer= ApplicationController // 싱글톤 그대로 가져옴
 
 

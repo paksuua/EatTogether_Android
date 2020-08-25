@@ -3,14 +3,17 @@ package com.example.eattogether_neep.SOCKET
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
-import android.util.Base64
 import android.util.Log
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
-import java.lang.RuntimeException
 import java.net.URISyntaxException
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class SingleSocket {
     companion object {
@@ -65,8 +68,8 @@ class SingleSocket {
                             onPreferenceRoom2
                         ) //
                         this?.on(
-                            "error",
-                            onError
+                            "saveImage",
+                            onSaveImage
                         ) //
                         this?.on(
                             Socket.EVENT_PING,
@@ -145,16 +148,16 @@ class SingleSocket {
             }
         }
 
-        private val onError: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket Error")
-            //val result = it[0] as Int
-            //Log.d(TAG, "Socket onCreateRoom Suc: $error")
+        private val onSaveImage: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onSaveImage")
+            val result = it[0] as Int
+            //Log.d(TAG, "Socket onSaveImage Suc: $result")
 
-            /*Intent().also { intent ->
-                intent.action = "com.example.eattogether_neep.RESULT_ERROR"
-                intent.putExtra("result", error)
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.RESULT_SAVE_IMAGE"
+                intent.putExtra("result", result)
                 context.sendBroadcast(intent)
-            }*/
+            }
         }
 
         fun socketDisconnect() {
@@ -183,18 +186,18 @@ class SingleSocket {
                     "result",
                     onCreateRoom
                 )
-                this.off(
+                this?.off(
                     "finishPref",
                     onPreferenceRoom
                 )
-                this.off(
+                this?.off(
                     "currentCount",
                     onPreferenceRoom2
                 )
-                this.off()
-                "error"
-                onError
-
+                this?.off(
+                    "saveImage",
+                    onSaveImage
+                ) //
                 this.off(
                     Socket.EVENT_PING,
                     onPing
