@@ -39,7 +39,7 @@ class RankingActivity : AppCompatActivity() {
         }
 
         //roomName = intent.getStringExtra("roomName")
-        roomName = "835279"
+        roomName = "835197"
         socketReceiver = RankingReceiver()
         intentFilter = IntentFilter()
         with(intentFilter){
@@ -51,7 +51,7 @@ class RankingActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        sendRoomNAme(roomName)
+        sendRoomName(roomName)
     }
 
     override fun onDestroy() {
@@ -59,9 +59,9 @@ class RankingActivity : AppCompatActivity() {
         unregisterReceiver(socketReceiver)
     }
 
-    private fun sendRoomNAme(roomName:String) {
+    private fun sendRoomName(roomName:String) {
         val work = Intent()
-        work.putExtra("serviceFlag", "roomName")
+        work.putExtra("serviceFlag", "showRank")
         work.putExtra("roomName", roomName)
         SocketService.enqueueWork(this, work)
     }
@@ -70,29 +70,29 @@ class RankingActivity : AppCompatActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 "com.example.eattogether_neep.FOOD_LIST_RANK" -> {
-                    val f_name = intent.getStringExtra("food_name")!!
-                    val f_img = intent.getStringExtra("food_img")!!
+                    val f_name = intent.getStringArrayExtra("food_name")!!
+                    val f_img = intent.getStringArrayExtra("food_img")!!
 
-                    Glide.with(this@RankingActivity).load(f_name[0]).into(rv_ranking_img1)
-                    rv_ranking_food_name1.text = f_img[0].toString()
-                    Glide.with(this@RankingActivity).load(f_name[1]).into(rv_ranking_img2)
-                    rv_ranking_food_name2.text = f_img[1].toString()
-                    Glide.with(this@RankingActivity).load(f_name[2]).into(rv_ranking_img3)
-                    rv_ranking_food_name3.text = f_img[2].toString()
-                    Glide.with(this@RankingActivity).load(f_name[3]).into(rv_ranking_img4)
-                    rv_ranking_food_name4.text = f_img[3].toString()
-                    Glide.with(this@RankingActivity).load(f_name[4]).into(rv_ranking_img5)
-                    rv_ranking_food_name5.text = f_img[4].toString()
-                    Glide.with(this@RankingActivity).load(f_name[5]).into(rv_ranking_img6)
-                    rv_ranking_food_name6.text = f_img[5].toString()
-                    Glide.with(this@RankingActivity).load(f_name[6]).into(rv_ranking_img7)
-                    rv_ranking_food_name7.text = f_img[6].toString()
-                    Glide.with(this@RankingActivity).load(f_name[7]).into(rv_ranking_img8)
-                    rv_ranking_food_name8.text = f_img[7].toString()
-                    Glide.with(this@RankingActivity).load(f_name[8]).into(rv_ranking_img9)
-                    rv_ranking_food_name9.text = f_img[8].toString()
-                    Glide.with(this@RankingActivity).load(f_name[9]).into(rv_ranking_img10)
-                    rv_ranking_food_name10.text = f_img[9].toString()
+                    Glide.with(this@RankingActivity).load(f_img[0]).into(rv_ranking_img1)
+                    rv_ranking_food_name1.text = f_name[0].toString()
+                    Glide.with(this@RankingActivity).load(f_img[1]).into(rv_ranking_img2)
+                    rv_ranking_food_name2.text = f_name[1].toString()
+                    Glide.with(this@RankingActivity).load(f_img[2]).into(rv_ranking_img3)
+                    rv_ranking_food_name3.text = f_name[2].toString()
+                    Glide.with(this@RankingActivity).load(f_img[3]).into(rv_ranking_img4)
+                    rv_ranking_food_name4.text = f_name[3].toString()
+                    Glide.with(this@RankingActivity).load(f_img[4]).into(rv_ranking_img5)
+                    rv_ranking_food_name5.text = f_name[4].toString()
+                    Glide.with(this@RankingActivity).load(f_img[5]).into(rv_ranking_img6)
+                    rv_ranking_food_name6.text = f_name[5].toString()
+                    Glide.with(this@RankingActivity).load(f_img[6]).into(rv_ranking_img7)
+                    rv_ranking_food_name7.text = f_name[6].toString()
+                    Glide.with(this@RankingActivity).load(f_img[7]).into(rv_ranking_img8)
+                    rv_ranking_food_name8.text = f_name[7].toString()
+                    Glide.with(this@RankingActivity).load(f_img[8]).into(rv_ranking_img9)
+                    rv_ranking_food_name9.text = f_name[8].toString()
+                    Glide.with(this@RankingActivity).load(f_img[9]).into(rv_ranking_img10)
+                    rv_ranking_food_name10.text = f_name[9].toString()
                 }
                 else -> return
             }
