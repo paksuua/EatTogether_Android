@@ -47,6 +47,11 @@ class RankingActivity : AppCompatActivity() {
         }
 
         registerReceiver(socketReceiver, intentFilter)
+
+        num1.setOnClickListener {
+            val intent1 = Intent(this, MapActivity::class.java)
+            startActivity(intent1)
+        }
     }
 
     override fun onStart() {

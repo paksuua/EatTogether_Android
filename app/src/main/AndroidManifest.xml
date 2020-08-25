@@ -8,13 +8,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
-        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -30,19 +28,25 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <meta-data
-            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="face"/>
+            android:name="com.kakao.sdk.AppKey"
+            android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false"/>
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
 
         <activity android:name="com.example.eattogether_neep.UI.Activity.LaunchActivity"></activity>
-        <activity android:name="com.example.eattogether_neep.UI.Activity.RankingActivity" />
+        <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.EmotionAnalysisActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.PreferenceCheckActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.WaitingActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.MakeUrlActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.JoinActivity" />
-        <!--<activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />-->
+        <activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />
 
-        <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity">
+        <activity android:name="com.example.eattogether_neep.UI.Activity.RankingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
