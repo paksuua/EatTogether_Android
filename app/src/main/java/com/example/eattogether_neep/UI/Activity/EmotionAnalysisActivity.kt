@@ -79,43 +79,21 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_emotion_analysis)
 
-        f_name = intent.getStringArrayExtra("food_name")!!
-        f_img = intent.getStringArrayExtra("food_img")!!
+        //f_name = intent.getStringArrayExtra("food_name")!!
+        //f_img = intent.getStringArrayExtra("food_img")!!
+        if(f_name.isNullOrEmpty()){
+            for (i in 0 until 10){
+                f_name[i]="더미더미더미"
+                f_img[i]="https://blog.naver.com/kym1903/221043545235"
+            }
+        }
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
         //avgPredict()
         //saveImage()
 
-        //setMenuImage(f_name, f_img)
-        @SuppressLint("HandlerLeak")
-        mHandler = object : Handler() {
-            override fun handleMessage(msg: Message) {
-                Glide.with(this@EmotionAnalysisActivity).load(f_img[i]).into(img_food)
-                val cal = Calendar.getInstance()
-
-                val sdf = SimpleDateFormat("HH:mm:ss")
-                val strTime = sdf.format(cal.time)
-                tv_food_num.text="후보 "+i
-                txt_food_name.text = f_name[i]
-                i++
-
-                Log.d("3Second Thread","View every 3seconds")
-                if(i>= f_name.size) {
-                    val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
-                    startActivity(intent)
-                }
-            }
-        }
-
-        thread(start = true) {
-            while (true) {
-                sleep(3000)
-                mHandler?.sendEmptyMessage(0)
-            }
-        }
-
-
+        setMenuImage(f_name, f_img)
 
         try {
             //IO.socket 메소드는 은 저 URL 을 토대로 클라이언트 객체를 Return 합니다.
@@ -161,59 +139,45 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
     // 3초마다 하단에 메뉴와 이미지 보내줌
     private fun setMenuImage(f_name: Array<String>, f_img: Array<String>){
-        var flag=true
-
-        /*@SuppressLint("HandlerLeak")
+        @SuppressLint("HandlerLeak")
         mHandler = object : Handler() {
             override fun handleMessage(msg: Message) {
+                val cal = Calendar.getInstance()
 
-                for(i in 0 until (f_name.size)) {
-                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i]).into(img_food)
-                    txt_food_name.text = f_name[i]
-                    Log.d("3Second Thread","View every 3seconds")
+               /* val sdf = SimpleDateFormat("HH:mm:ss")
+                val strTime = sdf.format(cal.time)*/
+
+                Glide.with(this@EmotionAnalysisActivity).load(f_img[i%3]).into(img_food)
+                tv_food_num.text="후보 "+i%3
+                txt_food_name.text = f_name[i%3]
+                i++
+
+                // 1초마다 표정, 기기번호, 음식번호 전송
+                saveImage(i%3)
+
+                // 3초마다 기기번호, 음식번호
+                if(i%3==0){
+                    avgPredict(i%3)
+                }
+
+                Log.d("3Second Thread","View every 3seconds")
+                if((i%3)>= f_name.size) {
+                    val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
+                    startActivity(intent)
                 }
             }
         }
 
         thread(start = true) {
             while (true) {
-                sleep(3000)
+                sleep(1000)
                 mHandler?.sendEmptyMessage(0)
             }
-        }*/
-
-        /*val tt= object: TimerTask(){
-            override fun run() {
-
-                for(i in 0 until (f_name.size)){
-                    // UI update를 위한 스레드
-                    runOnUiThread{
-
-                        Glide.with(this@EmotionAnalysisActivity).load(f_img[i]).into(img_food)
-                        txt_food_name.text = f_name[i]
-                        sleep(3000)
-
-
-                        // 내가 보낸 메시지인지, 받은 메시지인지 구분하기 위한 조건
-                        if(receiveMessage.getString("name").toString() != nickName){
-                            chatAdapter.addItem(ChatData(
-                                "you",
-                                receiveMessage.getString("message").toString(),
-                                receiveMessage.getString("name").toString(),
-                                "https://images.otwojob.com/product/x/U/6/xU6PzuxMzIFfSQ9.jpg/o2j/resize/852x622%3E",
-                                ""))
-                            chatAdapter.notifyDataSetChanged()
-                            rv_chatact_chatlist.scrollToPosition(rv_chatact_chatlist.adapter!!.itemCount - 1)
-                        }
-                    }
-                }
-            }
         }
-        tt.run()*/
     }
 
 
-    private fun saveImage() {
+    private fun saveImage(imageOrder: Int) {
         Log.d("SaveImage Called", "")
         val work = Intent()
         var image_666="Emotion Analysis enqueue every 3seconds"
@@ -228,7 +192,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         work.putExtra("serviceFlag", "saveImage")
         work.putExtra("image", image_666)
         work.putExtra("uuid", uuid)
-        work.putExtra("imageOrder", "1")
+        work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
     }
 
