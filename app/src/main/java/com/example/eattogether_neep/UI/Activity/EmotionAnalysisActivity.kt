@@ -1,7 +1,8 @@
 package com.example.eattogether_neep.UI.Activity
 
 import android.Manifest
-import android.content.SharedPreferences
+import android.annotation.SuppressLint
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,6 +10,7 @@ import android.graphics.Matrix
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Message
 import android.util.Log
 import android.util.Rational
 import android.util.Size
@@ -24,6 +26,7 @@ import com.bumptech.glide.Glide
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.RectOverlay
 import com.example.eattogether_neep.UI.User
 import com.google.firebase.ml.vision.FirebaseVision
@@ -36,10 +39,16 @@ import kotlinx.android.synthetic.main.activity_emotion_analysis.*
 import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.http.Tag
+import java.io.File
+import java.lang.Thread.sleep
 import java.net.Socket
 import java.net.URISyntaxException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.thread
+import kotlin.concurrent.timer
+import kotlin.concurrent.timerTask
+import kotlin.system.exitProcess
 
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
@@ -50,25 +59,78 @@ private lateinit var food_img: ImageView
 private lateinit var food_name: TextView
 
 private var hasConnection: Boolean = false
+private var mHandler: Handler? = null
 private var mSocket: io.socket.client.Socket? = null
+private lateinit var socketReceiver: EmotionAnalysisActivity.EmotionReciver
+private lateinit var intentFilter: IntentFilter
+private var resultFromServer = -1
+
+private var f_name: Array<String> = arrayOf()
+private var f_img: Array<String> = arrayOf()
+
 
 class EmotionAnalysisActivity : AppCompatActivity() {
     private lateinit var viewFinder: TextureView
     private  lateinit var uuid: String
     var images: Array<String> = arrayOf()
+    var i=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_emotion_analysis)
 
+        f_name = intent.getStringArrayExtra("food_name")!!
+        f_img = intent.getStringArrayExtra("food_img")!!
+        Log.e("Food Name: ", f_name[0].toString())
+        Log.e("Food Image: ", f_img[0].toString())
+
+        //avgPredict()
+        //saveImage()
+
+        //setMenuImage(f_name, f_img)
+        @SuppressLint("HandlerLeak")
+        mHandler = object : Handler() {
+            override fun handleMessage(msg: Message) {
+                Glide.with(this@EmotionAnalysisActivity).load(f_img[i]).into(img_food)
+                val cal = Calendar.getInstance()
+
+                val sdf = SimpleDateFormat("HH:mm:ss")
+                val strTime = sdf.format(cal.time)
+                tv_food_num.text="후보 "+i
+                txt_food_name.text = f_name[i]
+                i++
+
+                Log.d("3Second Thread","View every 3seconds")
+                if(i>= f_name.size) {
+                    val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+        }
+
+        thread(start = true) {
+            while (true) {
+                sleep(3000)
+                mHandler?.sendEmptyMessage(0)
+            }
+        }
+
+
+
         try {
             //IO.socket 메소드는 은 저 URL 을 토대로 클라이언트 객체를 Return 합니다.
             mSocket = IO.socket(SOCKET_URL)
         } catch (e: URISyntaxException) {
-            Log.e("EmotionAnalysisActivity2", e.reason)
+            Log.e("EmotionAnalysisActivity", e.reason)
         }
 
         uuid = User.getUUID(this)
+        socketReceiver = EmotionReciver()
+        intentFilter = IntentFilter()
+        with(intentFilter){
+            addAction("com.example.eattogether_neep.RESULT_SAVE_IMAGE")
+        }
+        registerReceiver(socketReceiver, intentFilter)
 
         viewFinder = findViewById(R.id.cam_emotion)
 
@@ -82,35 +144,10 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             updateTransform()
         }
 
-        /*preferences = getSharedPreferences("USERSIGN", Context.MODE_PRIVATE)
+    }
 
-        food_img = findViewById(R.id.img_food)
-        food_name = findViewById(R.id.txt_food_name)
-        if (savedInstanceState != null) {
-            hasConnection = savedInstanceState.getBoolean("hasConnection")
-        }
-        if (hasConnection) {
-        } else {
-            //소켓연결
-            mSocket.connect()
-            //서버에 신호 보내는거같음 밑에 에밋 리스너들 실행
-            //socket.on은 수신
-            //mSocket.on("connect user", onNewUser)
-            mSocket.on("chat message", onNewMessage)
-
-            val userId = JSONObject()
-            try {
-                userId.put("username", preferences.getString("name", "") + " Connected")
-                userId.put("roomNum", "room_example")
-                Log.e("username",preferences.getString("name", "") + " Connected")
-
-                //socket.emit은 메세지 전송임
-                mSocket.emit("connect user", userId)
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-        }
-        hasConnection = true*/
+    override fun onStart(){
+        super.onStart()
     }
 
     override fun onStop() {
@@ -120,28 +157,97 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    internal var onNewMessage: Emitter.Listener = Emitter.Listener { args ->
-        runOnUiThread(Runnable {
-            val data = args[0] as JSONObject
-            val f_name: String
-            val f_img: String
-            try {
-                Log.e("asdasd", data.toString())
-                f_name = data.getString("name")
-                f_img = data.getString("profile_image")
 
-                //서버쪽으로 uuid 과 함께 보냄
-                mSocket?.emit("login", uuid)
-                Log.d("", "Socket is connected with ${uuid}")
 
-                Glide.with(this).load(f_img).into(img_food)
-                txt_food_name.setText(f_name)
-                Log.e("new me",f_name)
-            } catch (e: Exception) {
-                return@Runnable
+    // 3초마다 하단에 메뉴와 이미지 보내줌
+    private fun setMenuImage(f_name: Array<String>, f_img: Array<String>){
+        var flag=true
+
+        /*@SuppressLint("HandlerLeak")
+        mHandler = object : Handler() {
+            override fun handleMessage(msg: Message) {
+
+                for(i in 0 until (f_name.size)) {
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i]).into(img_food)
+                    txt_food_name.text = f_name[i]
+                    Log.d("3Second Thread","View every 3seconds")
+                }
             }
-        })
+        }
+
+        thread(start = true) {
+            while (true) {
+                sleep(3000)
+                mHandler?.sendEmptyMessage(0)
+            }
+        }*/
+
+        /*val tt= object: TimerTask(){
+            override fun run() {
+
+                for(i in 0 until (f_name.size)){
+                    // UI update를 위한 스레드
+                    runOnUiThread{
+
+                        Glide.with(this@EmotionAnalysisActivity).load(f_img[i]).into(img_food)
+                        txt_food_name.text = f_name[i]
+                        sleep(3000)
+
+
+                        // 내가 보낸 메시지인지, 받은 메시지인지 구분하기 위한 조건
+                        if(receiveMessage.getString("name").toString() != nickName){
+                            chatAdapter.addItem(ChatData(
+                                "you",
+                                receiveMessage.getString("message").toString(),
+                                receiveMessage.getString("name").toString(),
+                                "https://images.otwojob.com/product/x/U/6/xU6PzuxMzIFfSQ9.jpg/o2j/resize/852x622%3E",
+                                ""))
+                            chatAdapter.notifyDataSetChanged()
+                            rv_chatact_chatlist.scrollToPosition(rv_chatact_chatlist.adapter!!.itemCount - 1)
+                        }
+                    }
+                }
+            }
+        }
+        tt.run()*/
     }
+
+
+    private fun saveImage() {
+        Log.d("SaveImage Called", "")
+        val work = Intent()
+        var image_666="Emotion Analysis enqueue every 3seconds"
+        //var image64=image_666.base64decoded
+        var foodImage22="https://cbmpress.sfo2.digitaloceanspaces.com/tfood/2516102861_Dou6sN2f_83893dfb9a46cdd27c7d3d51eff246dc766b2dc8.jpg"
+        //val encodedURL = Base64.getUrlEncoder().encodeToString(foodImage22.toByteArray())
+        //var image64=foodImage22.base64decoded
+        //encoder
+
+        ///val encodeString=encoder("src/main/res/drawable/neww.JPG")
+        Log.d("SaveImage Called:",image_666)
+        work.putExtra("serviceFlag", "saveImage")
+        work.putExtra("image", image_666)
+        work.putExtra("uuid", uuid)
+        work.putExtra("imageOrder", "1")
+        SocketService.enqueueWork(this, work)
+    }
+
+    private fun avgPredict(imageOrder:Int) {
+        Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
+        val work = Intent()
+        work.putExtra("serviceFlag", "avgPredict")
+        work.putExtra("uuid", uuid)
+        work.putExtra("imageOrder", 1)
+        SocketService.enqueueWork(this, work)
+    }
+
+    //Encode picture to base64
+    fun encoder(filePath: String): String {
+        val bytes = File(filePath).readBytes()
+        val base64 = Base64.getEncoder().encodeToString(bytes)
+        return base64
+    }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -180,24 +286,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             return data // 바이트 배열 반환함
         }
 
-        /*override fun analyze(image: ImageProxy, rotationDegrees: Int) {
-            val currentTimestamp = System.currentTimeMillis()
-            // 매프레임을 계산하진 않고 1초마다 한번씩 정도 계산
-            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
-                // 이미지 포맷이 YUV이므로 image.planes[0]으로 Y값을 구할수 있다.
-                val buffer = image.planes[0].buffer
-                // 이미지 데이터를 바이트배열로 추출
-                val data:ByteArray = buffer.toByteArray()
-                // 픽셀 하나하나를 유의미한 데이터리스트로 만든다
-                val pixels:List<Int> = data.map { it.toInt() and 0xFF }
-                // 이미지의 평균 휘도를 구한다
-                val luma:Double = pixels.average()
-                // 로그에 휘도 출력
-                Log.d("우리 뭐 먹지", "Average luminosity: $luma")
-                // 마지막 분석한 프레임의 타임스탬프로 업데이트한다.
-                lastAnalyzedTimestamp = currentTimestamp
-            }
-        }*/
 
         override fun analyze(image: ImageProxy, rotationDegrees: Int) {
             val currentTimestamp = System.currentTimeMillis()
@@ -218,40 +306,14 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 // 이미지의 평균 휘도를 구한다
                 val luma:Double = pixels.average()
                 // 로그에 휘도 출력
-                Log.d("우리 뭐 먹지", "Average luminosity: $luma")
+                //Log.d("우리 뭐 먹지", "Average luminosity: $luma")
                 // 로그로 data 어떻게 찍히는지 확인하기!
-                Log.d("우리 뭐 먹지", "Image Base64 Data: $base64")
+                //Log.d("우리 뭐 먹지", "Image Base64 Data: $base64")
 
                 // 마지막 분석한 프레임의 타임스탬프로 업데이트한다.
                 lastAnalyzedTimestamp = currentTimestamp
             }
         }
-
-
-
-        fun sendIMG(pixels:List<Int>) {
-            val now = System.currentTimeMillis()
-            val date = Date(now)
-            //나중에 바꿔줄것
-            val sdf = SimpleDateFormat("yyyy-MM-dd")
-
-            val getTime = sdf.format(date)
-
-            val jsonObject = JSONObject()
-            try {
-                jsonObject.put("name", preferences.getString("name", ""))
-                //byte 전송
-                jsonObject.put("cameraview", pixels)
-                jsonObject.put("date_time", getTime)
-                jsonObject.put("roomNum", "room_example")
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
-            Log.e("챗룸", "sendMessage: 1" + mSocket?.emit("chat message", jsonObject))
-            Log.e("sendmmm",preferences.getString("name", "") )
-
-        }
-
     }
 
     private fun startCamera() {
@@ -334,6 +396,27 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             val bounds = it.boundingBox
             val rectOverLay = RectOverlay(graphic_overlay, bounds)
             graphic_overlay.add(rectOverLay)
+        }
+    }
+
+    inner class EmotionReciver() : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "com.example.eattogether_neep.RESULT_SAVE_IMAGE" -> {
+                    resultFromServer = intent.getIntExtra("error", -1)
+                    /*if (resultFromServer == 200) {
+                        Log.d("EmotionActivity", "이미지 통신 성공")
+                        //localJoin(edt_join_url.text.toString())
+                    } else if (resultFromServer == 400) {
+                        Toast.makeText(
+                            this@EmotionAnalysisActivity,
+                            "이미지 통신 실패.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }*/
+                }
+                else -> return
+            }
         }
     }
 }

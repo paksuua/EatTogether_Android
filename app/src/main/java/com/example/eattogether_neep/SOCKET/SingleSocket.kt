@@ -68,6 +68,10 @@ class SingleSocket {
                             onPreferenceRoom2
                         ) //
                         this?.on(
+                            "result",
+                            onSaveImage
+                        )
+                        this?.on(
                             "finishRank",
                             onRanking
                         ) //
@@ -124,8 +128,8 @@ class SingleSocket {
             val list_cnt = foodList.length()
             val getName = Array(list_cnt,{""})
             val getImg = Array(list_cnt,{""})
-            Log.d(TAG, "Socket onRanking getName: ${getName.size}")
-            Log.d(TAG, "Socket onRanking getImg: ${getImg.size}")
+            Log.d(TAG, "Socket Preference getName: ${getName.size}")
+            Log.d(TAG, "Socket Preference getImg: ${getImg.size}")
 
             for(i in 0..(list_cnt-1)) {
                 val obj = foodList.getJSONObject(i)
@@ -152,6 +156,18 @@ class SingleSocket {
                 intent.action = "com.example.eattogether_neep.ENTER_COUNT"
                 intent.putExtra("count", count)
                 intent.putExtra("full", full)
+                context.sendBroadcast(intent)
+            }
+        }
+
+        private val onSaveImage: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onSaveImage")
+            val error = it[0] as Int
+            Log.d(TAG, "Socket onSaveImage Fail: $error")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.RESULT_SAVE_IMAGE"
+                intent.putExtra("error", error)
                 context.sendBroadcast(intent)
             }
         }
@@ -213,6 +229,10 @@ class SingleSocket {
                 this?.off(
                     "currentCount",
                     onPreferenceRoom2
+                )
+                this?.on(
+                    "result",
+                    onSaveImage
                 )
                 this?.off(
                     "finishRank",
