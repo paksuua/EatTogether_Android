@@ -8,20 +8,15 @@
     tools:context=".UI.Activity.EmotionAnalysisActivity"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent">
 
-        <TextureView
+
+        <androidx.camera.view.PreviewView
             android:id="@+id/cam_emotion"
             android:layout_width="match_parent"
             android:layout_height="508dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-    </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cst_emotion"

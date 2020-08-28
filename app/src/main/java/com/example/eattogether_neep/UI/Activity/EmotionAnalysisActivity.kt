@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -20,6 +21,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
@@ -45,10 +47,14 @@ import java.net.Socket
 import java.net.URISyntaxException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 import kotlin.concurrent.timerTask
 import kotlin.system.exitProcess
+
+typealias LumaListener = (luma: Double) -> Unit
 
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
@@ -65,6 +71,8 @@ private lateinit var socketReceiver: EmotionAnalysisActivity.EmotionReciver
 private lateinit var intentFilter: IntentFilter
 private var resultFromServer = -1
 
+var photoFile : File? =null
+
 private var f_name: Array<String> = arrayOf()
 private var f_img: Array<String> = arrayOf()
 
@@ -74,26 +82,32 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     private  lateinit var uuid: String
     var images: Array<String> = arrayOf()
     var i=0
+    private var imageCapture: ImageCapture? = null
+
+
+    private lateinit var outputDirectory: File
+    private lateinit var cameraExecutor: ExecutorService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_emotion_analysis)
 
-        //f_name = intent.getStringArrayExtra("food_name")!!
-        //f_img = intent.getStringArrayExtra("food_img")!!
-        if(f_name.isNullOrEmpty()){
+        f_name = intent.getStringArrayExtra("food_name")!!
+        f_img = intent.getStringArrayExtra("food_img")!!
+        /*if(f_name.isNullOrEmpty()){
             for (i in 0 until 10){
                 f_name[i]="더미더미더미"
                 f_img[i]="https://blog.naver.com/kym1903/221043545235"
             }
-        }
+        }*/
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
-        //avgPredict()
         //saveImage()
+        //avgPredict()
 
-        setMenuImage(f_name, f_img)
+        startCameraThread()
+        //setMenuImageThread(f_name, f_img)
 
         try {
             //IO.socket 메소드는 은 저 URL 을 토대로 클라이언트 객체를 Return 합니다.
@@ -110,9 +124,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         }
         registerReceiver(socketReceiver, intentFilter)
 
-        viewFinder = findViewById(R.id.cam_emotion)
+        //viewFinder = findViewById(R.id.cam_emotion)
 
-        if (allPermissionsGranted()) {
+        /*if (allPermissionsGranted()) {
             viewFinder.post { startCamera() }
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -120,7 +134,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         viewFinder.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
             updateTransform()
-        }
+        }*/
 
     }
 
@@ -135,10 +149,62 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
+    private fun startCameraThread(){
+        // Request camera permissions
+        if (allPermissionsGranted()) {
+            startCamera()
+        } else {
+            ActivityCompat.requestPermissions(
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+        }
+
+        // Set up the listener for take photo button
+        //camera_capture_button.setOnClickListener { takePhoto() }
+
+        @SuppressLint("HandlerLeak")
+        mHandler = object : Handler() {
+            override fun handleMessage(msg: Message) {
+                Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food)
+                tv_food_num.text="후보 "+(i/3+1)
+                txt_food_name.text = f_name[i/3]
+
+                // 1초마다 표정, 기기번호, 음식번호 전송
+                takePhoto()
+                Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
+                saveImage(i/3)
+
+                // 3초마다 기기번호, 음식번호
+                if(i%3==0){
+                    Log.d("3초마다 기기번호, 음식번호","Emotion Analysis enqueue every 3seconds")
+                    avgPredict(i/3)
+                }
+
+                i++
+
+                if((i/3)>= f_name.size) {
+                    val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+            }
+        }
+
+        thread(start = true) {
+            while (true) {
+                Thread.sleep(1000)
+                mHandler?.sendEmptyMessage(0)
+            }
+        }
+
+        outputDirectory = getOutputDirectory()
+
+        cameraExecutor = Executors.newSingleThreadExecutor()
+    }
+
 
 
     // 3초마다 하단에 메뉴와 이미지 보내줌
-    private fun setMenuImage(f_name: Array<String>, f_img: Array<String>){
+    private fun setMenuImageThread(f_name: Array<String>, f_img: Array<String>){
         @SuppressLint("HandlerLeak")
         mHandler = object : Handler() {
             override fun handleMessage(msg: Message) {
@@ -147,16 +213,18 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                /* val sdf = SimpleDateFormat("HH:mm:ss")
                 val strTime = sdf.format(cal.time)*/
 
-                Glide.with(this@EmotionAnalysisActivity).load(f_img[i%3]).into(img_food)
+               /* Glide.with(this@EmotionAnalysisActivity).load(f_img[i%3]).into(img_food)
                 tv_food_num.text="후보 "+i%3
                 txt_food_name.text = f_name[i%3]
-                i++
+                i++*/
 
                 // 1초마다 표정, 기기번호, 음식번호 전송
-                saveImage(i%3)
+                //Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
+                //saveImage(i%3)
 
-                // 3초마다 기기번호, 음식번호
+                /*// 3초마다 기기번호, 음식번호
                 if(i%3==0){
+                    Log.d("SaveImage Called:",image64)
                     avgPredict(i%3)
                 }
 
@@ -164,7 +232,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 if((i%3)>= f_name.size) {
                     val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
                     startActivity(intent)
-                }
+                }*/
             }
         }
 
@@ -176,13 +244,60 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         }
     }
 
+    private fun takePhoto() {
+        // Get a stable reference of the modifiable image capture use case
+        val imageCapture = imageCapture ?: return
+
+        // Create time-stamped output file to hold the image
+        photoFile = File(
+            outputDirectory,
+            SimpleDateFormat(FILENAME_FORMAT, Locale.US
+            ).format(System.currentTimeMillis()) + ".jpg")
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile!!).build()
+
+        // Set up image capture listener, which is triggered after photo has
+        // been taken
+        imageCapture.takePicture(
+            outputOptions, ContextCompat.getMainExecutor(this), object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val savedUri = Uri.fromFile(photoFile)
+                    Log.d("Photo capture succeeded", savedUri.toString())
+                    //Log.d("Before Base64 encoder",savedUri.toString())
+                    //Log.d("Base64", encoder(photoFile.toString()))
+                    val result=decoder(encoder(photoFile.toString()), photoFile.toString())
+                    //Log.d("Base64 decoded", result.toString())
+                    val msg = "Photo capture succeeded: $savedUri"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, msg)
+                }
+            })
+    }
+
+    //Encode picture to base64
+    private fun encoder(filePath: String): String{
+        val bytes = File(filePath).readBytes()
+        val base64 = Base64.getEncoder().encodeToString(bytes)
+        return base64
+    }
+
+    fun decoder(base64Str: String, pathFile: String): Unit{
+        val imageByteArray = Base64.getDecoder().decode(base64Str)
+        File(pathFile).writeBytes(imageByteArray)
+    }
+
 
     private fun saveImage(imageOrder: Int) {
         Log.d("SaveImage Called", "")
         val work = Intent()
-        var image_666="Emotion Analysis enqueue every 3seconds"
-        //var image64=image_666.base64decoded
-        var foodImage22="https://cbmpress.sfo2.digitaloceanspaces.com/tfood/2516102861_Dou6sN2f_83893dfb9a46cdd27c7d3d51eff246dc766b2dc8.jpg"
+        var image_666="Dummy Base64 Code"
+        //var image64=encoder(photoFile.toString())
+        //var foodImage22="https://cbmpress.sfo2.digitaloceanspaces.com/tfood/2516102861_Dou6sN2f_83893dfb9a46cdd27c7d3d51eff246dc766b2dc8.jpg"
         //val encodedURL = Base64.getUrlEncoder().encodeToString(foodImage22.toByteArray())
         //var image64=foodImage22.base64decoded
         //encoder
@@ -201,17 +316,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         val work = Intent()
         work.putExtra("serviceFlag", "avgPredict")
         work.putExtra("uuid", uuid)
-        work.putExtra("imageOrder", 1)
+        work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
     }
-
-    //Encode picture to base64
-    fun encoder(filePath: String): String {
-        val bytes = File(filePath).readBytes()
-        val base64 = Base64.getEncoder().encodeToString(bytes)
-        return base64
-    }
-
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -227,94 +334,81 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         }
     }
 
-    private fun allPermissionsGranted(): Boolean {
-        for (permission in REQUIRED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(
-                    this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false
-            }
-        }
-        return true
-    }
-
-    private class LuminosityAnalyzer : ImageAnalysis.Analyzer {
-        private var lastAnalyzedTimestamp = 0L
-
-        /**
-         * 이미지 버퍼를 바이트 배열로 추출하기 위한 익스텐션
-         */
-        private fun ByteBuffer.toByteArray(): ByteArray {
-            rewind()    // 버퍼의 포지션을 0으로 되돌림
-            val data = ByteArray(remaining())
-            get(data)   // 바이트 버퍼를 바이트 배열로 복사함
-            return data // 바이트 배열 반환함
-        }
-
-
-        override fun analyze(image: ImageProxy, rotationDegrees: Int) {
-            val currentTimestamp = System.currentTimeMillis()
-            // 매프레임을 계산하진 않고 1초마다 한번씩 정도 계산
-            if (currentTimestamp - lastAnalyzedTimestamp >= TimeUnit.SECONDS.toMillis(1)) {
-                // 이미지 포맷이 YUV이므로 image.planes[0]으로 Y값을 구할수 있다.
-                val buffer = image.planes[0].buffer
-                // 이미지 데이터를 바이트배열로 추출
-                val data:ByteArray = buffer.toByteArray()
-                // 픽셀 하나하나를 유의미한 데이터리스트로 만든다
-                val pixels:List<Int> = data.map { it.toInt() and 0xFF }
-                // 바이트 배열을 Base64로 매핑
-                val base64=Base64.getEncoder().encodeToString(data)
-
-                // socket 통신으로 보내기
-                //sendIMG(pixels)
-
-                // 이미지의 평균 휘도를 구한다
-                val luma:Double = pixels.average()
-                // 로그에 휘도 출력
-                //Log.d("우리 뭐 먹지", "Average luminosity: $luma")
-                // 로그로 data 어떻게 찍히는지 확인하기!
-                //Log.d("우리 뭐 먹지", "Image Base64 Data: $base64")
-
-                // 마지막 분석한 프레임의 타임스탬프로 업데이트한다.
-                lastAnalyzedTimestamp = currentTimestamp
-            }
-        }
-    }
-
     private fun startCamera() {
-        //미리보기 설정 시작
-        val previewConfig = PreviewConfig.Builder().apply {
-            setTargetAspectRatio(Rational(1, 1))
-            setTargetResolution(Size(viewFinder.width, viewFinder.height))
-        }.build()
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
 
-        val preview = Preview(previewConfig)
+        cameraProviderFuture.addListener(Runnable {
+            // Used to bind the lifecycle of cameras to the lifecycle owner
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
-        preview.setOnPreviewOutputUpdateListener {
-            val parent = viewFinder.parent as ViewGroup
-            parent.removeView(viewFinder)
-            viewFinder.surfaceTexture = it.surfaceTexture
-            parent.addView(viewFinder, 0)
-            updateTransform()
+            // Preview
+            val preview = Preview.Builder()
+                .build()
+                .also {
+                    it.setSurfaceProvider(cam_emotion.createSurfaceProvider())
+                }
+
+            imageCapture = ImageCapture.Builder()
+                .build()
+
+            val imageAnalyzer = ImageAnalysis.Builder()
+                .build()
+                .also {
+                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                        Log.d(TAG, "Average luminosity: $luma")
+                    })
+                }
+
+            // Select back camera as a default
+            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            try {
+                // Unbind use cases before rebinding
+                cameraProvider.unbindAll()
+
+                // Bind use cases to camera
+                cameraProvider.bindToLifecycle(
+                    this, cameraSelector, preview,  imageCapture, imageAnalyzer)
+
+            } catch(exc: Exception) {
+                Log.e(TAG, "Use case binding failed", exc)
+            }
+
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private class LuminosityAnalyzer(private val listener: LumaListener) : ImageAnalysis.Analyzer {
+
+        private fun ByteBuffer.toByteArray(): ByteArray {
+            rewind()    // Rewind the buffer to zero
+            val data = ByteArray(remaining())
+            get(data)   // Copy the buffer into a byte array
+            return data // Return the byte array
         }
-        //미리보기 설정 끝
 
-        //이미지 프로세싱 설정 시작
-        val analyzerConfig = ImageAnalysisConfig.Builder().apply {
-            // 이미지 분석을 위한 쓰레드를 하나 생성합니다.
-            val analyzerThread = HandlerThread("LuminosityAnalysis").apply { start() }
-            setCallbackHandler(Handler(analyzerThread.looper))
-            // 하나도 빠짐없이 프레임 전부를 분석하기보다는 매순간 가장 최근 프레임만을 가져와 분석하도록 합니다
-            setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
-        }.build()
+        override fun analyze(image: ImageProxy) {
 
-        // 커스텀 이미지 프로세싱 객체 생성
-        val analyzerUseCase = ImageAnalysis(analyzerConfig).apply {
-            analyzer = LuminosityAnalyzer()
+            val buffer = image.planes[0].buffer
+            val data = buffer.toByteArray()
+            val pixels = data.map { it.toInt() and 0xFF }
+            val luma = pixels.average()
+
+            listener(luma)
+
+            image.close()
         }
-        //이미지 프로세싱 설정 끝
+    }
 
-        //유즈케이스들을 바인딩함
-        CameraX.bindToLifecycle(this, preview, analyzerUseCase)
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            baseContext, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun getOutputDirectory(): File {
+        val mediaDir = externalMediaDirs.firstOrNull()?.let {
+            File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
+        return if (mediaDir != null && mediaDir.exists())
+            mediaDir else filesDir
     }
 
     private fun updateTransform() {
@@ -382,5 +476,12 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 else -> return
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "CameraXBasic"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+        private const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 }
