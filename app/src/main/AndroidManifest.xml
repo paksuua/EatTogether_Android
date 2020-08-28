@@ -41,15 +41,14 @@
             android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
 
         <activity android:name="com.example.eattogether_neep.UI.Activity.LaunchActivity"></activity>
-        <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity" />
+        <activity android:name="com.example.eattogether_neep.UI.Activity.RankingActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.EmotionAnalysisActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.PreferenceCheckActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.WaitingActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.MakeUrlActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.JoinActivity" />
-        <activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />
-
-        <activity android:name="com.example.eattogether_neep.UI.Activity.RankingActivity">
+        <!--<activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />-->
+        <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
