@@ -7,11 +7,13 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraManager
 import android.net.Uri
-import android.os.Bundle
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Message
+import android.os.*
+import android.util.Base64.NO_WRAP
+import android.util.Base64.encodeToString
 import android.util.Log
 import android.util.Rational
 import android.util.Size
@@ -24,6 +26,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
@@ -41,6 +44,7 @@ import kotlinx.android.synthetic.main.activity_emotion_analysis.*
 import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.http.Tag
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.Thread.sleep
 import java.net.Socket
@@ -147,6 +151,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
     override fun onDestroy() {
         super.onDestroy()
+        unregisterReceiver(socketReceiver)
     }
 
     private fun startCameraThread(){
@@ -167,6 +172,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food)
                 tv_food_num.text="후보 "+(i/3+1)
                 txt_food_name.text = f_name[i/3]
+                i++
 
                 // 1초마다 표정, 기기번호, 음식번호 전송
                 takePhoto()
@@ -179,12 +185,10 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     avgPredict(i/3)
                 }
 
-                i++
-
                 if((i/3)>= f_name.size) {
                     val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
                     startActivity(intent)
-                    finish()
+                    //finish()
                 }
             }
         }
@@ -245,13 +249,17 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
+        setUpCameraOutputsFront()
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
 
         // Create time-stamped output file to hold the image
-        photoFile = File(
+        /*photoFile = File(
             outputDirectory,
             SimpleDateFormat(FILENAME_FORMAT, Locale.US
+            ).format(System.currentTimeMillis()) + ".jpg")*/
+        photoFile=File(
+            Environment.getExternalStorageDirectory(),SimpleDateFormat(FILENAME_FORMAT, Locale.US
             ).format(System.currentTimeMillis()) + ".jpg")
 
         // Create output options object which contains file + metadata
@@ -267,23 +275,72 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
-                    Log.d("Photo capture succeeded", savedUri.toString())
-                    //Log.d("Before Base64 encoder",savedUri.toString())
-                    //Log.d("Base64", encoder(photoFile.toString()))
+                    //val savedUri = Uri.parse("https://upload.wikimedia.org/wikipedia/commons/4/41/Sunflower_from_Silesia2.jpg")//Uri.fromFile(photoFile)
+                    Log.d("Before Base64 encoder",savedUri.toString())
+                    Log.d("Base64", encoder(photoFile.toString()))
+                    //saveImage()
                     val result=decoder(encoder(photoFile.toString()), photoFile.toString())
                     //Log.d("Base64 decoded", result.toString())
                     val msg = "Photo capture succeeded: $savedUri"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
                 }
             })
     }
 
-    //Encode picture to base64
+    private fun setUpCameraOutputsFront() {
+        val manager = this?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        try {
+            for (cameraId in manager.cameraIdList) {
+                val characteristics = manager.getCameraCharacteristics(cameraId)
+
+                // We need front facing camera.
+                val cameraDirection = characteristics.get(CameraCharacteristics.LENS_FACING)
+                if (cameraDirection != null &&
+                    cameraDirection == CameraCharacteristics.LENS_FACING_BACK
+                ) {
+                    continue
+                }
+            }
+        } catch (e: CameraAccessException) {
+            Log.e(TAG, e.toString())
+        } catch (e: NullPointerException) {
+            // Currently an NPE is thrown when the Camera2API is used but not supported on the
+            // device this code runs.
+           /* ErrorDialog.newInstance(getString(R.string.camera_error))
+                .show(childFragmentManager, FRAGMENT_DIALOG)*/
+        }
+    }
+
+    //Encode Uri to base64
+    fun encode(imageUri: Uri): String {
+        val input = this.getContentResolver().openInputStream(imageUri)
+        val image = BitmapFactory.decodeStream(input , null, null)
+        //encode image to base64 string
+        val baos = ByteArrayOutputStream()
+        image!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        var imageBytes = baos.toByteArray()
+        val imageString = Base64.getEncoder().encodeToString(imageBytes)
+        return imageString
+    }
+
+
+    //Encode File Path to base64
     private fun encoder(filePath: String): String{
         val bytes = File(filePath).readBytes()
         val base64 = Base64.getEncoder().encodeToString(bytes)
         return base64
+    }
+
+    private fun encoder2(imageUri: Uri): String {
+        val input = this.contentResolver.openInputStream(imageUri)
+        val image = BitmapFactory.decodeStream(input, null, null)
+        //encode image to base64 string
+        val baos = ByteArrayOutputStream()
+        image!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        var imageBytes = baos.toByteArray()
+        val imageString = Base64.getEncoder().encodeToString(imageBytes)
+        return imageString
     }
 
     fun decoder(base64Str: String, pathFile: String): Unit{
@@ -297,15 +354,15 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         val work = Intent()
         var image_666="Dummy Base64 Code"
         //var image64=encoder(photoFile.toString())
-        //var foodImage22="https://cbmpress.sfo2.digitaloceanspaces.com/tfood/2516102861_Dou6sN2f_83893dfb9a46cdd27c7d3d51eff246dc766b2dc8.jpg"
-        //val encodedURL = Base64.getUrlEncoder().encodeToString(foodImage22.toByteArray())
+        var foodImage22="file:///storage/emulated/0/Android/media/com.soyeon.cameraxtutorial/CameraX%20Tutorial/2020-08-28-21-24-24-668.jpg"
+        val encodedURL = Base64.getUrlEncoder().encodeToString(foodImage22.toByteArray())
         //var image64=foodImage22.base64decoded
         //encoder
 
         ///val encodeString=encoder("src/main/res/drawable/neww.JPG")
-        Log.d("SaveImage Called:",image_666)
+        Log.d("SaveImage Called:",foodImage22)
         work.putExtra("serviceFlag", "saveImage")
-        work.putExtra("image", image_666)
+        work.putExtra("image", encoder2(foodImage22.toUri()))
         work.putExtra("uuid", uuid)
         work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
@@ -409,26 +466,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
         return if (mediaDir != null && mediaDir.exists())
             mediaDir else filesDir
-    }
-
-    private fun updateTransform() {
-        val matrix = Matrix()
-
-        // Compute the center of the view finder
-        val centerX = viewFinder.width / 2f
-        val centerY = viewFinder.height / 2f
-
-        // Correct preview output to account for display rotation
-        val rotationDegrees = when(viewFinder.display.rotation) {
-            Surface.ROTATION_0 -> 0
-            Surface.ROTATION_90 -> 90
-            Surface.ROTATION_180 -> 180
-            Surface.ROTATION_270 -> 270
-            else -> return
-        }
-        matrix.postRotate(-rotationDegrees.toFloat(), centerX, centerY)
-
-        viewFinder.setTransform(matrix)
     }
 
     // firebase
