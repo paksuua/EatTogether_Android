@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -46,6 +47,8 @@ import org.json.JSONObject
 import retrofit2.http.Tag
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.lang.Thread.sleep
 import java.net.Socket
 import java.net.URISyntaxException
@@ -75,10 +78,11 @@ private lateinit var socketReceiver: EmotionAnalysisActivity.EmotionReciver
 private lateinit var intentFilter: IntentFilter
 private var resultFromServer = -1
 
-var photoFile : File? =null
 
 private var f_name: Array<String> = arrayOf()
 private var f_img: Array<String> = arrayOf()
+private var base64Str:String=""
+private var savedUri: Uri? =null
 
 
 class EmotionAnalysisActivity : AppCompatActivity() {
@@ -177,7 +181,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 // 1초마다 표정, 기기번호, 음식번호 전송
                 takePhoto()
                 Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
-                saveImage(i/3)
+                saveImage(i/3, encoder2(savedUri))
 
                 // 3초마다 기기번호, 음식번호
                 if(i%3==0){
@@ -249,18 +253,18 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
-        setUpCameraOutputsFront()
+        //setUpCameraOutputsFront()
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
 
         // Create time-stamped output file to hold the image
-        /*photoFile = File(
+       val photoFile = File(
             outputDirectory,
             SimpleDateFormat(FILENAME_FORMAT, Locale.US
-            ).format(System.currentTimeMillis()) + ".jpg")*/
-        photoFile=File(
-            Environment.getExternalStorageDirectory(),SimpleDateFormat(FILENAME_FORMAT, Locale.US
             ).format(System.currentTimeMillis()) + ".jpg")
+        /*photoFile=File(
+            Environment.getExternalStorageDirectory(),SimpleDateFormat(FILENAME_FORMAT, Locale.US
+            ).format(System.currentTimeMillis()) + ".jpg")*/
 
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile!!).build()
@@ -274,73 +278,66 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val savedUri = Uri.fromFile(photoFile)
+                    var photoPath = photoFile.canonicalPath
+                    savedUri = Uri.fromFile(photoFile)
                     //val savedUri = Uri.parse("https://upload.wikimedia.org/wikipedia/commons/4/41/Sunflower_from_Silesia2.jpg")//Uri.fromFile(photoFile)
                     Log.d("Before Base64 encoder",savedUri.toString())
-                    Log.d("Base64", encoder(photoFile.toString()))
-                    //saveImage()
-                    val result=decoder(encoder(photoFile.toString()), photoFile.toString())
+                    Log.d("Base64 encoder111", encoder1(photoFile))
+                    Log.d("Base64 encoder222", encoder2(savedUri))
+                    //base64Str=encoder2(saveUri)
+                    //saveImage(imageOrder, base64Str)
+
+                    Log.d("Base64 encoder333", encoder3(photoPath))
+                    //val result=decoder(encoder(photoFile.toString()), photoFile.toString())
                     //Log.d("Base64 decoded", result.toString())
-                    val msg = "Photo capture succeeded: $savedUri"
+
+                    //encoder2(savedUri)
+
+                    //val msg = "Photo capture succeeded: $savedUri"
                     //Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, msg)
+                    //Log.d(TAG, msg)
                 }
             })
     }
 
-    private fun setUpCameraOutputsFront() {
-        val manager = this?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        try {
-            for (cameraId in manager.cameraIdList) {
-                val characteristics = manager.getCameraCharacteristics(cameraId)
-
-                // We need front facing camera.
-                val cameraDirection = characteristics.get(CameraCharacteristics.LENS_FACING)
-                if (cameraDirection != null &&
-                    cameraDirection == CameraCharacteristics.LENS_FACING_BACK
-                ) {
-                    continue
-                }
-            }
-        } catch (e: CameraAccessException) {
-            Log.e(TAG, e.toString())
-        } catch (e: NullPointerException) {
-            // Currently an NPE is thrown when the Camera2API is used but not supported on the
-            // device this code runs.
-           /* ErrorDialog.newInstance(getString(R.string.camera_error))
-                .show(childFragmentManager, FRAGMENT_DIALOG)*/
-        }
-    }
-
-    //Encode Uri to base64
-    fun encode(imageUri: Uri): String {
-        val input = this.getContentResolver().openInputStream(imageUri)
-        val image = BitmapFactory.decodeStream(input , null, null)
-        //encode image to base64 string
-        val baos = ByteArrayOutputStream()
-        image!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-        var imageBytes = baos.toByteArray()
-        val imageString = Base64.getEncoder().encodeToString(imageBytes)
-        return imageString
-    }
-
-
-    //Encode File Path to base64
-    private fun encoder(filePath: String): String{
-        val bytes = File(filePath).readBytes()
-        val base64 = Base64.getEncoder().encodeToString(bytes)
+    // Convert Failed to Image
+    private fun encoder1(filePath: File): String{
+        val bytes = filePath.readBytes()
+        val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
         return base64
     }
 
-    private fun encoder2(imageUri: Uri): String {
-        val input = this.contentResolver.openInputStream(imageUri)
+
+    // Saved Broken Image
+    private fun encoder2(imageUri: Uri?): String {
+        val input = imageUri?.let { this.contentResolver.openInputStream(it) }
+        //val bm = BitmapFactory.decodeResource(resources, R.drawable.test)
         val image = BitmapFactory.decodeStream(input, null, null)
         //encode image to base64 string
         val baos = ByteArrayOutputStream()
+        //bm.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         image!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         var imageBytes = baos.toByteArray()
-        val imageString = Base64.getEncoder().encodeToString(imageBytes)
-        return imageString
+
+        return android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP)
+        //return Base64.getEncoder().encodeToString(imageBytes) // Not Worked, too.
+    }
+
+    // Saved Broken Image
+    private fun encoder3(path: String): String {
+        val imagefile = File(path)
+        var fis: FileInputStream? = null
+        try {
+            fis = FileInputStream(imagefile)
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
+        val bm = BitmapFactory.decodeStream(fis)
+        val baos = ByteArrayOutputStream()
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val b = baos.toByteArray()
+
+        return Base64.getEncoder().encodeToString(b)
     }
 
     fun decoder(base64Str: String, pathFile: String): Unit{
@@ -349,7 +346,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
 
-    private fun saveImage(imageOrder: Int) {
+    private fun saveImage(imageOrder: Int, base64Str: String) {
         Log.d("SaveImage Called", "")
         val work = Intent()
         var image_666="Dummy Base64 Code"
@@ -360,9 +357,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         //encoder
 
         ///val encodeString=encoder("src/main/res/drawable/neww.JPG")
-        Log.d("SaveImage Called:",foodImage22)
+        Log.d("SaveImage Called:",base64Str)
         work.putExtra("serviceFlag", "saveImage")
-        work.putExtra("image", encoder2(foodImage22.toUri()))
+        work.putExtra("image", base64Str)
         work.putExtra("uuid", uuid)
         work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
@@ -417,7 +414,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 }
 
             // Select back camera as a default
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
             try {
                 // Unbind use cases before rebinding
@@ -520,5 +517,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private var isFrontCamera = true
     }
 }
