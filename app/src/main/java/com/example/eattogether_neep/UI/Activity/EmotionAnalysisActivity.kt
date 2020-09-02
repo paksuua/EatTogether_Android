@@ -21,6 +21,7 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.core.impl.PreviewConfig
@@ -29,10 +30,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
+import com.example.eattogether_neep.EmotionDetectorApp
 import java.nio.ByteBuffer
 import java.util.concurrent.TimeUnit
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.SOCKET.SocketService
+import com.example.eattogether_neep.UI.MainViewModel
 import com.example.eattogether_neep.UI.RectOverlay
 import com.example.eattogether_neep.UI.User
 import com.google.firebase.ml.vision.FirebaseVision
@@ -57,9 +60,7 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
-import kotlin.concurrent.timer
-import kotlin.concurrent.timerTask
-import kotlin.system.exitProcess
+
 
 typealias LumaListener = (luma: Double) -> Unit
 
@@ -92,9 +93,15 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     var i=0
     private var imageCapture: ImageCapture? = null
 
-
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
+
+   /* private val viewModel: MainViewModel by viewModels {
+        (application as EmotionDetectorApp).viewModelFactory
+    }*/
+    private val viewModel:MainViewModel by viewModels{
+       (application as EmotionDetectorApp).viewModelFactory
+   }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -161,11 +168,23 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     private fun startCameraThread(){
         // Request camera permissions
         if (allPermissionsGranted()) {
+
+            // 이거 둘 중 하나만 써야하려나..?
+            viewModel.startCamera(this, cam_emotion)
             startCamera()
         } else {
             ActivityCompat.requestPermissions(
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
+
+        viewModel.faces.observe(
+            this,
+            androidx.lifecycle.Observer { faces ->
+                if (faces != null){
+                    emotion.faces=faces
+                }
+            }
+        )
 
         // Set up the listener for take photo button
         //camera_capture_button.setOnClickListener { takePhoto() }
@@ -177,6 +196,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 tv_food_num.text="후보 "+(i/3+1)
                 txt_food_name.text = f_name[i/3]
                 i++
+
 
                 // 1초마다 표정, 기기번호, 음식번호 전송
                 takePhoto()
@@ -375,7 +395,10 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (allPermissionsGranted()) {
                 viewFinder.post { startCamera() }
@@ -385,6 +408,13 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT).show()
                 finish()
             }
+            return
+        }
+        if (allPermissionsGranted()) {
+            viewModel.startCamera(this, cam_emotion)
+        } else {
+            Toast.makeText(this, "Missing camera permission.", Toast.LENGTH_SHORT).show()
+            finish()
         }
     }
 
@@ -454,8 +484,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            baseContext, it) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun getOutputDirectory(): File {

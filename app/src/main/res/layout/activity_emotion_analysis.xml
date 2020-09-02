@@ -18,6 +18,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.example.eattogether_neep.UI.EmotionView
+            android:id="@+id/emotion"
+            android:layout_width="match_parent"
+            android:layout_height="508dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cst_emotion"
         android:background="@drawable/bg_bottom_white"
