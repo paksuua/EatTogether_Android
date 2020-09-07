@@ -8,10 +8,11 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import org.tensorflow.lite.Interpreter
 import com.example.eattogether_neep.R
-import com.example.eattogether_neep.UI.MainViewModel
+//import com.example.eattogether_neep.UI.MainViewModel
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.Executors
+/*
 
 class ViewModelFactory(
     private val application: Application
@@ -60,3 +61,4 @@ class ViewModelFactory(
         )
     }
 }
+*/

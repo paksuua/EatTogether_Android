@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-
 apply plugin: 'org.jlleitschuh.gradle.ktlint'
 apply plugin: 'com.google.gms.google-services'
 
@@ -112,7 +111,8 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:$camerax_version"
     // CameraX View class
     implementation "androidx.camera:camera-view:1.0.0-alpha14"
-
+    // Camera Preview
+    implementation 'com.otaliastudios:cameraview:1.5.1'
 
     //gif Animation
     implementation 'com.github.bumptech.glide:glide:4.11.0'

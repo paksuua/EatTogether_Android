@@ -6,54 +6,43 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.*
-import android.util.Base64.NO_WRAP
-import android.util.Base64.encodeToString
 import android.util.Log
-import android.util.Rational
-import android.util.Size
-import android.view.Surface
 import android.view.TextureView
-import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.viewModels
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
-import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
 import com.bumptech.glide.Glide
-import com.example.eattogether_neep.EmotionDetectorApp
 import java.nio.ByteBuffer
-import java.util.concurrent.TimeUnit
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.SOCKET.SocketService
-import com.example.eattogether_neep.UI.MainViewModel
 import com.example.eattogether_neep.UI.RectOverlay
 import com.example.eattogether_neep.UI.User
+import com.example.eattogether_neep.emotion.coredetection.DrawFace
+import com.example.eattogether_neep.emotion.facedetection.FaceDetector
+import com.google.android.gms.tasks.OnFailureListener
+import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
+import com.otaliastudios.cameraview.Facing
+import com.otaliastudios.cameraview.Frame
 import io.socket.client.IO
-import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_emotion_analysis.*
-import org.json.JSONException
-import org.json.JSONObject
-import retrofit2.http.Tag
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.lang.Thread.sleep
-import java.net.Socket
 import java.net.URISyntaxException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -68,10 +57,6 @@ private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 private val SOCKET_URL="[your server url]"
 
-internal lateinit var preferences: SharedPreferences
-private lateinit var food_img: ImageView
-private lateinit var food_name: TextView
-
 private var hasConnection: Boolean = false
 private var mHandler: Handler? = null
 private var mSocket: io.socket.client.Socket? = null
@@ -79,11 +64,10 @@ private lateinit var socketReceiver: EmotionAnalysisActivity.EmotionReciver
 private lateinit var intentFilter: IntentFilter
 private var resultFromServer = -1
 
-
 private var f_name: Array<String> = arrayOf()
 private var f_img: Array<String> = arrayOf()
-private var base64Str:String=""
 private var savedUri: Uri? =null
+private  var smileProb=-1.0F
 
 
 class EmotionAnalysisActivity : AppCompatActivity() {
@@ -96,12 +80,15 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
-   /* private val viewModel: MainViewModel by viewModels {
-        (application as EmotionDetectorApp).viewModelFactory
-    }*/
-    private val viewModel:MainViewModel by viewModels{
+    private var faceDetector: FaceDetector? = null
+    private var detectionViewer: DrawFace? = null
+    private var cameraWidth: Int = 0
+    private var cameraHeight: Int = 0
+    private var isLoadingDetection = false
+
+   /* private val viewModel:MainViewModel by viewModels{
        (application as EmotionDetectorApp).viewModelFactory
-   }
+   }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,18 +96,12 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         f_name = intent.getStringArrayExtra("food_name")!!
         f_img = intent.getStringArrayExtra("food_img")!!
-        /*if(f_name.isNullOrEmpty()){
-            for (i in 0 until 10){
-                f_name[i]="더미더미더미"
-                f_img[i]="https://blog.naver.com/kym1903/221043545235"
-            }
-        }*/
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
         //saveImage()
         //avgPredict()
-
+        checkPermission()
         startCameraThread()
         //setMenuImageThread(f_name, f_img)
 
@@ -138,6 +119,11 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             addAction("com.example.eattogether_neep.RESULT_SAVE_IMAGE")
         }
         registerReceiver(socketReceiver, intentFilter)
+
+        with(cam_emotion){
+            facing = Facing.FRONT
+            addFrameProcessor { if (!isLoadingDetection) detect(it) }
+        }
 
         //viewFinder = findViewById(R.id.cam_emotion)
 
@@ -170,25 +156,24 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         if (allPermissionsGranted()) {
 
             // 이거 둘 중 하나만 써야하려나..?
-            viewModel.startCamera(this, cam_emotion)
+            //viewModel.startCamera(this, cam_emotion)
             startCamera()
         } else {
             ActivityCompat.requestPermissions(
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        viewModel.faces.observe(
+        /*viewModel.faces.observe(
             this,
             androidx.lifecycle.Observer { faces ->
                 if (faces != null){
                     emotion.faces=faces
                 }
             }
-        )
+        )*/
 
         // Set up the listener for take photo button
         //camera_capture_button.setOnClickListener { takePhoto() }
-
         @SuppressLint("HandlerLeak")
         mHandler = object : Handler() {
             override fun handleMessage(msg: Message) {
@@ -197,11 +182,11 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 txt_food_name.text = f_name[i/3]
                 i++
 
-
                 // 1초마다 표정, 기기번호, 음식번호 전송
                 takePhoto()
                 Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
-                saveImage(i/3, encoder2(savedUri))
+                //saveImage(i/3, encoder2(savedUri))
+                //saveImage(i/3, smileProb.toString())
 
                 // 3초마다 기기번호, 음식번호
                 if(i%3==0){
@@ -366,6 +351,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
 
+    // 이미지 Base64코드 전송
     private fun saveImage(imageOrder: Int, base64Str: String) {
         Log.d("SaveImage Called", "")
         val work = Intent()
@@ -394,6 +380,71 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
+    private fun detect(frame: Frame) {
+        if (cameraWidth > 0 && cameraHeight > 0) {
+            faceDetector?.detectFromByteArray(frame.data)
+            isLoadingDetection = true
+        } else {
+            cameraWidth = frame.size.width
+            cameraHeight = frame.size.height
+            setupFaceDetector()
+        }
+    }
+
+    private fun setupFaceDetector() {
+        faceDetector = FaceDetector(
+            cameraWidth = cameraWidth,
+            cameraHeight = cameraHeight,
+            successListener = OnSuccessListener (){
+                val bmp = detectionViewer?.showVisionDetection(it)
+                imageViewOverlay.setImageBitmap(bmp)
+                isLoadingDetection = false
+                processHappiness(it)
+                processFace(it)
+            },
+            failureListener = OnFailureListener {
+                Toast.makeText(this, getString(R.string.detection_error), Toast.LENGTH_SHORT).show()
+            })
+
+        detectionViewer = DrawFace(cameraWidth, cameraHeight)
+    }
+
+
+    private fun processHappiness(faces: List<FirebaseVisionFace>) {
+
+        for (face in faces) {
+            if (face.smilingProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+                smileProb = face.smilingProbability
+                if (smileProb > 0) {
+                    Toast.makeText(this, "The degree of your happiness is:$smileProb", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun processFace(faces: List<FirebaseVisionFace>) {
+
+        for (face in faces) {
+
+            //textViewMood.text = getEmojiUnicode(0x1F60A) + getEmojiUnicode(0x1F60A) + getEmojiUnicode(0x1F60A)
+
+            if (face.leftEyeOpenProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+                val leftEyeOpenProb = face.leftEyeOpenProbability
+                val rightEyeOpenProb = face.rightEyeOpenProbability
+                if (leftEyeOpenProb < 0.2 || rightEyeOpenProb < 0.2) {
+                    //textViewMood.text = getEmojiUnicode(0X1F609) + getEmojiUnicode(0X1F609) + getEmojiUnicode(0X1F609)
+                }
+            }
+            if (face.smilingProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+                val smileProb = face.smilingProbability
+                if (smileProb > 0.4) {
+                    //textViewMood.text = getEmojiUnicode(0x1F601) + getEmojiUnicode(0x1F601) + getEmojiUnicode(0x1F601)
+                }
+            }
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -411,7 +462,8 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             return
         }
         if (allPermissionsGranted()) {
-            viewModel.startCamera(this, cam_emotion)
+            startCamera()
+            //viewModel.startCamera(this, cam_emotion)
         } else {
             Toast.makeText(this, "Missing camera permission.", Toast.LENGTH_SHORT).show()
             finish()
@@ -426,12 +478,12 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             // Preview
-            val preview = Preview.Builder()
+            /*val preview = Preview.Builder()
                 .build()
                 .also {
                     it.setSurfaceProvider(cam_emotion.createSurfaceProvider())
                 }
-
+*/
             imageCapture = ImageCapture.Builder()
                 .build()
 
@@ -451,8 +503,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 cameraProvider.unbindAll()
 
                 // Bind use cases to camera
-                cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview,  imageCapture, imageAnalyzer)
+                //cameraProvider.bindToLifecycle(this, cameraSelector, preview,  imageCapture, imageAnalyzer)
 
             } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
@@ -520,6 +571,18 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+               CAMERA
+            ) != PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this,
+                arrayOf(CAMERA, WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
+        } else {
+            cam_emotion.start()
+        }
+    }
+
     inner class EmotionReciver() : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -546,6 +609,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private const val REQUEST_CAMERA_PERMISSION = 123
         private var isFrontCamera = true
     }
 }

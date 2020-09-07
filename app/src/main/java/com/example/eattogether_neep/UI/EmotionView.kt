@@ -1,4 +1,5 @@
 package com.example.eattogether_neep.UI
+/*
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -85,3 +86,4 @@ class EmotionView @JvmOverloads constructor(
         private const val PREVIEW_SIZE = 256
     }
 }
+*/

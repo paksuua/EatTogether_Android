@@ -1,4 +1,5 @@
 package com.example.eattogether_neep.UI
+/*
 
 import android.graphics.Bitmap
 import android.graphics.Rect
@@ -68,9 +69,10 @@ class MainViewModel(
 
         return Face(
             emotion = Emotion.fromResult(result),
-            bitmap = formattedFace.toBitmap(),
+            //bitmap = formattedFace.toBitmap(),
             imageRect = Rect(0, 0, input.width, input.height),
             faceRect = faceRect
         )
     }
 }
+*/
