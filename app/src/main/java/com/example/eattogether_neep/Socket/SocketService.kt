@@ -68,8 +68,14 @@ class SocketService : JobIntentService() {
             "avgPredict" -> {
                 val uuid = intent.getStringExtra("uuid")
                 val imageOrder =intent.getIntExtra("imageOrder", -1)
-
                 mSocket.emit("avgPredict", uuid, imageOrder)
+            }
+
+            "savePredict" -> {
+                val  avgPredict = intent.getFloatExtra("avgPredict", 0.0F)
+                val uuid = intent.getStringExtra("uuid")
+
+                mSocket.emit("savePredict", avgPredict, uuid)
             }
             "showRank" -> {
                 val roomName = intent.getStringExtra("roomName")

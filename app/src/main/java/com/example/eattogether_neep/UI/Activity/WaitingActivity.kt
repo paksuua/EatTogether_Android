@@ -86,6 +86,7 @@ class WaitingActivity : AppCompatActivity() {
                     with(intent) {
                         intent.putExtra("food_name", f_name)
                         intent.putExtra("food_img", f_img)
+                        intent.putExtra("roomName",roomName)
                     }
                     this@WaitingActivity.startActivity(intent)
                     this@WaitingActivity.finish()

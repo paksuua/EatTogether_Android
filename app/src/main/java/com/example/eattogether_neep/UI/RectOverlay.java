@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+/*
 
 public class RectOverlay extends GraphicOverlay.Graphic {
 
@@ -37,3 +38,4 @@ public class RectOverlay extends GraphicOverlay.Graphic {
         canvas.drawRect(rectF, rectPaint);
     }
 }
+*/

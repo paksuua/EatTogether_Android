@@ -1,6 +1,6 @@
 package com.example.eattogether_neep.UI
-/*
 
+/*
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas

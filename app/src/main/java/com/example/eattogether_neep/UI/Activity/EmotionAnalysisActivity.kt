@@ -14,6 +14,7 @@ import android.widget.*
 import androidx.activity.viewModels
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.app.Activity
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
@@ -24,7 +25,6 @@ import com.bumptech.glide.Glide
 import java.nio.ByteBuffer
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.SOCKET.SocketService
-import com.example.eattogether_neep.UI.RectOverlay
 import com.example.eattogether_neep.UI.User
 import com.example.eattogether_neep.emotion.coredetection.DrawFace
 import com.example.eattogether_neep.emotion.facedetection.FaceDetector
@@ -66,7 +66,8 @@ private var resultFromServer = -1
 private var f_name: Array<String> = arrayOf()
 private var f_img: Array<String> = arrayOf()
 private var savedUri: Uri? =null
-private  var smileProb=-1.0F
+private  var smileProb=0.0F
+private  var smileSum=0.0F
 
 
 class EmotionAnalysisActivity : AppCompatActivity() {
@@ -85,6 +86,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     private var cameraWidth: Int = 0
     private var cameraHeight: Int = 0
     private var isLoadingDetection = false
+    private var roomName = ""
 
    /* private val viewModel:MainViewModel by viewModels{
        (application as EmotionDetectorApp).viewModelFactory
@@ -96,6 +98,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         f_name = intent.getStringArrayExtra("food_name")!!
         f_img = intent.getStringArrayExtra("food_img")!!
+        roomName=intent.getStringExtra("roomName")
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
@@ -184,27 +187,32 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         @SuppressLint("HandlerLeak")
         mHandler = object : Handler() {
             override fun handleMessage(msg: Message) {
-                Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food)
-                tv_food_num.text="후보 "+(i/3+1)
-                txt_food_name.text = f_name[i/3]
-                i++
+                if (this@EmotionAnalysisActivity.isFinishing)
+                    return
+                else{
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food)
+                    tv_food_num.text="후보 "+(i/3+1)
+                    txt_food_name.text = f_name[i/3]
+                    i++
 
-                // 1초마다 표정, 기기번호, 음식번호 전송
-                takePhoto()
-                Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
-                //saveImage(i/3, encoder2(savedUri))
-                //saveImage(i/3, smileProb.toString())
+                    // 1초마다 표정, 기기번호, 음식번호 전송
+                    takePhoto()
+                    Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
+                    //saveImage(i/3, smileProb.toString())
+                    smileSum+= smileProb
+                    // 3초마다 기기번호, 음식번호
+                    if(i%3==0){
+                        Log.d("3초마다 기기번호, 음식번호","Emotion Analysis enqueue every 3seconds")
+                        savePredict(smileSum/3)
+                        smileSum=0.0F
+                    }
 
-                // 3초마다 기기번호, 음식번호
-                if(i%3==0){
-                    Log.d("3초마다 기기번호, 음식번호","Emotion Analysis enqueue every 3seconds")
-                    avgPredict(i/3)
-                }
-
-                if((i/3)>= f_name.size) {
-                    val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
-                    startActivity(intent)
-                    //finish()
+                    if((i/3)>= f_name.size) {
+                        val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
+                        intent.putExtra("roomName", roomName)
+                        startActivity(intent)
+                        finish()
+                    }
                 }
             }
         }
@@ -351,6 +359,11 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         return Base64.getEncoder().encodeToString(b)
     }
 
+    // Convert Image to BitmapArray?
+    private fun encoder4(path: String): String {
+        return ""
+    }
+
     fun decoder(base64Str: String, pathFile: String): Unit{
         val imageByteArray = Base64.getDecoder().decode(base64Str)
         File(pathFile).writeBytes(imageByteArray)
@@ -383,6 +396,15 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         work.putExtra("serviceFlag", "avgPredict")
         work.putExtra("uuid", uuid)
         work.putExtra("imageOrder", imageOrder)
+        SocketService.enqueueWork(this, work)
+    }
+
+    private fun savePredict(avgPredict:Float) {
+        Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
+        val work = Intent()
+        work.putExtra("serviceFlag", "savePredict")
+        work.putExtra("avgPredict", avgPredict)
+        work.putExtra("uuid", uuid)
         SocketService.enqueueWork(this, work)
     }
 
@@ -466,6 +488,10 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 finish()
             }
             return
+            if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED
+                && grantResults[1] == PERMISSION_GRANTED) {
+                cam_emotion.start()
+            }
         }
         if (allPermissionsGranted()) {
             startCamera()
@@ -552,7 +578,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
     // firebase
-    private fun runDetector(bitmap: Bitmap) {
+    /*private fun runDetector(bitmap: Bitmap) {
         val image = FirebaseVisionImage.fromBitmap(bitmap)
         val options = FirebaseVisionFaceDetectorOptions.Builder()
             .build()
@@ -568,15 +594,15 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 it.printStackTrace()
             }
 
-    }
+    }*/
 
-    private fun processFaceResult(faces: MutableList<FirebaseVisionFace>) {
+    /*private fun processFaceResult(faces: MutableList<FirebaseVisionFace>) {
         faces.forEach {
             val bounds = it.boundingBox
             val rectOverLay = RectOverlay(graphic_overlay, bounds)
             graphic_overlay.add(rectOverLay)
         }
-    }
+    }*/
 
     private fun checkPermission() {
         if (ContextCompat.checkSelfPermission(this,

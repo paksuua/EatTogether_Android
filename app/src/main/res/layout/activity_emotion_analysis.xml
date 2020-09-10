@@ -8,14 +8,14 @@
     tools:context=".UI.Activity.EmotionAnalysisActivity"
     android:orientation="vertical">
 
-        <com.example.eattogether_neep.UI.EmotionView
+        <!--<com.example.eattogether_neep.UI.EmotionView
             android:id="@+id/emotion"
             android:layout_width="match_parent"
             android:layout_height="508dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />-->
-
+            app:layout_constraintTop_toTopOf="parent" />&ndash;&gt;
+-->
    <!-- <androidx.camera.view.PreviewView
         android:id="@+id/cam_emotion"
         android:layout_width="match_parent"
@@ -96,7 +96,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.example.eattogether_neep.UI.GraphicOverlay
+   <!-- <com.example.eattogether_neep.UI.GraphicOverlay
         android:id="@+id/graphic_overlay"
-        android:layout_width="match_parent" android:layout_height="match_parent"/>
+        android:layout_width="match_parent" android:layout_height="match_parent"/>-->
 </androidx.constraintlayout.widget.ConstraintLayout>
