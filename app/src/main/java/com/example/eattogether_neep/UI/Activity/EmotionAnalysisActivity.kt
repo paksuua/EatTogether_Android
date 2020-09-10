@@ -496,8 +496,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             val imageAnalyzer = ImageAnalysis.Builder()
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, 
-                          { luma ->
+                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
                         Log.d(TAG, "Average luminosity: $luma")
                     })
                 }
@@ -551,24 +550,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         return if (mediaDir != null && mediaDir.exists())
             mediaDir else filesDir
     }
-
-   /* private setDummyFoodList(){
-        foodList.apply {
-            add(
-                MenuItem(
-                    name = "달걀볶음밥",
-                    image = "https://blog.naver.com/skduskong/220046366458"
-                ),
-                MenuItem(
-                    name = "보쌈",
-                    image = "https://blog.naver.com/kym1903/221043545235"
-                ),
-                MenuItem(
-                    name = "돈까스",
-                    image = "https://blog.naver.com/kym1903/221043545235"
-                )
-        }
-    }*/
 
     // firebase
     private fun runDetector(bitmap: Bitmap) {
