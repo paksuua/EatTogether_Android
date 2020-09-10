@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,9 +12,9 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import com.example.eattogether_neep.R
+import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.User
 import kotlinx.android.synthetic.main.activity_join.*
-import com.example.eattogether_neep.SOCKET.SocketService
 
 class JoinActivity : AppCompatActivity() {
     private var roomName = ""
@@ -21,6 +22,8 @@ class JoinActivity : AppCompatActivity() {
     private lateinit var socketReceiver: JoinReceiver
     private lateinit var intentFilter: IntentFilter
     private var resultFromServer = -1
+    //val requestToServer= ApplicationController // 싱글톤 그대로 가져옴
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

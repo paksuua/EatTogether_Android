@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.RectOverlay
-import com.example.eattogether_neep.UI.User
+import com.example.eattogether_neep.UI.Use
 import com.example.eattogether_neep.emotion.coredetection.DrawFace
 import com.example.eattogether_neep.emotion.facedetection.FaceDetector
 import com.google.android.gms.tasks.OnFailureListener
@@ -56,7 +56,6 @@ typealias LumaListener = (luma: Double) -> Unit
 private const val REQUEST_CODE_PERMISSIONS = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 private val SOCKET_URL="[your server url]"
-
 private var hasConnection: Boolean = false
 private var mHandler: Handler? = null
 private var mSocket: io.socket.client.Socket? = null
@@ -72,7 +71,8 @@ private  var smileProb=-1.0F
 
 class EmotionAnalysisActivity : AppCompatActivity() {
     private lateinit var viewFinder: TextureView
-    private  lateinit var uuid: String
+    private lateinit var uuid: String
+    var foodList=ArrayList<String>()
     var images: Array<String> = arrayOf()
     var i=0
     private var imageCapture: ImageCapture? = null
@@ -106,6 +106,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         //setMenuImageThread(f_name, f_img)
 
         try {
+
             //IO.socket 메소드는 은 저 URL 을 토대로 클라이언트 객체를 Return 합니다.
             mSocket = IO.socket(SOCKET_URL)
         } catch (e: URISyntaxException) {
@@ -146,6 +147,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(socketReceiver)
@@ -199,6 +201,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     startActivity(intent)
                     //finish()
                 }
+
             }
         }
 
@@ -311,7 +314,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
         return base64
     }
-
 
     // Saved Broken Image
     private fun encoder2(imageUri: Uri?): String {
@@ -545,6 +547,24 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             mediaDir else filesDir
     }
 
+   /* private setDummyFoodList(){
+        foodList.apply {
+            add(
+                MenuItem(
+                    name = "달걀볶음밥",
+                    image = "https://blog.naver.com/skduskong/220046366458"
+                ),
+                MenuItem(
+                    name = "보쌈",
+                    image = "https://blog.naver.com/kym1903/221043545235"
+                ),
+                MenuItem(
+                    name = "돈까스",
+                    image = "https://blog.naver.com/kym1903/221043545235"
+                )
+        }
+    }*/
+
     // firebase
     private fun runDetector(bitmap: Bitmap) {
         val image = FirebaseVisionImage.fromBitmap(bitmap)
@@ -563,6 +583,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             }
 
     }
+
     private fun processFaceResult(faces: MutableList<FirebaseVisionFace>) {
         faces.forEach {
             val bounds = it.boundingBox
@@ -582,7 +603,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             cam_emotion.start()
         }
     }
-
     inner class EmotionReciver() : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
