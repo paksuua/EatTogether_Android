@@ -68,8 +68,12 @@ class SingleSocket {
                             onPreferenceRoom2
                         ) //
                         this?.on(
-                            "saveImage",
+                            "result",
                             onSaveImage
+                        )
+                        this?.on(
+                            "finishRank",
+                            onRanking
                         ) //
                         this?.on(
                             Socket.EVENT_PING,
@@ -121,17 +125,23 @@ class SingleSocket {
         private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference")
             val foodList = it[0] as JSONArray
-            val listdata = ArrayList<String>()
-            if (foodList != null) {
-                for (i in 0 until foodList.length()) {
-                    listdata.add(foodList[i].toString())
-                }
+            val list_cnt = foodList.length()
+            val getName = Array(list_cnt,{""})
+            val getImg = Array(list_cnt,{""})
+            Log.d(TAG, "Socket Preference getName: ${getName.size}")
+            Log.d(TAG, "Socket Preference getImg: ${getImg.size}")
+
+            for(i in 0..(list_cnt-1)) {
+                val obj = foodList.getJSONObject(i)
+                getName[i] = obj.getString("name")
+                getImg[i] = obj.getString("image")
             }
-            Log.d(TAG, "Socket onPreference Suc: $listdata")
+            Log.d(TAG, "Socket onPreference Suc: ${getImg[1]}")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.FOOD_LIST"
-                intent.putStringArrayListExtra("foodList", listdata)
+                intent.putExtra("food_name", getName)
+                intent.putExtra("food_img", getImg)
                 context.sendBroadcast(intent)
             }
         }
@@ -139,23 +149,49 @@ class SingleSocket {
         private val onPreferenceRoom2: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference count")
             val count = it[0] as Int
+            val full = it[1] as Int
             Log.d(TAG, "Socket onPreference count: $count")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.ENTER_COUNT"
                 intent.putExtra("count", count)
+                intent.putExtra("full", full)
                 context.sendBroadcast(intent)
             }
         }
 
         private val onSaveImage: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onSaveImage")
-            val result = it[0] as Int
-            //Log.d(TAG, "Socket onSaveImage Suc: $result")
+            val error = it[0] as Int
+            Log.d(TAG, "Socket onSaveImage Fail: $error")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.RESULT_SAVE_IMAGE"
-                intent.putExtra("result", result)
+                intent.putExtra("error", error)
+                context.sendBroadcast(intent)
+            }
+        }
+
+        private val onRanking: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onRanking")
+
+            val foodList = it[0] as JSONArray
+            val list_cnt = foodList.length()
+            val getName = Array(list_cnt,{""})
+            val getImg = Array(list_cnt,{""})
+            Log.d(TAG, "Socket onRanking getName: ${getName.size}")
+            Log.d(TAG, "Socket onRanking getImg: ${getImg.size}")
+
+            for(i in 0..(list_cnt-1)) {
+                val obj = foodList.getJSONObject(i)
+                getName[i] = obj.getString("name")
+                getImg[i] = obj.getString("image")
+            }
+            Log.d(TAG, "Socket onRanking Suc: ${getName[1]}")
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.FOOD_LIST_RANK"
+                intent.putExtra("food_name", getName)
+                intent.putExtra("food_img", getImg)
                 context.sendBroadcast(intent)
             }
         }
@@ -194,10 +230,14 @@ class SingleSocket {
                     "currentCount",
                     onPreferenceRoom2
                 )
-                this?.off(
-                    "saveImage",
+                this?.on(
+                    "result",
                     onSaveImage
-                ) //
+                )
+                this?.off(
+                    "finishRank",
+                    onRanking
+                )
                 this.off(
                     Socket.EVENT_PING,
                     onPing

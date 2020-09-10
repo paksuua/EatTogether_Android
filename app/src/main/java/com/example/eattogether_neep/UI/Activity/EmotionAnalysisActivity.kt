@@ -25,7 +25,7 @@ import java.nio.ByteBuffer
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.RectOverlay
-import com.example.eattogether_neep.UI.Use
+import com.example.eattogether_neep.UI.User
 import com.example.eattogether_neep.emotion.coredetection.DrawFace
 import com.example.eattogether_neep.emotion.facedetection.FaceDetector
 import com.google.android.gms.tasks.OnFailureListener
@@ -397,7 +397,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         faceDetector = FaceDetector(
             cameraWidth = cameraWidth,
             cameraHeight = cameraHeight,
-            successListener = OnSuccessListener (){
+            successListener = OnSuccessListener() {
                 val bmp = detectionViewer?.showVisionDetection(it)
                 imageViewOverlay.setImageBitmap(bmp)
                 isLoadingDetection = false

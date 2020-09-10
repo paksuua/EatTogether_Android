@@ -50,12 +50,31 @@ class SocketService : JobIntentService() {
 
                 mSocket.emit("preference", like, hate, uuid, roomName)
             }
-            "saveImage" -> {
-                val image = intent.getStringExtra("image")
+            "preference" -> {
+                val like = intent.getStringExtra("like")
+                val hate = intent.getStringExtra("hate")
                 val uuid = intent.getStringExtra("uuid")
-                val imageNum = intent.getStringExtra("imageOrder")
+                val roomName = intent.getStringExtra("roomName")
 
-                mSocket.emit("saveImage", image, uuid, imageNum)
+                mSocket.emit("preference", like, hate, uuid, roomName)
+            }
+            "saveImage" -> {
+                val img = intent.getStringExtra("img")
+                val uuid = intent.getStringExtra("uuid")
+                val imageOrder = intent.getStringExtra("imageOrder")
+
+                mSocket.emit("saveImage", img, uuid, imageOrder)
+            }
+            "avgPredict" -> {
+                val uuid = intent.getStringExtra("uuid")
+                val imageOrder =intent.getIntExtra("imageOrder", -1)
+
+                mSocket.emit("avgPredict", uuid, imageOrder)
+            }
+            "showRank" -> {
+                val roomName = intent.getStringExtra("roomName")
+
+                mSocket.emit("showRank", roomName)
             }
         }
     }
