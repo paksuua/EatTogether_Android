@@ -116,14 +116,12 @@ class SingleSocket {
         }
         private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference")
-            val foodList = it as JSONArray
+            val foodList = it[0] as JSONArray
             val listdata = ArrayList<String>()
             if (foodList != null) {
                 for (i in 0 until foodList.length()) {
                     listdata.add(foodList[i].toString())
                 }
-            }else{
-                Log.d(TAG, "Socket onPreference failed")
             }
             Log.d(TAG, "Socket onPreference Suc: $listdata")
 
