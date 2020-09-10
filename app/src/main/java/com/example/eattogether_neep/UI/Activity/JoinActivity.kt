@@ -31,7 +31,7 @@ class JoinActivity : AppCompatActivity() {
 
         uuid = User.getUUID(this)
         Log.d("Device UUID:", uuid)
-        roomName = "835197" // 입력값을 넣어주는 작업 해야함 지금 귀찮아서..
+        // 입력값을 넣어주는 작업 해야함 지금 귀찮아서..
 
         // 인원 입력 시 버튼 활성화
         edt_join_url.doOnTextChanged { text1, start, count, after ->
@@ -52,6 +52,7 @@ class JoinActivity : AppCompatActivity() {
             if (edt_join_url.text.isNullOrBlank()) {
                 Toast.makeText(this, "입장 코드를 입력해주세요", Toast.LENGTH_SHORT).show()
             } else {
+                roomName =  edt_join_url.text.toString()
                 sendJoinRoom(roomName, uuid)
                 //requestJoin(Integer.parseInt(edt_join_url.text.toString()))
                 //localJoin(edt_join_url.text.toString())
