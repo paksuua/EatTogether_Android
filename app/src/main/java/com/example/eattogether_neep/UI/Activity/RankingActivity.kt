@@ -4,29 +4,31 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.appcompat.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.bumptech.glide.Glide
-import com.example.eattogether_neep.Data.RankingItem
-import com.example.eattogether_neep.Network.Get.GetRankingResponse
-import com.example.eattogether_neep.Network.Network.ApplicationController
-import com.example.eattogether_neep.Network.NetworkService
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.SOCKET.SocketService
-import com.example.eattogether_neep.UI.Adapter.RankingItemRVAdapter
 import kotlinx.android.synthetic.main.activity_ranking.*
-import kotlinx.android.synthetic.main.activity_waiting.*
-import retrofit2.Call
-import retrofit2.Response
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import android.Manifest
+import android.content.pm.PackageManager
 
 class RankingActivity : AppCompatActivity() {
 
     private var roomName = ""
     private lateinit var socketReceiver: RankingReceiver
     private lateinit var intentFilter: IntentFilter
+
+    private var mCurrentLng = 0.0
+    private var mCurrentLat = 0.0
+    private val LOCATION_PERMISSION_REQ_CODE = 1000;
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,16 +49,88 @@ class RankingActivity : AppCompatActivity() {
         }
 
         registerReceiver(socketReceiver, intentFilter)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        num1.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name1.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num2.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name2.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num3.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name3.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num4.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name4.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num5.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name5.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num6.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name6.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num7.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name7.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num8.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name8.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num9.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name9.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
+        num10.setOnClickListener {
+            showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name10.text + "&p=" + mCurrentLat + "," + mCurrentLng))
+        }
     }
 
     override fun onStart() {
         super.onStart()
         sendRoomName(roomName)
+        getCurrentLocation()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(socketReceiver)
+    }
+
+    private fun getCurrentLocation() {
+        // checking location permission
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // request permission
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQ_CODE);
+            return
+        }
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location ->
+                // getting the last known or current location
+                mCurrentLat = location.latitude
+                mCurrentLng = location.longitude
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed on getting current location",
+                    Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        when (requestCode) {
+            LOCATION_PERMISSION_REQ_CODE -> {
+                if (grantResults.isNotEmpty() &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission granted
+                } else {
+                    // permission denied
+                    Toast.makeText(this, "You need to grant permission to access location",
+                        Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun sendRoomName(roomName:String) {
@@ -96,6 +170,20 @@ class RankingActivity : AppCompatActivity() {
                 }
                 else -> return
             }
+        }
+    }
+
+    fun showMap(geoLocation: Uri?) {
+        var intent: Intent
+        try {
+            intent = Intent(Intent.ACTION_VIEW, geoLocation)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+        } catch (e: Exception) {
+            Toast.makeText(this, "장소찾기에는 카카오맵이 필요합니다. 다운받아주시길 바랍니다.", Toast.LENGTH_SHORT).show()
+            intent = Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://play.google.com/store/apps/details?id=net.daum.android.map&hl=ko"))
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
         }
     }
 }

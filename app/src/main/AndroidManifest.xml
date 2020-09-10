@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <meta-data android:name="com.kakao.sdk.AppKey" android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -43,8 +45,14 @@
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <meta-data
-            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
-            android:value="face"/>
+            android:name="com.kakao.sdk.AppKey"
+            android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false"/>
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="1e3f2edd468aa680cbab78f9e13d7389"/>
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
@@ -64,7 +72,6 @@
         <activity android:name="com.example.eattogether_neep.UI.Activity.JoinActivity" />
         <activity android:name="com.example.eattogether_neep.UI.Activity.EmotionAnalysisActivity" />
         <!--<activity android:name="com.example.eattogether_neep.UI.Activity.MapActivity" />-->
-
         <activity android:name="com.example.eattogether_neep.UI.Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

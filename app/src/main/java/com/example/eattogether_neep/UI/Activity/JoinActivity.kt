@@ -31,7 +31,6 @@ class JoinActivity : AppCompatActivity() {
 
         uuid = User.getUUID(this)
         Log.d("Device UUID:", uuid)
-        // 입력값을 넣어주는 작업 해야함 지금 귀찮아서..
 
         // 인원 입력 시 버튼 활성화
         edt_join_url.doOnTextChanged { text1, start, count, after ->

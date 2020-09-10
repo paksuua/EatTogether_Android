@@ -126,9 +126,14 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             addFrameProcessor { if (!isLoadingDetection) detect(it) }
         }
 
-        //viewFinder = findViewById(R.id.cam_emotion)
+        /*viewFinder = findViewById(R.id.cam_emotion)
 
-        /*if (allPermissionsGranted()) {
+        if (allPermissionsGranted()) {
+        viewFinder.setOnClickListener {
+            val intent = Intent(this, RankingActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
             viewFinder.post { startCamera() }
         } else {
             ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
@@ -201,7 +206,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     startActivity(intent)
                     //finish()
                 }
-
             }
         }
 
@@ -492,7 +496,8 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             val imageAnalyzer = ImageAnalysis.Builder()
                 .build()
                 .also {
-                    it.setAnalyzer(cameraExecutor, LuminosityAnalyzer { luma ->
+                    it.setAnalyzer(cameraExecutor, 
+                          { luma ->
                         Log.d(TAG, "Average luminosity: $luma")
                     })
                 }
