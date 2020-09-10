@@ -28,6 +28,8 @@ import kotlin.random.Random
 
 class MakeUrlActivity : AppCompatActivity() {
     private var random_code: String =""
+    private var joincode: String =""
+    private var clickFlag:Boolean=false
     private lateinit var uuid: String
     val requestToServer=ApplicationController // 싱글톤 그대로 가져옴
     var flag_joincode=false
@@ -62,23 +64,19 @@ class MakeUrlActivity : AppCompatActivity() {
         btn_makeurl_url.setOnClickListener {
             if(edt_makeurl_number.text.isNullOrBlank()){
                 Toast.makeText(this,"참여 인원을 입력하세요",Toast.LENGTH_SHORT).show()
-            }else{
+            }else if (clickFlag){ // 다시 누르는 경우
+                copyCode(joincode)
+            }
+            else{ // 처음 누르는 경우
                 // 랜덤 참여코드 요청
                 requestMakeUrl()
+                clickFlag!=clickFlag
                 //localMakeUrl()
 
                 // 생성 코드 텍스트뷰 visible
                 if (flag_joincode){   tv_makeurl_code.isVisible
                 }else{  tv_makeurl_code.isInvisible  }
             }
-
-            // 참여코드 자동 복사
-            // Get the clipboard system service
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("RANDOM UUID",random_code)
-            clipboard.setPrimaryClip(clip)
-
-            Toast.makeText(this,random_code+" 코드가 복사되었습니다.", Toast.LENGTH_LONG ).show()
         }
     }
 
@@ -110,9 +108,11 @@ class MakeUrlActivity : AppCompatActivity() {
                     Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 성공", Toast.LENGTH_SHORT).show()
 
                     flag_joincode=true
-                    tv_makeurl_code.text="생성 코드 : "+response.body()!!.data!!.roomID
+                    joincode=response.body()!!.data!!.roomID.toString()
+                    tv_makeurl_code.text="생성 코드 : "+joincode
                     showCode()
-                }else{
+                    copyCode(joincode)
+                    }else{
                     Toast.makeText(this@MakeUrlActivity, "통신 Status Error", Toast.LENGTH_SHORT).show()
                     flag_joincode=false
                 }
@@ -131,5 +131,15 @@ class MakeUrlActivity : AppCompatActivity() {
     private fun showCode(){
         tv_makeurl_code.visibility= View.VISIBLE
         btn_makeurl_url.text="코드 복사"
+    }
+
+    private fun copyCode(code: String){
+        // 참여코드 자동 복사
+        // Get the clipboard system service
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("RANDOM UUID",code)
+        clipboard.setPrimaryClip(clip)
+
+        Toast.makeText(this,code+" 코드가 복사되었습니다.", Toast.LENGTH_LONG ).show()
     }
 }
