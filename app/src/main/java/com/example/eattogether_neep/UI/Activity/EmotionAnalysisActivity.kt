@@ -208,7 +208,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     }
 
                     if((i/3)>= f_name.size) {
-                        val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
+                        val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
                         intent.putExtra("roomName", roomName)
                         startActivity(intent)
                         finish()
