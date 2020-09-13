@@ -38,9 +38,9 @@ class WaitingActivity : AppCompatActivity() {
         // loading git
         Glide.with(this).load(R.drawable.loading).into(img_rotate)
 
-        like = intent.getStringExtra("like")
-        hate = intent.getStringExtra("hate")
-        roomName = intent.getStringExtra("roomName")
+        like = intent.getStringExtra("like")!!
+        hate = intent.getStringExtra("hate")!!
+        roomName = intent.getStringExtra("roomName")!!
         uuid = User.getUUID(this)
 
         socketReceiver = WaitingReceiver()
@@ -79,7 +79,7 @@ class WaitingActivity : AppCompatActivity() {
                 "com.example.eattogether_neep.FOOD_LIST" -> {
                     val f_name = intent.getStringArrayExtra("food_name")!!
                     val f_img = intent.getStringArrayExtra("food_img")!!
-                    val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
+                    val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity3::class.java)
                     Log.d("WaitingReceiver f_name",f_name[0].toString())
                     Log.d("WaitingReceiver f_img",f_img[0].toString())
 

@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.Activity.EmotionAnalysisActivity"
+    tools:context=".UI.Activity.EmotionAnalysisActivity3"
     android:orientation="vertical">
 
         <!--<com.example.eattogether_neep.UI.EmotionView
@@ -16,20 +16,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />&ndash;&gt;
 -->
-   <!-- <androidx.camera.view.PreviewView
-        android:id="@+id/cam_emotion2"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cam_emotion3"
         android:layout_width="match_parent"
-        android:layout_height="508dp"
+        android:layout_height="578dp"
+        android:elevation="-2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />-->
-    <com.otaliastudios.cameraview.CameraView
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--<com.otaliastudios.cameraview.CameraView
         android:id="@+id/cam_emotion"
         android:layout_width="match_parent"
         android:layout_height="578dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"/>-->
     <ImageView
         android:id="@+id/imageViewOverlay"
         android:layout_width="match_parent"

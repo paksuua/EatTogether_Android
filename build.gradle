@@ -27,6 +27,9 @@ allprojects {
             //url 'https://navercorp.bintray.com/maps'
             url "https://maven.google.com" // Google's Maven repository
         }
+        maven{
+            url 'https://dl.bintray.com/a6214123/maven'
+        }
     }
 }
 
