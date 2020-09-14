@@ -75,13 +75,13 @@
 
         <activity android:name=".UI.Activity.LaunchActivity" />
         <activity android:name=".UI.Activity.RankingActivity" />
-        <activity android:name=".UI.Activity.PreferenceCheckActivity" />
+        <activity android:name=".UI.Activity.MainActivity" />
         <activity android:name=".UI.Activity.WaitingActivity" />
         <activity android:name=".UI.Activity.WaitingReplyActivity"/>
         <activity android:name=".UI.Activity.MakeUrlActivity" />
         <activity android:name=".UI.Activity.JoinActivity" />
         <activity android:name=".UI.Activity.EmotionAnalysisActivity" />
-        <activity android:name=".UI.Activity.MainActivity">
+        <activity android:name=".UI.Activity.PreferenceCheckActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
