@@ -77,6 +77,10 @@ class SocketService : JobIntentService() {
 
                 mSocket.emit("savePredict", avgPredict, uuid)
             }
+            "makeRank" -> {
+
+                mSocket.emit("makeRank")
+            }
             "showRank" -> {
                 val roomName = intent.getStringExtra("roomName")
 

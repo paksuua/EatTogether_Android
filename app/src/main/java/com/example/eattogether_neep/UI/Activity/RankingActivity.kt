@@ -40,7 +40,7 @@ class RankingActivity : AppCompatActivity() {
         }
 
         roomName = intent.getStringExtra("roomName")!!
-        Toast.makeText(this, "Room Number"+ roomName, Toast.LENGTH_LONG).show()
+        //Toast.makeText(this, "Room Number"+ roomName, Toast.LENGTH_LONG).show()
         //roomName = "835197"
         socketReceiver = RankingReceiver()
         intentFilter = IntentFilter()
@@ -86,7 +86,6 @@ class RankingActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        sendRoomName(roomName)
         getCurrentLocation()
     }
 
@@ -131,13 +130,6 @@ class RankingActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun sendRoomName(roomName:String) {
-        val work = Intent()
-        work.putExtra("serviceFlag", "showRank")
-        work.putExtra("roomName", roomName)
-        SocketService.enqueueWork(this, work)
     }
 
     inner class RankingReceiver() : BroadcastReceiver() {

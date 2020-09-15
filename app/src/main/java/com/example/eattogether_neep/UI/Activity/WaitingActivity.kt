@@ -81,7 +81,7 @@ class WaitingActivity : AppCompatActivity() {
                     val f_img = intent.getStringArrayExtra("food_img")!!
                     val f_num = intent.getIntExtra("count", -1)!!
                     enterNum.setText(f_num.toString())
-                    fullNum.setText(f_num.toString())
+                    fullNum.setText(" / " + f_num.toString())
 
                     val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
                     Log.d("WaitingReceiver f_name",f_name[0].toString())
