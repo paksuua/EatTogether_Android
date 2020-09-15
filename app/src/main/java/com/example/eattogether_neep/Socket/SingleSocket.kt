@@ -72,6 +72,10 @@ class SingleSocket {
                             onSaveImage
                         )
                         this?.on(
+                            "finishPred",
+                            onFinishPredict
+                        )
+                        this?.on(
                             "finishRank",
                             onRanking
                         ) //
@@ -178,6 +182,20 @@ class SingleSocket {
                 context.sendBroadcast(intent)
             }
         }
+
+        private val onFinishPredict: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onFinishPredict")
+            val error = it[0] as Int
+            Log.d(TAG, "Socket onFinishPredict Fail: $error")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.RESULT_FINISH_PREDICT"
+                intent.putExtra("error", error)
+                context.sendBroadcast(intent)
+            }
+        }
+
+
         private val onRanking: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onRankingFinish")
 
@@ -251,6 +269,10 @@ class SingleSocket {
                 this?.on(
                     "result",
                     onSaveImage
+                )
+                this?.off(
+                    "finishPred",
+                    onFinishPredict
                 )
                 this?.off(
                     "finishRank",
