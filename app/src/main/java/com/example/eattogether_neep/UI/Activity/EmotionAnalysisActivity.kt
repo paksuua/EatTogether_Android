@@ -37,6 +37,9 @@ import com.otaliastudios.cameraview.Facing
 import com.otaliastudios.cameraview.Frame
 import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_emotion_analysis.*
+import kotlinx.android.synthetic.main.activity_emotion_analysis.cam_emotion
+import kotlinx.android.synthetic.main.activity_emotion_analysis.imageViewOverlay
+import kotlinx.android.synthetic.main.activity_emotion_analysis2.*
 import java.io.*
 import java.net.URISyntaxException
 import java.nio.ByteBuffer
@@ -173,7 +176,40 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         @SuppressLint("HandlerLeak")
         mHandler = object : Handler() {
             override fun handleMessage(msg: Message) {
-                takePhoto()
+                if (this@EmotionAnalysisActivity.isFinishing)
+                    return
+                else{
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food1)
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i / 3]).into(img_food1)
+                    tv_food_num1.text="후보 "+(i/3+1)
+                    txt_food_name1.text = f_name[i / 3]
+                    ///saveImage(i, getBase64Data(photoPath))
+
+                    // 1초마다 표정, 기기번호, 음식번호 전송
+                    takePhoto()
+                    saveImage(i, getBase64Data(photoPath))
+                    //saveImage(i, encoder3(photoPath))
+                    i++
+
+                    Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
+                    smileSum+= smileProb
+                    // 3초마다 기기번호, 음식번호
+                    if(i%3==0){
+                        Log.d("3초마다 기기번호, 음식번호", "Emotion Analysis enqueue every 3seconds")
+                        //savePredict(smileSum / 3)
+                        smileSum=0.0F
+                    }
+
+                    if((i/3)>= f_name.size) {
+                        val intent = Intent(
+                            this@EmotionAnalysisActivity,
+                            RankingActivity::class.java
+                        )
+                        intent.putExtra("roomName", roomName)
+                        startActivity(intent)
+                        finish()
+                    }
+                }
             }
         }
 

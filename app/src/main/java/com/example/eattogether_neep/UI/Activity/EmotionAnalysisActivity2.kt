@@ -211,6 +211,14 @@ class EmotionAnalysisActivity2 : AppCompatActivity() {
                 }
             }
         }
+
+        thread(start = true) {
+            while (true) {
+                Thread.sleep(1000)
+                mHandler?.sendEmptyMessage(0)
+            }
+        }
+
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
     }

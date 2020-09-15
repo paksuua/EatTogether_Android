@@ -1,6 +1,7 @@
 package com.example.eattogether_neep.UI.Activity
 
 import android.Manifest
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         requestCameraPermission()
+        requestLocationPermission()
 
         btn_make.setOnClickListener {
             val intent = Intent(this, MakeUrlActivity::class.java)
@@ -39,6 +41,18 @@ class MainActivity : AppCompatActivity() {
             EmotionAnalysisActivity.REQUIRED_PERMISSIONS,
             EmotionAnalysisActivity.REQUEST_CODE_PERMISSIONS
         )
+    }
+
+    private fun requestLocationPermission() {
+       /*ActivityCompat.requestPermissions(
+                    this,
+           RankingActivity.REQUIRED_PERMISSIONS,
+           RankingActivity.REQUEST_CODE_PERMISSIONS
+        )*/
+        ActivityCompat.requestPermissions(this,
+            arrayOf(ACCESS_FINE_LOCATION),
+            RankingActivity.REQUEST_CODE_PERMISSIONS
+        );
     }
 
     companion object {
