@@ -38,9 +38,9 @@ class WaitingActivity : AppCompatActivity() {
         // loading git
         Glide.with(this).load(R.drawable.loading).into(img_rotate)
 
-        like = intent.getStringExtra("like")
-        hate = intent.getStringExtra("hate")
-        roomName = intent.getStringExtra("roomName")
+        like = intent.getStringExtra("like")!!
+        hate = intent.getStringExtra("hate")!!
+        roomName = intent.getStringExtra("roomName")!!
         uuid = User.getUUID(this)
 
         socketReceiver = WaitingReceiver()

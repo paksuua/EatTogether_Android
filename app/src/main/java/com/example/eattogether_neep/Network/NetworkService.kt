@@ -14,6 +14,14 @@ interface NetworkService {
         @Body body : PostMakeUrlRequest
     ) : Call<PostMakeUrlResponse>
 
+    @Multipart
+    @POST("/happiness")
+    fun transferImage(
+        @Part image: MultipartBody.Part,
+        @Part("uuid") uuid: RequestBody,
+        @Part("imageOrder") imageOrder: RequestBody
+    ): Call<PostEmotionResponse>
+
     //참여 코드 입력
     @POST("/user/join")
     fun postJoinRequest(
