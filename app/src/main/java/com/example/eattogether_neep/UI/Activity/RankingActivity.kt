@@ -27,7 +27,6 @@ class RankingActivity : AppCompatActivity() {
 
     private var mCurrentLng = 0.0
     private var mCurrentLat = 0.0
-    private val LOCATION_PERMISSION_REQ_CODE = 1000;
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,15 +39,14 @@ class RankingActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        roomName = intent.getStringExtra("roomName")
-        Toast.makeText(this, "Room Number"+ roomName, Toast.LENGTH_LONG).show()
+        roomName = intent.getStringExtra("roomName")!!
+        //Toast.makeText(this, "Room Number"+ roomName, Toast.LENGTH_LONG).show()
         //roomName = "835197"
         socketReceiver = RankingReceiver()
         intentFilter = IntentFilter()
         with(intentFilter){
             addAction("com.example.eattogether_neep.FOOD_LIST_RANK")
         }
-
         registerReceiver(socketReceiver, intentFilter)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -87,13 +85,20 @@ class RankingActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        sendRoomName(roomName)
         getCurrentLocation()
+        sendResult(roomName)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(socketReceiver)
+    }
+
+    private fun sendResult(roomName:String) {
+        val work = Intent()
+        work.putExtra("serviceFlag", "finishRank")
+        work.putExtra("roomName", roomName)
+        SocketService.enqueueWork(this, work)
     }
 
     private fun getCurrentLocation() {
@@ -102,7 +107,7 @@ class RankingActivity : AppCompatActivity() {
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // request permission
             ActivityCompat.requestPermissions(this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQ_CODE);
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_CODE_PERMISSIONS);
             return
         }
         fusedLocationClient.lastLocation
@@ -121,7 +126,7 @@ class RankingActivity : AppCompatActivity() {
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         when (requestCode) {
-            LOCATION_PERMISSION_REQ_CODE -> {
+            REQUEST_CODE_PERMISSIONS -> {
                 if (grantResults.isNotEmpty() &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission granted
@@ -132,13 +137,6 @@ class RankingActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun sendRoomName(roomName:String) {
-        val work = Intent()
-        work.putExtra("serviceFlag", "showRank")
-        work.putExtra("roomName", roomName)
-        SocketService.enqueueWork(this, work)
     }
 
     inner class RankingReceiver() : BroadcastReceiver() {
@@ -186,5 +184,13 @@ class RankingActivity : AppCompatActivity() {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
+    }
+    companion object {
+        private const val TAG = "Ranking"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
+        const val REQUEST_CODE_PERMISSIONS = 1000
+        val REQUIRED_PERMISSIONS =arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        private const val REQUEST_CAMERA_PERMISSION = 123
+        private var isFrontCamera = true
     }
 }

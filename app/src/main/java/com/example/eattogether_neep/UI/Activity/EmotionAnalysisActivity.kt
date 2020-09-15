@@ -49,6 +49,7 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 
 typealias LumaListener = (luma: Double) -> Unit
@@ -98,7 +99,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         f_name = intent.getStringArrayExtra("food_name")!!
         f_img = intent.getStringArrayExtra("food_img")!!
-        roomName=intent.getStringExtra("roomName")
+        roomName=intent.getStringExtra("roomName")!!
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
@@ -121,6 +122,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         intentFilter = IntentFilter()
         with(intentFilter){
             addAction("com.example.eattogether_neep.RESULT_SAVE_IMAGE")
+            addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
         }
         registerReceiver(socketReceiver, intentFilter)
 
@@ -190,9 +192,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 if (this@EmotionAnalysisActivity.isFinishing)
                     return
                 else{
-                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food)
-                    tv_food_num.text="후보 "+(i/3+1)
-                    txt_food_name.text = f_name[i/3]
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food1)
+                    tv_food_num1.text="후보 "+(i/3+1)
+                    txt_food_name1.text = f_name[i/3]
                     i++
 
                     // 1초마다 표정, 기기번호, 음식번호 전송
@@ -203,15 +205,16 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     // 3초마다 기기번호, 음식번호
                     if(i%3==0){
                         Log.d("3초마다 기기번호, 음식번호","Emotion Analysis enqueue every 3seconds")
-                        savePredict(smileSum/3)
+                        savePredict(smileSum/3, i/3)
                         smileSum=0.0F
                     }
 
                     if((i/3)>= f_name.size) {
-                        val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
+                        /*val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
                         intent.putExtra("roomName", roomName)
                         startActivity(intent)
-                        finish()
+                        finish()*/
+                        //exitProcess(1)
                     }
                 }
             }
@@ -399,12 +402,13 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
-    private fun savePredict(avgPredict:Float) {
+    private fun savePredict(avgPredict:Float,imageOrder: Int ) {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
         work.putExtra("serviceFlag", "savePredict")
         work.putExtra("avgPredict", avgPredict)
         work.putExtra("uuid", uuid)
+        work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
     }
 
@@ -631,6 +635,14 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                         ).show()
                     }*/
                 }
+                "com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
+                    val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
+                    intent.putExtra("roomName", roomName)
+                    this@EmotionAnalysisActivity.startActivity(intent)
+                    this@EmotionAnalysisActivity.finish()
+
+                    //if
+                }
                 else -> return
             }
         }
@@ -639,8 +651,8 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "EmotionAnalysis"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        const val REQUEST_CODE_PERMISSIONS = 10
+        val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val REQUEST_CAMERA_PERMISSION = 123
         private var isFrontCamera = true
     }

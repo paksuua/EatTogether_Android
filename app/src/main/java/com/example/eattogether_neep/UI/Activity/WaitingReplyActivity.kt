@@ -21,7 +21,6 @@ class WaitingReplyActivity : AppCompatActivity() {
     private var enterNumber = 0
     private lateinit var socketReceiver: WaitingReplyActivity.WaitingReplyReceiver
     private lateinit var intentFilter: IntentFilter
-    private lateinit var uuid: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,14 +29,12 @@ class WaitingReplyActivity : AppCompatActivity() {
         // loading git
         Glide.with(this).load(R.drawable.loading).into(img_rotate)
 
-        roomName = intent.getStringExtra("roomName")
-        uuid = User.getUUID(this)
+        roomName = intent.getStringExtra("roomName")!!
 
         socketReceiver = WaitingReplyReceiver()
         intentFilter = IntentFilter()
         with(intentFilter){
-            addAction("com.example.eattogether_neep.FOOD_LIST_RANK")
-            addAction("com.example.eattogether_neep.ENTER_COUNT")
+            addAction("com.example.eattogether_neep.FINISH_RANK")
         }
 
         registerReceiver(socketReceiver, intentFilter)
@@ -45,7 +42,7 @@ class WaitingReplyActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        sendPreference(uuid, roomName)
+        sendResult(roomName)
     }
 
     override fun onDestroy() {
@@ -53,10 +50,9 @@ class WaitingReplyActivity : AppCompatActivity() {
         unregisterReceiver(socketReceiver)
     }
 
-    private fun sendPreference(uuid:String, roomName:String) {
+    private fun sendResult(roomName:String) {
         val work = Intent()
-        work.putExtra("serviceFlag", "무언가")
-        work.putExtra("uuid", uuid)
+        work.putExtra("serviceFlag", "showRank")
         work.putExtra("roomName", roomName)
         SocketService.enqueueWork(this, work)
     }
@@ -64,19 +60,13 @@ class WaitingReplyActivity : AppCompatActivity() {
     inner class WaitingReplyReceiver() : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                "com.example.eattogether_neep.FOOD_LIST_RANK" -> {
+                "com.example.eattogether_neep.FINISH_RANK" ->{
                     val intent = Intent(this@WaitingReplyActivity, RankingActivity::class.java)
                     with(intent) {
                         intent.putExtra("roomName",roomName)
                     }
                     this@WaitingReplyActivity.startActivity(intent)
                     this@WaitingReplyActivity.finish()
-                }
-                "com.example.eattogether_neep.ENTER_COUNT" ->{
-                    enterNumber = intent.getIntExtra("count",-1)
-                    fullNumber = intent.getIntExtra("full", -1)
-                    fullNumReply.setText(" / " + fullNumber.toString())
-                    enterNumReply.setText(enterNumber.toString())
                 }
                 else -> return
             }

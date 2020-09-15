@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UI.Activity.EmotionAnalysisActivity"
+    tools:context=".UI.Activity.EmotionAnalysisActivity2"
     android:orientation="vertical">
 
         <!--<com.example.eattogether_neep.UI.EmotionView
@@ -16,13 +16,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />&ndash;&gt;
 -->
-   <!-- <androidx.camera.view.PreviewView
+    <androidx.camera.view.PreviewView
         android:id="@+id/cam_emotion2"
         android:layout_width="match_parent"
-        android:layout_height="508dp"
+        android:layout_height="578dp"
+        android:elevation="-2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />-->
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.otaliastudios.cameraview.CameraView
         android:id="@+id/cam_emotion"
         android:layout_width="match_parent"
@@ -51,7 +53,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
-            android:id="@+id/img_food1"
+            android:id="@+id/img_food"
             android:layout_width="182dp"
             android:layout_height="144dp"
             app:layout_constraintCircleRadius="5dp"
@@ -69,7 +71,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
             <TextView
-                android:id="@+id/tv_food_num1"
+                android:id="@+id/tv_food_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
@@ -79,17 +81,17 @@
                 android:paddingBottom="6dp"
                 android:layout_marginTop="48dp"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/txt_food_name1"
+                app:layout_constraintStart_toStartOf="@+id/txt_food_name"
                 android:text="후보 1"/>
             <TextView
-                android:id="@+id/txt_food_name1"
+                android:id="@+id/txt_food_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="22sp"
                 android:textColor="@color/text_black"
                 android:fontFamily="@font/nanumsquareb"
                 android:lineSpacingExtra="4sp"
-                app:layout_constraintTop_toBottomOf="@+id/tv_food_num1"
+                app:layout_constraintTop_toBottomOf="@+id/tv_food_num"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:text="마라샹궈" />

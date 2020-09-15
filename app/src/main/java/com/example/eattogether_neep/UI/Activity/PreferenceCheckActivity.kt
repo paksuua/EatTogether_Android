@@ -122,7 +122,7 @@ class PreferenceCheckActivity : AppCompatActivity() {
         }
 
 
-        roomName = intent.getStringExtra("roomName")
+        roomName = intent.getStringExtra("roomName")!!
 
         btn_close_preference.setOnClickListener {
             val intent1 = Intent(this, MainActivity::class.java)

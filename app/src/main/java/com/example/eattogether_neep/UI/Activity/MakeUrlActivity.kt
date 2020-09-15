@@ -66,11 +66,12 @@ class MakeUrlActivity : AppCompatActivity() {
                 Toast.makeText(this,"참여 인원을 입력하세요",Toast.LENGTH_SHORT).show()
             }else if (clickFlag){ // 다시 누르는 경우
                 copyCode(joincode)
+                //clickFlag=true
             }
             else{ // 처음 누르는 경우
                 // 랜덤 참여코드 요청
                 requestMakeUrl()
-                clickFlag!=clickFlag
+                clickFlag=!clickFlag
                 //localMakeUrl()
 
                 // 생성 코드 텍스트뷰 visible
@@ -139,7 +140,6 @@ class MakeUrlActivity : AppCompatActivity() {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("RANDOM UUID",code)
         clipboard.setPrimaryClip(clip)
-
         Toast.makeText(this,code+" 코드가 복사되었습니다.", Toast.LENGTH_LONG ).show()
     }
 }
