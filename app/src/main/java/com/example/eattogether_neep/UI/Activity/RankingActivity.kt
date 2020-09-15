@@ -47,7 +47,6 @@ class RankingActivity : AppCompatActivity() {
         with(intentFilter){
             addAction("com.example.eattogether_neep.FOOD_LIST_RANK")
         }
-
         registerReceiver(socketReceiver, intentFilter)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -87,11 +86,19 @@ class RankingActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         getCurrentLocation()
+        sendResult(roomName)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(socketReceiver)
+    }
+
+    private fun sendResult(roomName:String) {
+        val work = Intent()
+        work.putExtra("serviceFlag", "finishRank")
+        work.putExtra("roomName", roomName)
+        SocketService.enqueueWork(this, work)
     }
 
     private fun getCurrentLocation() {

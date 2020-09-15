@@ -185,12 +185,12 @@ class SingleSocket {
 
         private val onFinishPredict: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onFinishPredict")
-            val error = it[0] as Int
-            Log.d(TAG, "Socket onFinishPredict Fail: $error")
+            //val error = it[0] as Int
+            //Log.d(TAG, "Socket onFinishPredict Fail: $error")
 
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.RESULT_FINISH_PREDICT"
-                intent.putExtra("error", error)
+               // intent.putExtra("error", error)
                 context.sendBroadcast(intent)
             }
         }

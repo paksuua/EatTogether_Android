@@ -205,7 +205,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     // 3초마다 기기번호, 음식번호
                     if(i%3==0){
                         Log.d("3초마다 기기번호, 음식번호","Emotion Analysis enqueue every 3seconds")
-                        savePredict(smileSum/3)
+                        savePredict(smileSum/3, i/3)
                         smileSum=0.0F
                     }
 
@@ -214,7 +214,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                         intent.putExtra("roomName", roomName)
                         startActivity(intent)
                         finish()*/
-                        exitProcess(1)
+                        //exitProcess(1)
                     }
                 }
             }
@@ -402,12 +402,13 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
-    private fun savePredict(avgPredict:Float) {
+    private fun savePredict(avgPredict:Float,imageOrder: Int ) {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
         work.putExtra("serviceFlag", "savePredict")
         work.putExtra("avgPredict", avgPredict)
         work.putExtra("uuid", uuid)
+        work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
     }
 
@@ -636,6 +637,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 }
                 "com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
                     val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
+                    intent.putExtra("roomName", roomName)
                     this@EmotionAnalysisActivity.startActivity(intent)
                     this@EmotionAnalysisActivity.finish()
 
