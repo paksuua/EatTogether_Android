@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import com.example.eattogether_neep.R
 import kotlinx.android.synthetic.main.activity_main.*
 
-private const val REQUEST_CODE_PERMISSIONS = 10
+private const val PERMISSIONS_MULTIPLE_REQUEST = 10
 private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 private const val REQUEST_CAMERA_PERMISSION = 123
 
@@ -20,8 +20,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        requestCameraPermission()
-        requestLocationPermission()
+        requestPermission()
 
         btn_make.setOnClickListener {
             val intent = Intent(this, MakeUrlActivity::class.java)
@@ -34,26 +33,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun requestCameraPermission() {
-        ActivityCompat.requestPermissions(
-            this,
-            EmotionAnalysisActivity.REQUIRED_PERMISSIONS,
-            EmotionAnalysisActivity.REQUEST_CODE_PERMISSIONS
-        )
-    }
-
-    private fun requestLocationPermission() {
-       /*ActivityCompat.requestPermissions(
-                    this,
-           RankingActivity.REQUIRED_PERMISSIONS,
-           RankingActivity.REQUEST_CODE_PERMISSIONS
-        )*/
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(ACCESS_FINE_LOCATION),
-            RankingActivity.REQUEST_CODE_PERMISSIONS
-        );
+    private fun requestPermission() {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // request permission
+            ActivityCompat.requestPermissions(this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA),
+                PERMISSIONS_MULTIPLE_REQUEST
+            )
+        }
     }
 
     companion object {
