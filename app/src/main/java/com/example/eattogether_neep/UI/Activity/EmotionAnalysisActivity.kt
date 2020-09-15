@@ -95,7 +95,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         f_name = intent.getStringArrayExtra("food_name")!!
         f_img = intent.getStringArrayExtra("food_img")!!
-        roomName=intent.getStringExtra("roomName")
+        roomName=intent.getStringExtra("roomName")!!
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
