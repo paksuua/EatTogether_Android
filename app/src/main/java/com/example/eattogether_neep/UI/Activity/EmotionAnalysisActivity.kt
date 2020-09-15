@@ -49,6 +49,7 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 
 typealias LumaListener = (luma: Double) -> Unit
@@ -121,6 +122,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         intentFilter = IntentFilter()
         with(intentFilter){
             addAction("com.example.eattogether_neep.RESULT_SAVE_IMAGE")
+            addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
         }
         registerReceiver(socketReceiver, intentFilter)
 
@@ -208,10 +210,11 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     }
 
                     if((i/3)>= f_name.size) {
-                        val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
+                        /*val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
                         intent.putExtra("roomName", roomName)
                         startActivity(intent)
-                        finish()
+                        finish()*/
+                        exitProcess(1)
                     }
                 }
             }
@@ -630,6 +633,13 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }*/
+                }
+                "com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
+                    val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
+                    this@EmotionAnalysisActivity.startActivity(intent)
+                    this@EmotionAnalysisActivity.finish()
+
+                    //if
                 }
                 else -> return
             }
