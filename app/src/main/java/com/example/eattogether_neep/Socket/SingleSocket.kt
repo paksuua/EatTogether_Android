@@ -125,6 +125,7 @@ class SingleSocket {
         private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference")
             val foodList = it[0] as JSONArray
+            val count = it[1] as Int
             val list_cnt = foodList.length()
             val getName = Array(list_cnt,{""})
             val getImg = Array(list_cnt,{""})
@@ -142,6 +143,7 @@ class SingleSocket {
                 intent.action = "com.example.eattogether_neep.FOOD_LIST"
                 intent.putExtra("food_name", getName)
                 intent.putExtra("food_img", getImg)
+                intent.putExtra("count", count)
                 context.sendBroadcast(intent)
             }
         }
