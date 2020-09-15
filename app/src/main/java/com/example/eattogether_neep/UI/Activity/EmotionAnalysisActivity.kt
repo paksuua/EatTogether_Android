@@ -1,30 +1,28 @@
 package com.example.eattogether_neep.UI.Activity
 
 import android.Manifest
-import android.Manifest.permission.CAMERA
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.content.pm.PackageManager
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.os.*
 import android.util.Log
 import android.view.TextureView
-import android.widget.Toast
+import android.widget.*
+import androidx.activity.viewModels
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.app.Activity
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import java.nio.ByteBuffer
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.User
@@ -32,17 +30,20 @@ import com.example.eattogether_neep.emotion.coredetection.DrawFace
 import com.example.eattogether_neep.emotion.facedetection.FaceDetector
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
+import com.google.firebase.ml.vision.FirebaseVision
+import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
 import com.otaliastudios.cameraview.Facing
 import com.otaliastudios.cameraview.Frame
 import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_emotion_analysis.*
-import kotlinx.android.synthetic.main.activity_emotion_analysis.cam_emotion
-import kotlinx.android.synthetic.main.activity_emotion_analysis.imageViewOverlay
-import kotlinx.android.synthetic.main.activity_emotion_analysis2.*
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.lang.Thread.sleep
 import java.net.URISyntaxException
-import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -67,7 +68,6 @@ private var f_img: Array<String> = arrayOf()
 private var savedUri: Uri? =null
 private  var smileProb=0.0F
 private  var smileSum=0.0F
-private var photoPath:String?= null
 
 
 class EmotionAnalysisActivity : AppCompatActivity() {
@@ -98,7 +98,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         f_name = intent.getStringArrayExtra("food_name")!!
         f_img = intent.getStringArrayExtra("food_img")!!
-        roomName=intent.getStringExtra("roomName")!!
+        roomName=intent.getStringExtra("roomName")
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
@@ -164,47 +164,51 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     private fun startCameraThread(){
         // Request camera permissions
         if (allPermissionsGranted()) {
+
+            // 이거 둘 중 하나만 써야하려나..?
+            //viewModel.startCamera(this, cam_emotion)
             startCamera()
         } else {
             ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
-            )
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
-        //camera_capture_button.setOnClickListener { takePhoto() }
+        /*viewModel.faces.observe(
+            this,
+            androidx.lifecycle.Observer { faces ->
+                if (faces != null){
+                    emotion.faces=faces
+                }
+            }
+        )*/
 
+        // Set up the listener for take photo button
+        //camera_capture_button.setOnClickListener { takePhoto() }
         @SuppressLint("HandlerLeak")
         mHandler = object : Handler() {
             override fun handleMessage(msg: Message) {
                 if (this@EmotionAnalysisActivity.isFinishing)
                     return
                 else{
-                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food1)
-                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i / 3]).into(img_food1)
-                    tv_food_num1.text="후보 "+(i/3+1)
-                    txt_food_name1.text = f_name[i / 3]
-                    ///saveImage(i, getBase64Data(photoPath))
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food)
+                    tv_food_num.text="후보 "+(i/3+1)
+                    txt_food_name.text = f_name[i/3]
+                    i++
 
                     // 1초마다 표정, 기기번호, 음식번호 전송
                     takePhoto()
-                    saveImage(i, getBase64Data(photoPath))
-                    //saveImage(i, encoder3(photoPath))
-                    i++
-
                     Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
+                    //saveImage(i/3, smileProb.toString())
                     smileSum+= smileProb
                     // 3초마다 기기번호, 음식번호
                     if(i%3==0){
-                        Log.d("3초마다 기기번호, 음식번호", "Emotion Analysis enqueue every 3seconds")
-                        //savePredict(smileSum / 3)
+                        Log.d("3초마다 기기번호, 음식번호","Emotion Analysis enqueue every 3seconds")
+                        savePredict(smileSum/3)
                         smileSum=0.0F
                     }
 
                     if((i/3)>= f_name.size) {
-                        val intent = Intent(
-                            this@EmotionAnalysisActivity,
-                            RankingActivity::class.java
-                        )
+                        val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
                         intent.putExtra("roomName", roomName)
                         startActivity(intent)
                         finish()
@@ -221,44 +225,97 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         }
 
         outputDirectory = getOutputDirectory()
+
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    private fun takePhoto() {
 
+
+    // 3초마다 하단에 메뉴와 이미지 보내줌
+    private fun setMenuImageThread(f_name: Array<String>, f_img: Array<String>){
+        @SuppressLint("HandlerLeak")
+        mHandler = object : Handler() {
+            override fun handleMessage(msg: Message) {
+                val cal = Calendar.getInstance()
+
+               /* val sdf = SimpleDateFormat("HH:mm:ss")
+                val strTime = sdf.format(cal.time)*/
+
+               /* Glide.with(this@EmotionAnalysisActivity).load(f_img[i%3]).into(img_food)
+                tv_food_num.text="후보 "+i%3
+                txt_food_name.text = f_name[i%3]
+                i++*/
+
+                // 1초마다 표정, 기기번호, 음식번호 전송
+                //Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
+                //saveImage(i%3)
+
+                /*// 3초마다 기기번호, 음식번호
+                if(i%3==0){
+                    Log.d("SaveImage Called:",image64)
+                    avgPredict(i%3)
+                }
+
+                Log.d("3Second Thread","View every 3seconds")
+                if((i%3)>= f_name.size) {
+                    val intent = Intent(this@EmotionAnalysisActivity, RankingActivity::class.java)
+                    startActivity(intent)
+                }*/
+            }
+        }
+
+        thread(start = true) {
+            while (true) {
+                sleep(1000)
+                mHandler?.sendEmptyMessage(0)
+            }
+        }
+    }
+
+    private fun takePhoto() {
+        //setUpCameraOutputsFront()
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
 
         // Create time-stamped output file to hold the image
-        val photoFile = File(
+       val photoFile = File(
             outputDirectory,
-            SimpleDateFormat(
-                FILENAME_FORMAT, Locale.US
-            ).format(System.currentTimeMillis()) + ".jpg"
-        )
+            SimpleDateFormat(FILENAME_FORMAT, Locale.US
+            ).format(System.currentTimeMillis()) + ".jpg")
+        /*photoFile=File(
+            Environment.getExternalStorageDirectory(),SimpleDateFormat(FILENAME_FORMAT, Locale.US
+            ).format(System.currentTimeMillis()) + ".jpg")*/
 
         // Create output options object which contains file + metadata
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile!!).build()
 
         // Set up image capture listener, which is triggered after photo has
         // been taken
         imageCapture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
+            outputOptions, ContextCompat.getMainExecutor(this), object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     var photoPath = photoFile.canonicalPath
-                    val savedUri = Uri.fromFile(photoFile)
-                    Log.e("Before Base64 encoder photoFile", photoFile.toString())
-                    //decoder(sub_img, photoFile)
-                    Log.e("base64 with header",getBase64Data(photoFile.toString()))
-                    val msg = "Photo capture succeeded: $savedUri"
-                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, msg)
+                    savedUri = Uri.fromFile(photoFile)
+                    //val savedUri = Uri.parse("https://upload.wikimedia.org/wikipedia/commons/4/41/Sunflower_from_Silesia2.jpg")//Uri.fromFile(photoFile)
+                    Log.d("Before Base64 encoder",savedUri.toString())
+                    Log.d("Base64 encoder111", encoder1(photoFile))
+                    Log.d("Base64 encoder222", encoder2(savedUri))
+                    //base64Str=encoder2(saveUri)
+                    //saveImage(imageOrder, base64Str)
+
+                    Log.d("Base64 encoder333", encoder3(photoPath))
+                    //val result=decoder(encoder(photoFile.toString()), photoFile.toString())
+                    //Log.d("Base64 decoded", result.toString())
+
+                    //encoder2(savedUri)
+
+                    //val msg = "Photo capture succeeded: $savedUri"
+                    //Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    //Log.d(TAG, msg)
                 }
             })
     }
@@ -282,10 +339,11 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         var imageBytes = baos.toByteArray()
 
         return android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP)
+        //return Base64.getEncoder().encodeToString(imageBytes) // Not Worked, too.
     }
 
     // Saved Broken Image
-    private fun encoder3(path: String?): String {
+    private fun encoder3(path: String): String {
         val imagefile = File(path)
         var fis: FileInputStream? = null
         try {
@@ -306,42 +364,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         return ""
     }
 
-
-    // Convert Failed to Image
-    private fun getBase64Data(filePath: String?): String {
-        try {
-            val inputStream: InputStream =
-                FileInputStream(filePath) //You can get an inputStream using any IO API
-            val bytes: ByteArray
-            val buffer = ByteArray(8192)
-            var bytesRead: Int
-            val output = ByteArrayOutputStream()
-            try {
-                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                    output.write(buffer, 0, bytesRead)
-                }
-            } catch (e: java.lang.Exception) {
-                e.printStackTrace()
-            }
-            bytes = output.toByteArray()
-            Log.d(
-                "getBase64Data", android.util.Base64.encodeToString(
-                    bytes,
-                    android.util.Base64.NO_WRAP
-                )
-            )
-            return /*"data:image/jpeg;base64," + */android.util.Base64.encodeToString(
-                bytes,
-                android.util.Base64.NO_WRAP
-            )
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-            Log.d("getBase64Data", "error")
-        }
-        return ""
-    }
-
-
     fun decoder(base64Str: String, pathFile: String): Unit{
         val imageByteArray = Base64.getDecoder().decode(base64Str)
         File(pathFile).writeBytes(imageByteArray)
@@ -360,7 +382,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         //encoder
 
         ///val encodeString=encoder("src/main/res/drawable/neww.JPG")
-        Log.d("SaveImage Called:", base64Str)
+        Log.d("SaveImage Called:",base64Str)
         work.putExtra("serviceFlag", "saveImage")
         work.putExtra("image", base64Str)
         work.putExtra("uuid", uuid)
@@ -368,7 +390,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
-    private fun avgPredict(imageOrder: Int) {
+    private fun avgPredict(imageOrder:Int) {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
         work.putExtra("serviceFlag", "avgPredict")
@@ -377,7 +399,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
-    private fun savePredict(avgPredict: Float) {
+    private fun savePredict(avgPredict:Float) {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
         work.putExtra("serviceFlag", "savePredict")
@@ -422,11 +444,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             if (face.smilingProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
                 smileProb = face.smilingProbability
                 if (smileProb > 0) {
-                    /*Toast.makeText(
-                        this,
-                        "The degree of your happiness is:$smileProb",
-                        Toast.LENGTH_SHORT
-                    ).show()*/
+                    Toast.makeText(this, "The degree of your happiness is:$smileProb", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -464,11 +482,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             if (allPermissionsGranted()) {
                 viewFinder.post { startCamera() }
             } else {
-                Toast.makeText(
-                    this,
+                Toast.makeText(this,
                     "권한이 허용되지 않았습니다.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                    Toast.LENGTH_SHORT).show()
                 finish()
             }
             return
@@ -521,7 +537,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 // Bind use cases to camera
                 //cameraProvider.bindToLifecycle(this, cameraSelector, preview,  imageCapture, imageAnalyzer)
 
-            } catch (exc: Exception) {
+            } catch(exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
@@ -551,14 +567,12 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(
-            baseContext, it
-        ) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name2)).apply { mkdirs() } }
+            File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
         return if (mediaDir != null && mediaDir.exists())
             mediaDir else filesDir
     }
@@ -591,18 +605,16 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     }*/
 
     private fun checkPermission() {
-        if (ContextCompat.checkSelfPermission(
-                this, CAMERA) != PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(this,
+               CAMERA
+            ) != PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(CAMERA, WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION
-            )
+            ActivityCompat.requestPermissions(this,
+                arrayOf(CAMERA, WRITE_EXTERNAL_STORAGE), REQUEST_CAMERA_PERMISSION)
         } else {
             cam_emotion.start()
         }
     }
-
     inner class EmotionReciver() : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
@@ -627,8 +639,8 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "EmotionAnalysis"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        const val REQUEST_CODE_PERMISSIONS = 10
-        val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val REQUEST_CAMERA_PERMISSION = 123
         private var isFrontCamera = true
     }
