@@ -30,7 +30,7 @@ class WaitingReplyActivity : AppCompatActivity() {
         // loading git
         Glide.with(this).load(R.drawable.loading).into(img_rotate)
 
-        roomName = intent.getStringExtra("roomName")
+        roomName = intent.getStringExtra("roomName")!!
         uuid = User.getUUID(this)
 
         socketReceiver = WaitingReplyReceiver()
