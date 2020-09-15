@@ -246,7 +246,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         var imageBytes = baos.toByteArray()
 
         return android.util.Base64.encodeToString(imageBytes, android.util.Base64.NO_WRAP)
-        //return Base64.getEncoder().encodeToString(imageBytes) // Not Worked, too.
     }
 
     // Saved Broken Image
@@ -265,6 +264,12 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         return Base64.getEncoder().encodeToString(b)
     }
+
+    // Convert Image to BitmapArray?
+    private fun encoder4(path: String): String {
+        return ""
+    }
+
 
     // Convert Failed to Image
     private fun getBase64Data(filePath: String?): String {
@@ -300,10 +305,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         return ""
     }
 
-    // Convert Image to BitmapArray?
-    private fun encoder4(path: String): String {
-        return ""
-    }
 
     fun decoder(base64Str: String, pathFile: String): Unit{
         val imageByteArray = Base64.getDecoder().decode(base64Str)
@@ -590,8 +591,8 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "EmotionAnalysis"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        const val REQUEST_CODE_PERMISSIONS = 10
+        val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val REQUEST_CAMERA_PERMISSION = 123
         private var isFrontCamera = true
     }

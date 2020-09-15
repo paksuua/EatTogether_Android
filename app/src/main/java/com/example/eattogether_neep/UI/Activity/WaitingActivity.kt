@@ -79,7 +79,7 @@ class WaitingActivity : AppCompatActivity() {
                 "com.example.eattogether_neep.FOOD_LIST" -> {
                     val f_name = intent.getStringArrayExtra("food_name")!!
                     val f_img = intent.getStringArrayExtra("food_img")!!
-                    val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity3::class.java)
+                    val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
                     Log.d("WaitingReceiver f_name",f_name[0].toString())
                     Log.d("WaitingReceiver f_img",f_img[0].toString())
 
