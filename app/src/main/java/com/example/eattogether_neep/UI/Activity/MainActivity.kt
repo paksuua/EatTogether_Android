@@ -49,7 +49,8 @@ class MainActivity : AppCompatActivity() {
            RankingActivity.REQUIRED_PERMISSIONS,
            RankingActivity.REQUEST_CODE_PERMISSIONS
         )*/
-        ActivityCompat.requestPermissions(this,
+        ActivityCompat.requestPermissions(
+            this,
             arrayOf(ACCESS_FINE_LOCATION),
             RankingActivity.REQUEST_CODE_PERMISSIONS
         );

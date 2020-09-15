@@ -98,7 +98,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
 
         f_name = intent.getStringArrayExtra("food_name")!!
         f_img = intent.getStringArrayExtra("food_img")!!
-        roomName=intent.getStringExtra("roomName")
+        roomName=intent.getStringExtra("roomName")!!
         Log.e("Food Name: ", f_name[0].toString())
         Log.e("Food Image: ", f_img[0].toString())
 
@@ -190,9 +190,9 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 if (this@EmotionAnalysisActivity.isFinishing)
                     return
                 else{
-                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food)
-                    tv_food_num.text="후보 "+(i/3+1)
-                    txt_food_name.text = f_name[i/3]
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food1)
+                    tv_food_num1.text="후보 "+(i/3+1)
+                    txt_food_name1.text = f_name[i/3]
                     i++
 
                     // 1초마다 표정, 기기번호, 음식번호 전송
@@ -639,8 +639,8 @@ class EmotionAnalysisActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "EmotionAnalysis"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private const val REQUEST_CODE_PERMISSIONS = 10
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        const val REQUEST_CODE_PERMISSIONS = 10
+        val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val REQUEST_CAMERA_PERMISSION = 123
         private var isFrontCamera = true
     }
