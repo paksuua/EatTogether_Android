@@ -72,10 +72,6 @@ class SingleSocket {
                             onSaveImage
                         )
                         this?.on(
-                            "waiting",
-                            onWaiting
-                        ) //
-                        this?.on(
                             "finishRank",
                             onRanking
                         ) //
@@ -179,20 +175,6 @@ class SingleSocket {
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.RESULT_SAVE_IMAGE"
                 intent.putExtra("error", error)
-                context.sendBroadcast(intent)
-            }
-        }
-
-        private val onWaiting : Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onPreference count")
-            val count = it[0] as Int
-            val full = it[1] as Int
-            Log.d(TAG, "Socket onPreference count: $count")
-
-            Intent().also { intent ->
-                intent.action = "com.example.eattogether_neep.WAITING_COUNT"
-                intent.putExtra("count", count)
-                intent.putExtra("full", full)
                 context.sendBroadcast(intent)
             }
         }
