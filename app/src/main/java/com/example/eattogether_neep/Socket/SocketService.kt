@@ -75,6 +75,7 @@ class SocketService : JobIntentService() {
                 mSocket.emit("savePredict", avgPredict, uuid, imageOrder)
             }
             "avgPredict" -> {
+                Log.d("AvgPredict Called in SocketService.","")
                 val uuid = intent.getStringExtra("uuid")
                 val imageOrder =intent.getIntExtra("imageOrder", -1)
 

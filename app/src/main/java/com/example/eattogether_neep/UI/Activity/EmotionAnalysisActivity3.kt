@@ -49,6 +49,7 @@ import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
+import kotlin.system.exitProcess
 
 
 typealias LumaListener3 = (luma: Double) -> Unit
@@ -65,12 +66,14 @@ private var resultFromServer = -1
 
 private var f_name: Array<String> = arrayOf()
 private var f_img: Array<String> = arrayOf()
+private var imgFiles: Array<Uri> = arrayOf()
 private var savedUri: Uri? =null
 private  var smileProb=0.0F
 private  var imgOrder=0
 private  var imgOrder3=0
-private var photoPath:String?= null
+private var photoCount:Int= 0
 private var i=0
+private var imgSuccessFlag=false
 private lateinit var selectPicUri: Uri
 
 
@@ -161,9 +164,10 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
             override fun handleMessage(msg: Message) {
                 if (this@EmotionAnalysisActivity3.isFinishing)
                     return
-                else{
+                if(i < f_img.size*3){
                     // Glide image load delay issue
-                    Glide.with(this@EmotionAnalysisActivity3).load(f_img[i / 3]).into(img_food)
+
+                    Glide.with(this@EmotionAnalysisActivity3).load(f_img[i/3]).into(img_food)
                     //Picasso.get().load(f_img[i / 3]).into(img_food);
 
                     tv_food_num.text="후보 "+(i/3+1)
@@ -182,22 +186,24 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                     Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
                     //smileSum+= smileProb
                     // 3초마다 기기번호, 음식번호
-                    if(i%3==0){
+                    /*if(i%3==0){
                         Log.d("3초마다 기기번호, 음식번호", "Emotion Analysis enqueue every 3seconds")
                         //savePredict(smileSum / 3)
-                        //avgPredict(imgOrder)
-                    }
+                        avgPredict(imgOrder)
+                    }*/
 
 
-                    if((i/3)>= f_name.size) {
-                        val intent = Intent(
-                            this@EmotionAnalysisActivity3,
-                            RankingActivity::class.java
-                        )
-                        intent.putExtra("roomName", roomName)
-                        startActivity(intent)
-                        finish()
-                    }
+                    Log.d("Print i before transfer activity:",i.toString())
+                    // 30개만 보내고
+                }
+                else {
+                    /*val intent = Intent(
+                        this@EmotionAnalysisActivity3,
+                        MainActivity::class.java
+                    )
+                    this@EmotionAnalysisActivity3.startActivity(intent)
+                    this@EmotionAnalysisActivity3.finish()*/
+                    return
                 }
             }
         }
@@ -242,6 +248,9 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                     val savedUri = Uri.fromFile(photoFile)
                     Log.d("onImageSaved", imgOrder.toString())
                     uploadImage(savedUri, uuid , imgOrder)
+                    if (imgOrder>30){
+                        imgSuccessFlag=!imgSuccessFlag
+                    }
                     //Log.e("photo base64 encoder2", encoder2(savedUri))
                     val msg = "Photo capture succeeded: $savedUri"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
@@ -388,6 +397,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
+    // 3초마다 이미지 uuid와 이미지 번호 전송
     private fun avgPredict(imageOrder: Int) {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
@@ -440,28 +450,37 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
             )
             .enqueue(object : Callback<PostEmotionResponse> {
                 override fun onFailure(call: Call<PostEmotionResponse>, t: Throwable) {
-                    Log.d("Emotion3 Upload Image","Fail to upload image, message:${t.message}")
+                    Log.d("Emotion3 Upload Image","Fail to emotion rest 통신, message:${t.message}")
                 }
 
                 override fun onResponse(call: Call<PostEmotionResponse>, response: Response<PostEmotionResponse>) {
-                    Log.d("Emotion3 Upload Image","onResponse :${response.code()}")
+                    Log.d("Emotion3 Upload Image","emotion rest 통신 onResponse :${response.code()}")
                     if (response.isSuccessful) {
+                        ++photoCount
+                        //Log.d("avgPredict 호출 바깥", ((photoCount-1)/3).toString())
+                        if(photoCount%3==0) {
+                            Log.d("여기서 avgPredict 호출", ((photoCount - 1) / 3).toString())
+                            //savePredict(smileSum / 3)
+                            avgPredict((photoCount - 1) / 3)
+                        }
+
                         response.body()
                             ?.let {
-                                Log.d("Model data response","status : ${it.status}, success: ${it.success}, data: ${it.data}, message : ${it.message}")
+                                //Log.d("Model data response","status : ${it.status}, success: ${it.success}, data: ${it.data}, message : ${it.message}")
                                 if (it.success) {
-                                    //socket
-                                    /*when {
-                                        imageCount%3==0 -> {
-                                            avgPredict(imageCount/3)
-                                        }
-                                        else -> return
-                                    }*/
-                                    //smileProb= it.data?.happiness!!
+                                    /*++photoCount
+                                    Log.d("avgPredict 호출 바깥", ((photoCount-1)/3).toString())
+                                    if(photoCount%3==0){
+                                        Log.d("여기서 avgPredict 호출", ((photoCount-1)/3).toString())
+                                        //savePredict(smileSum / 3)
+                                        avgPredict((photoCount-1)/3)
+                                    }
+                                    else return@let*/
                                 } else {
-                                    Log.d("Model data response is not Success",
-                                        "status : ${it.status}, success: ${it.success}, data: ${it.data}, message : ${it.message}")
+                                   /* Log.d("Model data response is not Success",
+                                        "status : ${it.status}, success: ${it.success}, data: ${it.data}, message : ${it.message}")*/
                                 }
+
                             }
                     }
                     // endregion
@@ -699,10 +718,9 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                 "com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
                     val intent = Intent(this@EmotionAnalysisActivity3, WaitingReplyActivity::class.java)
                     intent.putExtra("roomName", roomName)
+                    Toast.makeText(this@EmotionAnalysisActivity3 ,"소켓받고죽음", Toast.LENGTH_SHORT).show()
                     this@EmotionAnalysisActivity3.startActivity(intent)
                     this@EmotionAnalysisActivity3.finish()
-
-                    //if
                 }
                 else -> return
             }
