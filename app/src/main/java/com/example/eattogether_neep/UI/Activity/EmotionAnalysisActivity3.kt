@@ -32,6 +32,7 @@ import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.User
 import com.example.eattogether_neep.emotion.coredetection.DrawFace
 import com.example.eattogether_neep.emotion.facedetection.FaceDetector
+import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_emotion_analysis3.*
 import okhttp3.MediaType
@@ -66,8 +67,10 @@ private var f_name: Array<String> = arrayOf()
 private var f_img: Array<String> = arrayOf()
 private var savedUri: Uri? =null
 private  var smileProb=0.0F
-private  var smileSum=0.0F
+private  var imgOrder=0
+private  var imgOrder3=0
 private var photoPath:String?= null
+private var i=0
 private lateinit var selectPicUri: Uri
 
 
@@ -76,7 +79,6 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
     private lateinit var uuid: String
     var foodList=ArrayList<String>()
     var images: Array<String> = arrayOf()
-    var i=0
     private var imageCapture: ImageCapture? = null
 
     private lateinit var outputDirectory: File
@@ -124,6 +126,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         intentFilter = IntentFilter()
         with(intentFilter){
             addAction("com.example.eattogether_neep.RESULT_SAVE_IMAGE")
+            addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
         }
         registerReceiver(socketReceiver, intentFilter)
     }
@@ -159,26 +162,32 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                 if (this@EmotionAnalysisActivity3.isFinishing)
                     return
                 else{
+                    // Glide image load delay issue
                     Glide.with(this@EmotionAnalysisActivity3).load(f_img[i / 3]).into(img_food)
+                    //Picasso.get().load(f_img[i / 3]).into(img_food);
+
                     tv_food_num.text="후보 "+(i/3+1)
                     txt_food_name.text = f_name[i / 3]
                     ///saveImage(i, getBase64Data(photoPath))
-
                     // 1초마다 표정, 기기번호, 음식번호 전송
+                    i++
                     takePhoto()
+                    Log.d("Image Index Atfter takePhoto","")
+                    imgOrder=i/3
                     //saveImage(i, encoder6(photoPath.toString()))
                     //saveImage(i, getBase64Data(photoPath))
                     //saveImage(i, encoder3(photoPath))
-                    i++
+
 
                     Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
-                    /*smileSum+= smileProb
+                    //smileSum+= smileProb
                     // 3초마다 기기번호, 음식번호
                     if(i%3==0){
                         Log.d("3초마다 기기번호, 음식번호", "Emotion Analysis enqueue every 3seconds")
                         //savePredict(smileSum / 3)
-                        smileSum=0.0F
-                    }*/
+                        //avgPredict(imgOrder)
+                    }
+
 
                     if((i/3)>= f_name.size) {
                         val intent = Intent(
@@ -209,7 +218,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
 
         // Create time-stamped output file to hold the image
         val photoFile = File(
-            outputDirectory,
+            outputDirectory, uuid+"_"+imgOrder.toString()+"_"+
             SimpleDateFormat(
                 FILENAME_FORMAT, Locale.US
             ).format(System.currentTimeMillis()) + ".jpg"
@@ -231,8 +240,9 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     var photoPath = photoFile.canonicalPath
                     val savedUri = Uri.fromFile(photoFile)
-                    uploadImage(savedUri, uuid , i/3)
-                    Log.e("photo base64 encoder2", encoder2(savedUri))
+                    Log.d("onImageSaved", imgOrder.toString())
+                    uploadImage(savedUri, uuid , imgOrder)
+                    //Log.e("photo base64 encoder2", encoder2(savedUri))
                     val msg = "Photo capture succeeded: $savedUri"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
@@ -391,14 +401,15 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
         work.putExtra("serviceFlag", "savePredict")
+
         work.putExtra("avgPredict", avgPredict)
         work.putExtra("uuid", uuid)
         SocketService.enqueueWork(this, work)
     }
 
-    private fun uploadImage(imageUri: Uri?, uuid:String , imageOrder:Int) {
+    private fun uploadImage(imageUri: Uri?, uuid:String , imageCount:Int) {
         val uuid = uuid
-        val imgOrder = imageOrder.toString()
+        val imgOrder = (imageCount/3).toString()
 
         val uuidR = RequestBody.create(MediaType.parse("text/plain"), uuid)
         val imgOrderR = RequestBody.create(MediaType.parse("text/plain"), imgOrder)
@@ -415,10 +426,11 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         )
 
         val pictureRb = MultipartBody.Part.createFormData(
-            "image",
+            "img",
             File(imageUri.toString()).name,
             photoBody
         )
+        Log.d("in upload image", imageUri.toString())
 
         emotionDataRepository
             .transferImage(
@@ -438,7 +450,14 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                             ?.let {
                                 Log.d("Model data response","status : ${it.status}, success: ${it.success}, data: ${it.data}, message : ${it.message}")
                                 if (it.success) {
-                                    smileProb= it.data?.happiness!!
+                                    //socket
+                                    /*when {
+                                        imageCount%3==0 -> {
+                                            avgPredict(imageCount/3)
+                                        }
+                                        else -> return
+                                    }*/
+                                    //smileProb= it.data?.happiness!!
                                 } else {
                                     Log.d("Model data response is not Success",
                                         "status : ${it.status}, success: ${it.success}, data: ${it.data}, message : ${it.message}")
@@ -676,6 +695,14 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }*/
+                }
+                "com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
+                    val intent = Intent(this@EmotionAnalysisActivity3, WaitingReplyActivity::class.java)
+                    intent.putExtra("roomName", roomName)
+                    this@EmotionAnalysisActivity3.startActivity(intent)
+                    this@EmotionAnalysisActivity3.finish()
+
+                    //if
                 }
                 else -> return
             }

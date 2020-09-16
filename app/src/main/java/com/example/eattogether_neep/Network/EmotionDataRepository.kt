@@ -12,6 +12,7 @@ class EmotionDataRepository {
         uuid: RequestBody,
         imageOrder: RequestBody
     ): Call<PostEmotionResponse> {
+/*        return ApplicationController.networkService.transferImage(image, uuid, imageOrder)*/
         return ApplicationController.networkService.transferImage(image, uuid, imageOrder)
     }
 }

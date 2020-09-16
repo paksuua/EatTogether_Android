@@ -83,7 +83,7 @@ class WaitingActivity : AppCompatActivity() {
                     enterNum.setText(f_num.toString())
                     fullNum.setText(" / " + f_num.toString())
 
-                    val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity::class.java)
+                    val intent = Intent(this@WaitingActivity, EmotionAnalysisActivity3::class.java)
                     Log.d("WaitingReceiver f_name",f_name[0].toString())
                     Log.d("WaitingReceiver f_img",f_img[0].toString())
 

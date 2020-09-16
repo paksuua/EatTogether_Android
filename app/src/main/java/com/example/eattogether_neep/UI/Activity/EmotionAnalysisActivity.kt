@@ -54,8 +54,6 @@ import kotlin.system.exitProcess
 
 typealias LumaListener = (luma: Double) -> Unit
 
-private const val REQUEST_CODE_PERMISSIONS = 10
-private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 private val SOCKET_URL="[your server url]"
 private var hasConnection: Boolean = false
 private var mHandler: Handler? = null
@@ -74,8 +72,6 @@ private  var smileSum=0.0F
 class EmotionAnalysisActivity : AppCompatActivity() {
     private lateinit var viewFinder: TextureView
     private lateinit var uuid: String
-    var foodList=ArrayList<String>()
-    var images: Array<String> = arrayOf()
     var i=0
     private var imageCapture: ImageCapture? = null
 

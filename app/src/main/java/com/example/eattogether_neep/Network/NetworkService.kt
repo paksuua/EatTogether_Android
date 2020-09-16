@@ -15,11 +15,11 @@ interface NetworkService {
     ) : Call<PostMakeUrlResponse>
 
     @Multipart
-    @POST("/happiness")
+    @POST("/room/list")
     fun transferImage(
-        @Part image: MultipartBody.Part,
-        @Part("uuid") uuid: RequestBody,
-        @Part("imageOrder") imageOrder: RequestBody
+        @Part img: MultipartBody.Part,
+        @Part("deviceNum") uuid: RequestBody,
+        @Part("imgOrder") imageOrder: RequestBody
     ): Call<PostEmotionResponse>
 
     //참여 코드 입력

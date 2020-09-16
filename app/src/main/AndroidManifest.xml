@@ -80,7 +80,11 @@
         <activity android:name=".UI.Activity.WaitingReplyActivity"/>
         <activity android:name=".UI.Activity.MakeUrlActivity" />
         <activity android:name=".UI.Activity.JoinActivity" />
+
         <activity android:name=".UI.Activity.EmotionAnalysisActivity" />
+
+        <activity android:name=".UI.Activity.EmotionAnalysisActivity2" />
+        <activity android:name=".UI.Activity.EmotionAnalysisActivity3" />
         <activity android:name=".UI.Activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
