@@ -17,8 +17,6 @@ import kotlinx.android.synthetic.main.activity_waiting_reply.*
 
 class WaitingReplyActivity : AppCompatActivity() {
     private var roomName = ""
-    private var fullNumber = -1
-    private var enterNumber = 0
     private lateinit var socketReceiver: WaitingReplyActivity.WaitingReplyReceiver
     private lateinit var intentFilter: IntentFilter
 
@@ -42,12 +40,20 @@ class WaitingReplyActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        sendPing(roomName)
         //sendResult(roomName)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(socketReceiver)
+    }
+
+    private fun sendPing(roomName:String) {
+        val work = Intent()
+        work.putExtra("serviceFlag", "ping")
+        work.putExtra("roomName", roomName)
+        SocketService.enqueueWork(this, work)
     }
 
     private fun sendResult(roomName:String) {

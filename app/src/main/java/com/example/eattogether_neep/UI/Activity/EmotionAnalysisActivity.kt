@@ -118,7 +118,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         intentFilter = IntentFilter()
         with(intentFilter){
             addAction("com.example.eattogether_neep.RESULT_SAVE_IMAGE")
-            addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
+            //addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
         }
         registerReceiver(socketReceiver, intentFilter)
 
@@ -187,7 +187,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             override fun handleMessage(msg: Message) {
                 if (this@EmotionAnalysisActivity.isFinishing)
                     return
-                else{
+                if(i < f_img.size*3){
                     Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food1)
                     tv_food_num1.text="후보 "+(i/3+1)
                     txt_food_name1.text = f_name[i/3]
@@ -204,14 +204,18 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                         savePredict(smileSum/3, i/3)
                         smileSum=0.0F
                     }
-
-                    if((i/3)>= f_name.size) {
-                        /*val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
-                        intent.putExtra("roomName", roomName)
-                        startActivity(intent)
-                        finish()*/
-                        //exitProcess(1)
-                    }
+                }
+                else {
+                    val intent = Intent(
+                        this@EmotionAnalysisActivity,
+                        RankingActivity::class.java
+                    )
+                    intent.putExtra("roomName", roomName)
+                    Toast.makeText(this@EmotionAnalysisActivity, "소켓안받음", Toast.LENGTH_SHORT)
+                        .show()
+                    this@EmotionAnalysisActivity.startActivity(intent)
+                    this@EmotionAnalysisActivity.finish()
+                    return
                 }
             }
         }
@@ -631,14 +635,14 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                         ).show()
                     }*/
                 }
-                "com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
+                /*"com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
                     val intent = Intent(this@EmotionAnalysisActivity, WaitingReplyActivity::class.java)
                     intent.putExtra("roomName", roomName)
                     this@EmotionAnalysisActivity.startActivity(intent)
                     this@EmotionAnalysisActivity.finish()
 
                     //if
-                }
+                }*/
                 else -> return
             }
         }

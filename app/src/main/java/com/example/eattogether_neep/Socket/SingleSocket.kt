@@ -84,6 +84,10 @@ class SingleSocket {
                             onRankingList
                         ) //
                         this?.on(
+                            "ping",
+                            onPing
+                        )
+                        this?.on(
                             Socket.EVENT_PING,
                             onPing
                         ) //
@@ -299,6 +303,5 @@ class SingleSocket {
             instance?.emit(Socket.EVENT_PONG)
             Log.d(TAG, "Send Pong")
         }
-
     }
 }
