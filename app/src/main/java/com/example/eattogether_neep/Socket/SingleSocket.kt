@@ -24,7 +24,7 @@ class SingleSocket {
         fun getInstance(context: Context): Socket = instance
             ?: synchronized(this) {
                 instance ?: try {
-                    IO.socket("http://13.125.224.168:8000/ranking")
+                    IO.socket("http://13.125.252.184:8000/ranking")
                 } catch (e: URISyntaxException) {
                     throw RuntimeException(e)
                 }.also {
@@ -218,8 +218,10 @@ class SingleSocket {
             Log.d(TAG, "Socket onRanking getName: ${getName.size}")
             Log.d(TAG, "Socket onRanking getImg: ${getImg.size}")
 
+
             for(i in 0..(list_cnt-1)) {
                 val obj = foodList.getJSONObject(i)
+                Log.d(TAG, "Socket onRanking getName[i]: ${getName[i]}")
                 getName[i] = obj.getString("name")
                 getImg[i] = obj.getString("image")
             }
