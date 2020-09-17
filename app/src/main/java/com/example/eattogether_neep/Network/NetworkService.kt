@@ -18,6 +18,7 @@ interface NetworkService {
     @POST("/room/list")
     fun transferImage(
         @Part img: MultipartBody.Part,
+        @Part("roomID") roomName: RequestBody,
         @Part("deviceNum") uuid: RequestBody,
         @Part("imgOrder") imageOrder: RequestBody
     ): Call<PostEmotionResponse>

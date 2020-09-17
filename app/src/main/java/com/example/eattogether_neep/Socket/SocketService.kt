@@ -76,10 +76,11 @@ class SocketService : JobIntentService() {
             }
             "avgPredict" -> {
                 Log.d("AvgPredict Called in SocketService.","")
+                val roomName = intent.getStringExtra("roomName")
                 val uuid = intent.getStringExtra("uuid")
                 val imageOrder =intent.getIntExtra("imageOrder", -1)
 
-                mSocket.emit("avgPredict", uuid, imageOrder)
+                mSocket.emit("avgPredict", roomName, uuid, imageOrder)
             }
             "showRank" -> {
                 val roomName = intent.getStringExtra("roomName")

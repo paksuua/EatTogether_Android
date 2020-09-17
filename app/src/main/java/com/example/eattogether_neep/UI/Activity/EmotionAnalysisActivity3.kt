@@ -129,7 +129,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         intentFilter = IntentFilter()
         with(intentFilter){
             addAction("com.example.eattogether_neep.RESULT_SAVE_IMAGE")
-            addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
+            //addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
         }
         registerReceiver(socketReceiver, intentFilter)
     }
@@ -197,12 +197,14 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                     // 30개만 보내고
                 }
                 else {
-                    /*val intent = Intent(
+                    val intent = Intent(
                         this@EmotionAnalysisActivity3,
-                        MainActivity::class.java
+                        WaitingReplyActivity::class.java
                     )
+                    intent.putExtra("roomName", roomName)
+                    Toast.makeText(this@EmotionAnalysisActivity3 ,"소켓안받음", Toast.LENGTH_SHORT).show()
                     this@EmotionAnalysisActivity3.startActivity(intent)
-                    this@EmotionAnalysisActivity3.finish()*/
+                    this@EmotionAnalysisActivity3.finish()
                     return
                 }
             }
@@ -224,7 +226,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
 
         // Create time-stamped output file to hold the image
         val photoFile = File(
-            outputDirectory, uuid+"_"+imgOrder.toString()+"_"+
+            outputDirectory, roomName+"_"+uuid+"_"+imgOrder.toString()+"_"+
             SimpleDateFormat(
                 FILENAME_FORMAT, Locale.US
             ).format(System.currentTimeMillis()) + ".jpg"
@@ -247,7 +249,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                     var photoPath = photoFile.canonicalPath
                     val savedUri = Uri.fromFile(photoFile)
                     Log.d("onImageSaved", imgOrder.toString())
-                    uploadImage(savedUri, uuid , imgOrder)
+                    uploadImage(savedUri,roomName, uuid , imgOrder)
                     if (imgOrder>30){
                         imgSuccessFlag=!imgSuccessFlag
                     }
@@ -402,6 +404,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
         work.putExtra("serviceFlag", "avgPredict")
+        work.putExtra("roomName", roomName)
         work.putExtra("uuid", uuid)
         work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
@@ -417,10 +420,12 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
-    private fun uploadImage(imageUri: Uri?, uuid:String , imageCount:Int) {
+    private fun uploadImage(imageUri: Uri?, roomName:String ,uuid:String , imageCount:Int) {
+        val roomName = uuid
         val uuid = uuid
         val imgOrder = (imageCount/3).toString()
 
+        val roomNameR = RequestBody.create(MediaType.parse("text/plain"), roomName)
         val uuidR = RequestBody.create(MediaType.parse("text/plain"), uuid)
         val imgOrderR = RequestBody.create(MediaType.parse("text/plain"), imgOrder)
 
@@ -445,6 +450,7 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         emotionDataRepository
             .transferImage(
                 pictureRb,
+                roomNameR,
                 uuidR,
                 imgOrderR
             )
@@ -715,13 +721,13 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
                         ).show()
                     }*/
                 }
-                "com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
+                /*"com.example.eattogether_neep.RESULT_FINISH_PREDICT" -> {
                     val intent = Intent(this@EmotionAnalysisActivity3, WaitingReplyActivity::class.java)
                     intent.putExtra("roomName", roomName)
                     Toast.makeText(this@EmotionAnalysisActivity3 ,"소켓받고죽음", Toast.LENGTH_SHORT).show()
                     this@EmotionAnalysisActivity3.startActivity(intent)
                     this@EmotionAnalysisActivity3.finish()
-                }
+                }*/
                 else -> return
             }
         }
