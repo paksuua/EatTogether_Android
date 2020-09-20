@@ -1,6 +1,5 @@
 package com.example.eattogether_neep.UI.Activity
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.*
 import android.content.pm.PackageManager
@@ -36,7 +35,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
-import java.lang.Thread.sleep
 import java.net.URISyntaxException
 import java.text.SimpleDateFormat
 import java.util.*

@@ -1,6 +1,5 @@
 package com.example.eattogether_neep.UI.Activity
 
-import android.Manifest
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
@@ -8,7 +7,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -32,8 +30,6 @@ import com.example.eattogether_neep.SOCKET.SocketService
 import com.example.eattogether_neep.UI.User
 import com.example.eattogether_neep.emotion.coredetection.DrawFace
 import com.example.eattogether_neep.emotion.facedetection.FaceDetector
-import com.squareup.picasso.Picasso
-import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_emotion_analysis3.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -42,61 +38,40 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.*
-import java.net.URISyntaxException
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.concurrent.thread
-import kotlin.system.exitProcess
 
 
 typealias LumaListener3 = (luma: Double) -> Unit
 
-private val SOCKET_URL="[your server url]"
-private var hasConnection: Boolean = false
 private var mHandler: Handler? = null
-private var mSocket: io.socket.client.Socket? = null
 private lateinit var socketReceiver: EmotionAnalysisActivity3.EmotionReciver3
 private lateinit var intentFilter: IntentFilter
 private var resultFromServer = -1
 
 private var f_name: Array<String> = arrayOf()
 private var f_img: Array<String> = arrayOf()
-private var imgFiles: Array<Uri> = arrayOf()
-private var savedUri: Uri? =null
-private  var smileProb=0.0F
 private  var imgOrder=0
-private  var imgOrder3=0
 private var photoCount:Int= 0
 private var i=0
 private var imgSuccessFlag=false
-private lateinit var selectPicUri: Uri
 
 
 class EmotionAnalysisActivity3 : AppCompatActivity() {
     private lateinit var viewFinder: TextureView
     private lateinit var uuid: String
-    var foodList=ArrayList<String>()
-    var images: Array<String> = arrayOf()
     private var imageCapture: ImageCapture? = null
 
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
-    private var faceDetector: FaceDetector? = null
-    private var detectionViewer: DrawFace? = null
-    private var cameraWidth: Int = 0
-    private var cameraHeight: Int = 0
-    private var isLoadingDetection = false
     private var roomName = ""
 
     private val emotionDataRepository = EmotionDataRepository()
-
-    /* private val viewModel:MainViewModel by viewModels{
-        (application as EmotionDetectorApp).viewModelFactory
-    }*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -435,6 +410,5 @@ class EmotionAnalysisActivity3 : AppCompatActivity() {
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(CAMERA)
         private const val REQUEST_CAMERA_PERMISSION = 123
-        private var isFrontCamera = true
     }
 }
