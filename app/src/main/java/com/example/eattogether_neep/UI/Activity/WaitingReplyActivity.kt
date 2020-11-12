@@ -17,8 +17,6 @@ import kotlinx.android.synthetic.main.activity_waiting_reply.*
 
 class WaitingReplyActivity : AppCompatActivity() {
     private var roomName = ""
-    private var fullNumber = -1
-    private var enterNumber = 0
     private lateinit var socketReceiver: WaitingReplyActivity.WaitingReplyReceiver
     private lateinit var intentFilter: IntentFilter
 
@@ -34,7 +32,7 @@ class WaitingReplyActivity : AppCompatActivity() {
         socketReceiver = WaitingReplyReceiver()
         intentFilter = IntentFilter()
         with(intentFilter){
-            addAction("com.example.eattogether_neep.FINISH_RANK")
+            addAction("com.example.eattogether_neep.RESULT_FINISH_PREDICT")
         }
 
         registerReceiver(socketReceiver, intentFilter)
@@ -42,12 +40,20 @@ class WaitingReplyActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        sendResult(roomName)
+        sendPing(roomName)
+        //sendResult(roomName)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(socketReceiver)
+    }
+
+    private fun sendPing(roomName:String) {
+        val work = Intent()
+        work.putExtra("serviceFlag", "ping")
+        work.putExtra("roomName", roomName)
+        SocketService.enqueueWork(this, work)
     }
 
     private fun sendResult(roomName:String) {
@@ -60,7 +66,7 @@ class WaitingReplyActivity : AppCompatActivity() {
     inner class WaitingReplyReceiver() : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                "com.example.eattogether_neep.FINISH_RANK" ->{
+                "com.example.eattogether_neep.RESULT_FINISH_PREDICT" ->{
                     val intent = Intent(this@WaitingReplyActivity, RankingActivity::class.java)
                     with(intent) {
                         intent.putExtra("roomName",roomName)

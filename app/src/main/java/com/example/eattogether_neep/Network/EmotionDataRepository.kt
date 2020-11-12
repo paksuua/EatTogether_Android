@@ -9,9 +9,11 @@ import retrofit2.Call
 class EmotionDataRepository {
     fun transferImage(
         image:  MultipartBody.Part,
+        roomName: RequestBody,
         uuid: RequestBody,
         imageOrder: RequestBody
     ): Call<PostEmotionResponse> {
-        return ApplicationController.networkService.transferImage(image, uuid, imageOrder)
+/*        return ApplicationController.networkService.transferImage(image, uuid, imageOrder)*/
+        return ApplicationController.networkService.transferImage(image, roomName, uuid, imageOrder)
     }
 }

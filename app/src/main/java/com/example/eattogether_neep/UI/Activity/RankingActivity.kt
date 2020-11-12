@@ -96,7 +96,7 @@ class RankingActivity : AppCompatActivity() {
 
     private fun sendResult(roomName:String) {
         val work = Intent()
-        work.putExtra("serviceFlag", "finishRank")
+        work.putExtra("serviceFlag", "showRank")
         work.putExtra("roomName", roomName)
         SocketService.enqueueWork(this, work)
     }

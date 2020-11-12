@@ -38,9 +38,6 @@ class MakeUrlActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_make_url)
 
-
-
-
         // 뒤로 가기
         btn_makeurl_back.setOnClickListener {   finish()   }
 
@@ -93,8 +90,7 @@ class MakeUrlActivity : AppCompatActivity() {
             override fun onFailure(call: Call<PostMakeUrlResponse>, t: Throwable){
                 // 통신 실패
                 Log.d("에러", t.message.toString())
-                Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 실패",
-                    Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 실패", Toast.LENGTH_SHORT).show()
             }
 
             override fun onResponse(
@@ -106,7 +102,7 @@ class MakeUrlActivity : AppCompatActivity() {
                         +response.body()!!.status+ "  success "+response.body()!!.success+"  data "+response.body()!!.data!!.roomID)
 
                 if(response.isSuccessful){ // statusCode가 200~300 사이일 때. 응답 body 이용 가능.
-                    Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 성공", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this@MakeUrlActivity, "MakeUrl 통신 성공", Toast.LENGTH_SHORT).show()
 
                     flag_joincode=true
                     joincode=response.body()!!.data!!.roomID.toString()
