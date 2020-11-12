@@ -41,11 +41,11 @@ class RankingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_ranking)
 
         //chart page
-        btn_chart.setOnClickListener {
+        /*btn_chart.setOnClickListener {
             val intent1 = Intent(this, ChartActivity::class.java)
             intent1.putExtra("roomName", roomName)
             startActivity(intent1)
-        }
+        }*/
 
         // X 버튼 클릭시 메인페이지로
         btn_close_ranking.setOnClickListener {

@@ -31,6 +31,9 @@ import com.otaliastudios.cameraview.Facing
 import com.otaliastudios.cameraview.Frame
 import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_emotion_analysis.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -56,6 +59,8 @@ private var f_img: Array<String> = arrayOf()
 private var savedUri: Uri? =null
 private var smileProb=0.0F
 private var smileSum=0.0F
+private var neutralProb=0.0F
+private var neutralSum=0.0F
 
 
 class EmotionAnalysisActivity : AppCompatActivity() {
@@ -143,7 +148,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 if (this@EmotionAnalysisActivity.isFinishing)
                     return
                 if(i < f_img.size*3){
-                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).into(img_food1)
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).thumbnail(0.1f).into(img_food1)
                     tv_food_num1.text="후보 "+(i/3+1)
                     txt_food_name1.text = f_name[i/3]
                     i++
@@ -153,10 +158,22 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                     Log.d("1초마다 표정, 기기번호, 음식번호 전송", "Emotion Analysis enqueue every 1seconds")
                     //saveImage(i/3, smileProb.toString())
                     smileSum+= smileProb
+                                // 0~0.5+(-0.1~0.1)
+                    var random=Random().nextInt(21) // 0~20
+                    var randomP=Random().nextInt(6) // 0~5
+                    neutralProb=(1-smileProb)+(random-10)/100
+                    if(neutralProb<0)
+                        neutralProb+=(randomP+10)/100
+                    //Log.d("Neutral Dummy value", neutralProb.toString())
+                    neutralSum+=neutralProb
+
                     // 3초마다 기기번호, 음식번호
                     if(i%3==0){
                         Log.d("3초마다 기기번호, 음식번호","Emotion Analysis enqueue every 3seconds")
-                        savePredict(smileSum/3, i/3)
+                        //savePredict(smileSum/3, i/3)
+                        Log.d("Random Values",random.toString()+" "+randomP.toString())
+                        Log.d("Happy Neutral value", (smileSum/3).toString()+"   "+(neutralSum/30).toString())
+                        savePredict(smileSum/3, neutralSum/30, i/3)
                         smileSum=0.0F
                     }
                 }
@@ -310,11 +327,12 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         SocketService.enqueueWork(this, work)
     }
 
-    private fun savePredict(avgPredict:Float,imageOrder: Int ) {
+    private fun savePredict(avgHappy:Float,avgNeutral:Float, imageOrder: Int ) {
         Log.d("Average Predict Called", "Emotion Analysis enqueue every 1seconds")
         val work = Intent()
         work.putExtra("serviceFlag", "savePredict")
-        work.putExtra("avgPredict", avgPredict)
+        work.putExtra("avgHappy", avgHappy)
+        work.putExtra("avgNeutral", avgNeutral)
         work.putExtra("uuid", uuid)
         work.putExtra("imageOrder", imageOrder)
         SocketService.enqueueWork(this, work)
@@ -327,6 +345,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
         } else {
             cameraWidth = frame.size.width
             cameraHeight = frame.size.height
+
             setupFaceDetector()
         }
     }
@@ -345,7 +364,6 @@ class EmotionAnalysisActivity : AppCompatActivity() {
             failureListener = OnFailureListener {
                 //Toast.makeText(this, getString(R.string.detection_error), Toast.LENGTH_SHORT).show()
             })
-
         detectionViewer = DrawFace(cameraWidth, cameraHeight)
     }
 
