@@ -1,6 +1,7 @@
 package com.example.eattogether_neep.Network
 
 import com.example.eattogether_neep.Network.Post.*
+import com.example.eattogether_neep.Network.Get.*
 import com.google.gson.JsonObject
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -28,10 +29,10 @@ interface NetworkService {
         @Body body : PostJoinRequest
     ) : Call<PostJoinResponse>
 
-    //선호도 입력
-    @POST("/user/preference")
-    fun postPreferenceResponse(
+    //차트 데이터 받아오기
+    @GET("/user/chart")
+    fun getChartResponse(
         @Header("Content-Type") content_type: String,
         @Body() body: JsonObject
-    ): Call<PostPreferenceResponse>
+    ): Call<GetChartResponse>
 }

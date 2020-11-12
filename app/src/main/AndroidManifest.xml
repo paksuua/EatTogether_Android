@@ -34,7 +34,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="28x6oj93e7" />
@@ -77,11 +76,12 @@
         <activity android:name=".UI.Activity.RankingActivity" />
         <activity android:name=".UI.Activity.PreferenceCheckActivity" />
         <activity android:name=".UI.Activity.WaitingActivity" />
-        <activity android:name=".UI.Activity.WaitingReplyActivity"/>
+        <activity android:name=".UI.Activity.WaitingReplyActivity" />
         <activity android:name=".UI.Activity.MakeUrlActivity" />
         <activity android:name=".UI.Activity.JoinActivity" />
         <activity android:name=".UI.Activity.EmotionAnalysisActivity" />
-        <activity android:name=".UI.Activity.MainActivity">
+        <activity android:name=".UI.Activity.MainActivity"/>
+        <activity android:name=".UI.Activity.ChartActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
