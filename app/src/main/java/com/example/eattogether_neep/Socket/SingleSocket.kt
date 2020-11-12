@@ -226,10 +226,10 @@ class SingleSocket {
             for(i in 0..(list_cnt-1)) {
                 val obj = foodList.getJSONObject(i)
                 Log.d(TAG, "Socket onRanking getName[i]: ${getName[i]}")
+                Log.d(TAG, "Socket onRanking getImage[i]: ${getImg[i]}")
                 getName[i] = obj.getString("name")
                 getImg[i] = obj.getString("image")
             }
-            Log.d(TAG, "Socket onRanking Suc: ${getName[1]}")
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.FOOD_LIST_RANK"
                 intent.putExtra("food_name", getName)

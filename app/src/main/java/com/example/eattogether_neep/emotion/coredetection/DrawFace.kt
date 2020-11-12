@@ -7,6 +7,7 @@ import android.graphics.Paint
 import com.google.firebase.ml.vision.face.FirebaseVisionFace
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceContour
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark
+import kotlin.concurrent.thread
 
 internal class DrawFace(private val cameraWidth: Int, private val cameraHeight: Int, private val enableContours: Boolean = true) {
 
@@ -75,7 +76,10 @@ internal class DrawFace(private val cameraWidth: Int, private val cameraHeight: 
                 drawRect(it.boundingBox, paint)
                 paint.style = Paint.Style.FILL
                 paint.textSize=100f
-                drawText(it.smileProbability().toString()+"\n", 300f, 100f, paint)
+
+
+                drawText((it.smileProbability() * 100).toString() + "\n", 300f, 100f, paint)
+
                 //drawText(it.smileProbability().toString(), 300.0F,300.0F,paint)
                 //drawText(it.smileProbability().toString(),it.boundingBox.left.toFloat(), it.boundingBox.top.toFloat(),paint)
 

@@ -67,12 +67,12 @@ class SocketService : JobIntentService() {
             }
             // 평균 happiness 전송
             "savePredict" -> {
-                //val avgPredict = intent.getFloatExtra("avgPredict")
-                val avgPredict=intent.getFloatExtra("avgPredict", 0f)
+                val avgHappy=intent.getFloatExtra("avgHappy", 0f)
+                val avgNeutral=intent.getFloatExtra("avgNeutral", 0f)
                 val uuid = intent.getStringExtra("uuid")
                 val imageOrder = intent.getIntExtra("imageOrder", -1)
 
-                mSocket.emit("savePredict", avgPredict, uuid, imageOrder)
+                mSocket.emit("savePredict", avgHappy,avgNeutral, uuid, imageOrder)
             }
             "avgPredict" -> {
                 Log.d("AvgPredict Called in SocketService.","")
