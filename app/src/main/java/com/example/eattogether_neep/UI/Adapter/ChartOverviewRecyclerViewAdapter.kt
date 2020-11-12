@@ -35,11 +35,11 @@ class ChartOverviewRecyclerViewAdapter (val ctx: Context, var dataList: ArrayLis
     override fun getItemCount(): Int = dataList.size
 
     override fun onBindViewHolder(holder: Holder, position1: Int) {
-        holder.name.text = dataList[position1].food_name
-        foodname = dataList[position1].food_name
+        holder.name.text = dataList[position1].foodName
+        foodname = dataList[position1].foodName
 
         happy = dataList[position1].happy
-        bad = dataList[position1].bad
+        bad = dataList[position1].neutral
 
         val cnt = bad.size
         var x=0.2f

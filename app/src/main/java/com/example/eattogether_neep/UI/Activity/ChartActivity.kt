@@ -25,7 +25,6 @@ import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_chart.*
 import org.json.JSONObject
 import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 
 class ChartActivity : AppCompatActivity() {
@@ -44,37 +43,10 @@ class ChartActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        val entries = ArrayList<BarEntry>()
-        entries.add(BarEntry(1.2f,20.0f))
-        entries.add(BarEntry(2.2f,70.0f))
-        entries.add(BarEntry(3.2f,30.0f))
-        entries.add(BarEntry(4.2f,90.0f))
-        entries.add(BarEntry(5.2f,70.0f))
-        entries.add(BarEntry(6.2f,30.0f))
-        entries.add(BarEntry(7.2f,90.0f))
-        entries.add(BarEntry(8.2f,20.0f))
-        entries.add(BarEntry(9.2f,20.0f))
-        entries.add(BarEntry(10.2f,20.0f))
-
-        val entries2 = ArrayList<BarEntry>()
-        entries2.add(BarEntry(1.5f,10.0f))
-        entries2.add(BarEntry(2.5f,30.0f))
-        entries2.add(BarEntry(3.5f,50.0f))
-        entries2.add(BarEntry(4.5f,90.0f))
-        entries2.add(BarEntry(5.5f,90.0f))
-        entries2.add(BarEntry(6.5f,80.0f))
-        entries2.add(BarEntry(7.5f,20.0f))
-        entries2.add(BarEntry(7.5f,20.0f))
-        entries2.add(BarEntry(7.5f,20.0f))
-
         var set = BarDataSet(entries,"DataSet")//데이터셋 초기화 하기
-        //set.color = ContextCompat.getColor(this,)
-        var set2 = BarDataSet(entries2,"DataSet")//데이터셋 초기화 하기
-        set2.color = ContextCompat.getColor(this,R.color.main_yellow)
 
         val dataSet :ArrayList<IBarDataSet> = ArrayList()
         dataSet.add(set)
-        //dataSet.add(set2)
         val data = BarData(dataSet)
         data.barWidth = 0.8f//막대 너비 설정하기
 
@@ -141,11 +113,13 @@ class ChartActivity : AppCompatActivity() {
             override fun onResponse(call: Call<GetChartResponse>, response: Response<GetChartResponse>) {
                 if(response.isSuccessful){
                     if(response.body()!!.status == 200){
-                        var tmp1: totalD = response.body()!!.data.total!!
-                        for(i in 0..tmp1.food_list.size){
-                            food_list.add(tmp1.food_list[i])
+                        var tmp1: totalD = response.body()!!.data.rankChart!!
+                        var x = 1.2f
+                        for(i in 0..tmp1.foodName.size){
+                            food_list.add(tmp1.foodName[i])
+                            entries.add(BarEntry(x++,tmp1.totalPred[i]))
                         }
-                        var tmp: ArrayList<chart1> = response.body()!!.data.cc!!
+                        var tmp: ArrayList<chart1> = response.body()!!.data.foods!!
                         chartOverviewRecyclerViewAdapter.dataList = tmp
                         chartOverviewRecyclerViewAdapter.notifyDataSetChanged()
                     }

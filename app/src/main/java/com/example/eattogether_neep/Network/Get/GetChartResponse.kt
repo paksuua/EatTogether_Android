@@ -8,17 +8,17 @@ val data: Chartdata
 )
 
 data class Chartdata(
-    val total: totalD,
-    val cc: ArrayList<chart1>
+    val rankChart: totalD,
+    val foods: ArrayList<chart1>
 )
 
 data class totalD(
-    val stat:ArrayList<Float>,
-    val food_list:ArrayList<String>
+    val totalPred:ArrayList<Float>,
+    val foodName:ArrayList<String>
 )
 
 data class chart1(
-    val food_name: String,
+    val foodName: String,
     val happy: ArrayList<Float>,
-    val bad: ArrayList<Float>
+    val neutral: ArrayList<Float>
 )
