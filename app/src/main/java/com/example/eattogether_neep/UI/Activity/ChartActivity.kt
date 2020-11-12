@@ -1,5 +1,6 @@
 package com.example.eattogether_neep.UI.Activity
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.content.ContextCompat
@@ -18,7 +19,10 @@ class ChartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chart)
 
-        btn_chart_back.setOnClickListener {   finish()   }
+        btn_chart_back.setOnClickListener {
+            val intent = Intent(this, RankingActivity::class.java)
+            startActivity(intent)
+        }
 
         val entries = ArrayList<BarEntry>()
         entries.add(BarEntry(1.2f,20.0f))

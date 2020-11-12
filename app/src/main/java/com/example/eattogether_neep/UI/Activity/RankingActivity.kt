@@ -25,13 +25,19 @@ class RankingActivity : AppCompatActivity() {
     private lateinit var socketReceiver: RankingReceiver
     private lateinit var intentFilter: IntentFilter
 
-    private var mCurrentLng = 0.0
-    private var mCurrentLat = 0.0
+    private var mCurrentLng = 37.513030
+    private var mCurrentLat = 127.058541
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ranking)
+
+        //chart page
+        btn_chart.setOnClickListener {
+            val intent1 = Intent(this, ChartActivity::class.java)
+            startActivity(intent1)
+        }
 
         // X 버튼 클릭시 메인페이지로
         btn_close_ranking.setOnClickListener {
@@ -49,7 +55,7 @@ class RankingActivity : AppCompatActivity() {
         }
         registerReceiver(socketReceiver, intentFilter)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        //fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         num1.setOnClickListener {
             showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name1.text + "&p=" + mCurrentLat + "," + mCurrentLng))
@@ -85,7 +91,7 @@ class RankingActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        getCurrentLocation()
+        //getCurrentLocation()
         sendResult(roomName)
     }
 
