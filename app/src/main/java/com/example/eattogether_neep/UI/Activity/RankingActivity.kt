@@ -18,6 +18,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import android.Manifest
 import android.content.pm.PackageManager
+import com.example.eattogether_neep.Network.Post.PostMakeUrlRequest
+import com.example.eattogether_neep.Network.Post.PostMakeUrlResponse
+import com.example.eattogether_neep.UI.User
+import kotlinx.android.synthetic.main.activity_make_url.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class RankingActivity : AppCompatActivity() {
 
@@ -36,6 +43,7 @@ class RankingActivity : AppCompatActivity() {
         //chart page
         btn_chart.setOnClickListener {
             val intent1 = Intent(this, ChartActivity::class.java)
+            intent1.putExtra("roomName", roomName)
             startActivity(intent1)
         }
 
