@@ -24,7 +24,7 @@ class SingleSocket {
         fun getInstance(context: Context): Socket = instance
             ?: synchronized(this) {
                 instance ?: try {
-                    IO.socket("http://13.125.224.168:8000/ranking")
+                    IO.socket("http://13.125.252.184:8000/ranking")
                 } catch (e: URISyntaxException) {
                     throw RuntimeException(e)
                 }.also {
@@ -72,9 +72,21 @@ class SingleSocket {
                             onSaveImage
                         )
                         this?.on(
+                            "finishPred",
+                            onFinishPredict
+                        )
+                        this?.on(
                             "finishRank",
                             onRanking
                         ) //
+                        this?.on(
+                            "rankingList",
+                            onRankingList
+                        ) //
+                        this?.on(
+                            "ping",
+                            onPing
+                        )
                         this?.on(
                             Socket.EVENT_PING,
                             onPing
@@ -125,11 +137,13 @@ class SingleSocket {
         private val onPreferenceRoom: Emitter.Listener = Emitter.Listener {
             Log.d(TAG, "Socket onPreference")
             val foodList = it[0] as JSONArray
+            val count = it[1] as Int
             val list_cnt = foodList.length()
             val getName = Array(list_cnt,{""})
             val getImg = Array(list_cnt,{""})
             Log.d(TAG, "Socket Preference getName: ${getName.size}")
             Log.d(TAG, "Socket Preference getImg: ${getImg.size}")
+            Log.d(TAG, "Socket Preference getCount: ${count}")
 
             for(i in 0..(list_cnt-1)) {
                 val obj = foodList.getJSONObject(i)
@@ -142,6 +156,7 @@ class SingleSocket {
                 intent.action = "com.example.eattogether_neep.FOOD_LIST"
                 intent.putExtra("food_name", getName)
                 intent.putExtra("food_img", getImg)
+                intent.putExtra("count", count)
                 context.sendBroadcast(intent)
             }
         }
@@ -172,8 +187,33 @@ class SingleSocket {
             }
         }
 
+        private val onFinishPredict: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onFinishPredict")
+            //val error = it[0] as Int
+            //Log.d(TAG, "Socket onFinishPredict Fail: $error")
+
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.RESULT_FINISH_PREDICT"
+               // intent.putExtra("error", error)
+                context.sendBroadcast(intent)
+            }
+        }
+
+
         private val onRanking: Emitter.Listener = Emitter.Listener {
-            Log.d(TAG, "Socket onRanking")
+            Log.d(TAG, "Socket onRankingFinish")
+
+            val flag = it[0] as Int
+
+            Log.d(TAG, "Socket onRankingFinish Suc: ${flag}")
+            Intent().also { intent ->
+                intent.action = "com.example.eattogether_neep.FINISH_RANK"
+                intent.putExtra("flag", flag)
+                context.sendBroadcast(intent)
+            }
+        }
+        private val onRankingList: Emitter.Listener = Emitter.Listener {
+            Log.d(TAG, "Socket onRankingList")
 
             val foodList = it[0] as JSONArray
             val list_cnt = foodList.length()
@@ -182,12 +222,14 @@ class SingleSocket {
             Log.d(TAG, "Socket onRanking getName: ${getName.size}")
             Log.d(TAG, "Socket onRanking getImg: ${getImg.size}")
 
+
             for(i in 0..(list_cnt-1)) {
                 val obj = foodList.getJSONObject(i)
+                Log.d(TAG, "Socket onRanking getName[i]: ${getName[i]}")
+                Log.d(TAG, "Socket onRanking getImage[i]: ${getImg[i]}")
                 getName[i] = obj.getString("name")
                 getImg[i] = obj.getString("image")
             }
-            Log.d(TAG, "Socket onRanking Suc: ${getName[1]}")
             Intent().also { intent ->
                 intent.action = "com.example.eattogether_neep.FOOD_LIST_RANK"
                 intent.putExtra("food_name", getName)
@@ -235,8 +277,16 @@ class SingleSocket {
                     onSaveImage
                 )
                 this?.off(
+                    "finishPred",
+                    onFinishPredict
+                )
+                this?.off(
                     "finishRank",
                     onRanking
+                )
+                this?.off(
+                    "rankingList",
+                    onRankingList
                 )
                 this.off(
                     Socket.EVENT_PING,
@@ -253,6 +303,5 @@ class SingleSocket {
             instance?.emit(Socket.EVENT_PONG)
             Log.d(TAG, "Send Pong")
         }
-
     }
 }

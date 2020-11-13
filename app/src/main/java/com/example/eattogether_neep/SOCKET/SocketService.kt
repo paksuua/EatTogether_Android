@@ -65,16 +65,38 @@ class SocketService : JobIntentService() {
 
                 mSocket.emit("saveImage", img, uuid, imageOrder)
             }
+            // 평균 happiness 전송
+            "savePredict" -> {
+                val avgHappy=intent.getFloatExtra("avgHappy", 0f)
+                val avgNeutral=intent.getFloatExtra("avgNeutral", 0f)
+                val uuid = intent.getStringExtra("uuid")
+                val imageOrder = intent.getIntExtra("imageOrder", -1)
+
+                mSocket.emit("savePredict", avgHappy,avgNeutral, uuid, imageOrder)
+            }
             "avgPredict" -> {
+                Log.d("AvgPredict Called in SocketService.","")
+                val roomName = intent.getStringExtra("roomName")
                 val uuid = intent.getStringExtra("uuid")
                 val imageOrder =intent.getIntExtra("imageOrder", -1)
 
-                mSocket.emit("avgPredict", uuid, imageOrder)
+                mSocket.emit("avgPredict", roomName, uuid, imageOrder)
+            }
+            "ping" -> {
+                Log.d("Ping Called in SocketService.","")
+                val roomName = intent.getStringExtra("roomName")
+
+                mSocket.emit("ping", roomName)
             }
             "showRank" -> {
                 val roomName = intent.getStringExtra("roomName")
 
                 mSocket.emit("showRank", roomName)
+            }
+            "finishRank" ->{
+                val roomName = intent.getStringExtra("roomName")
+
+                mSocket.emit("finishRank", roomName)
             }
         }
     }

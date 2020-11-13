@@ -4,15 +4,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.eattogether_neep.Network.Get.GetChartRequest
 import com.example.eattogether_neep.Network.Get.GetChartResponse
 import com.example.eattogether_neep.Network.Get.chart1
 import com.example.eattogether_neep.Network.Get.totalD
 import com.example.eattogether_neep.Network.Network.ApplicationController
-import com.example.eattogether_neep.Network.Network.ApplicationController.networkService
-import com.example.eattogether_neep.Network.NetworkService
-import com.example.eattogether_neep.Network.Post.PostMakeUrlRequest
 import com.example.eattogether_neep.R
 import com.example.eattogether_neep.UI.Adapter.ChartOverviewRecyclerViewAdapter
 import com.github.mikephil.charting.components.AxisBase
@@ -22,11 +20,7 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import kotlinx.android.synthetic.main.activity_chart.*
-import kotlinx.android.synthetic.main.activity_make_url.*
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -84,9 +78,9 @@ class ChartActivity : AppCompatActivity() {
                         for(i in 0..tmp1.foodName.size-1){
                             food_list.add(tmp1.foodName[i])
                             entries.add(BarEntry(x++.toFloat(),tmp1.totalPred[i].toFloat()))
-                            Log.d("충격적",food_list[i]+" "+entries[i].toString())
                         }
                         var set = BarDataSet(entries,"DataSet")//데이터셋 초기화 하기
+                        //set.color = ContextCompat.getColor(this@ChartActivity, R.color.main_yellow) // total 그래프 색
 
                         val dataSet :ArrayList<IBarDataSet> = ArrayList()
                         dataSet.add(set)
@@ -116,7 +110,6 @@ class ChartActivity : AppCompatActivity() {
                             setFitBars(true)
                             invalidate()
                         }
-                        Log.d("맞나",response.body()!!.data.foods.size.toString())
                         var tmp: ArrayList<chart1> = response.body()!!.data.foods!!
                         chartOverviewRecyclerViewAdapter.dataList!!.addAll(tmp)
                         chartOverviewRecyclerViewAdapter.notifyDataSetChanged()

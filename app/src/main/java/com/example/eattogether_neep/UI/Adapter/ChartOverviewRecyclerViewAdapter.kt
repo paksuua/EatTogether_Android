@@ -40,26 +40,25 @@ class ChartOverviewRecyclerViewAdapter (val ctx: Context, var dataList: ArrayLis
         var x = 0.2f
         var x2 = 0.5f
 
-        Log.d("이름", foodname)
         for (i in 0..bad.size - 1) {
             entries.add(BarEntry(x++.toFloat(), happy[i].toFloat()))
-            Log.d("해피", happy[i].toString())
             entries2.add(BarEntry(x2++.toFloat(), bad[i].toFloat()))
-            Log.d("배드", bad[i].toString())
             u_num.add("user" + i)
         }
 
         u_num[bad.size-1] = "total"
 
         var set = BarDataSet(entries, "DataSet")
+        //set.color = ContextCompat.getColor(ctx, R.color.main_yellow) // happy 그래프 색
+
         var set2 = BarDataSet(entries2, "DataSet")
-        set2.color = ContextCompat.getColor(ctx, R.color.main_yellow)
+        set2.color = ContextCompat.getColor(ctx, R.color.text_gray) // bad 그래프 색
 
         var dataSet: ArrayList<IBarDataSet> = ArrayList()
         dataSet.add(set)
         dataSet.add(set2)
         var data = BarData(dataSet)
-        data.barWidth = 0.5f//막대 너비 설정하기
+        data.barWidth = 0.5f//막대 너비
 
         holder.chart.run {
             description.isEnabled = false //차트 옆에 별도로 표기되는 description이다. false로 설정하여 안보이게 했다.
