@@ -13,8 +13,8 @@ data class Chartdata(
 )
 
 data class totalD(
-    val totalPred:ArrayList<Float>,
-    val foodName:ArrayList<String>
+    val foodName:ArrayList<String>,
+    val totalPred:ArrayList<Float>
 )
 
 data class chart1(

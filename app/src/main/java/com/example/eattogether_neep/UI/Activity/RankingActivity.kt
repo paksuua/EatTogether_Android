@@ -54,8 +54,7 @@ class RankingActivity : AppCompatActivity() {
         }
 
         roomName = intent.getStringExtra("roomName")!!
-        //Toast.makeText(this, "Room Number"+ roomName, Toast.LENGTH_LONG).show()
-        //roomName = "835197"
+
         socketReceiver = RankingReceiver()
         intentFilter = IntentFilter()
         with(intentFilter){

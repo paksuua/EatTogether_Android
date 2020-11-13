@@ -31,9 +31,8 @@ interface NetworkService {
     ) : Call<PostJoinResponse>
 
     //차트 데이터 받아오기
-    @GET("/user/chart")
+    @POST("/room/chartdata")
     fun getChartResponse(
-        @Header("Content-Type") content_type: String,
-        @Body() body: JsonObject
+        @Body() body: GetChartRequest
     ): Call<GetChartResponse>
 }
