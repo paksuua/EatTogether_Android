@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.eattogether_neep.network.Get.GetChartRequest
 import com.example.eattogether_neep.network.Get.GetChartResponse
@@ -79,7 +80,7 @@ class ChartActivity : AppCompatActivity() {
                             entries.add(BarEntry(x++.toFloat(),tmp1.totalPred[i].toFloat()))
                         }
                         var set = BarDataSet(entries,"DataSet")//데이터셋 초기화 하기
-                        //set.color = ContextCompat.getColor(this@ChartActivity, R.color.main_yellow) // total 그래프 색
+                        set.color = ContextCompat.getColor(this@ChartActivity, R.color.happy) // total 그래프 색
 
                         val dataSet :ArrayList<IBarDataSet> = ArrayList()
                         dataSet.add(set)

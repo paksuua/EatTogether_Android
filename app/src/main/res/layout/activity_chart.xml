@@ -58,7 +58,7 @@
                     android:orientation="vertical">
 
                     <LinearLayout
-                        android:layout_marginLeft="250dp"
+                        android:layout_marginLeft="300dp"
                         android:layout_marginTop="20dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
@@ -73,7 +73,7 @@
                             android:fontFamily="@font/nanumsquareb"/>
                     </LinearLayout>
                     <LinearLayout
-                        android:layout_marginLeft="250dp"
+                        android:layout_marginLeft="300dp"
                         android:layout_marginTop="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
@@ -92,7 +92,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginRight="22dp"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="5dp"
                         android:layout_marginBottom="20dp"
                         android:nestedScrollingEnabled="false"
                         android:paddingStart="10dp"

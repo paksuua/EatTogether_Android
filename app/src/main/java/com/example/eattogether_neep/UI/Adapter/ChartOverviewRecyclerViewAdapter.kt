@@ -48,7 +48,7 @@ class ChartOverviewRecyclerViewAdapter (val ctx: Context, var dataList: ArrayLis
         u_num[bad.size-1] = "total"
 
         var set = BarDataSet(entries, "DataSet")
-        //set.color = ContextCompat.getColor(ctx, R.color.main_yellow) // happy 그래프 색
+        set.color = ContextCompat.getColor(ctx, R.color.happy) // happy 그래프 색
 
         var set2 = BarDataSet(entries2, "DataSet")
         set2.color = ContextCompat.getColor(ctx, R.color.text_gray) // bad 그래프 색
