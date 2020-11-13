@@ -51,16 +51,16 @@
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
-
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_chart_overview"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginHorizontal="22dp"
+                        android:layout_marginRight="22dp"
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="20dp"
                         android:nestedScrollingEnabled="false"

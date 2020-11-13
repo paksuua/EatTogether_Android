@@ -148,7 +148,7 @@ class EmotionAnalysisActivity : AppCompatActivity() {
                 if (this@EmotionAnalysisActivity.isFinishing)
                     return
                 if(i < f_img.size*3){
-                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).thumbnail(0.1f).into(img_food1)
+                    Glide.with(this@EmotionAnalysisActivity).load(f_img[i/3]).thumbnail(0.05f).into(img_food1)
                     tv_food_num1.text="후보 "+(i/3+1)
                     txt_food_name1.text = f_name[i/3]
                     i++
