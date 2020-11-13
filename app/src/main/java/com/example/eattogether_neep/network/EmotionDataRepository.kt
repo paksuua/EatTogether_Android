@@ -1,7 +1,7 @@
-package com.example.eattogether_neep.Network
+package com.example.eattogether_neep.network
 
-import com.example.eattogether_neep.Network.Network.ApplicationController
-import com.example.eattogether_neep.Network.Post.PostEmotionResponse
+import com.example.eattogether_neep.network.Network.ApplicationController
+import com.example.eattogether_neep.network.Post.PostEmotionResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call

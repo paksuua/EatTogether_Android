@@ -1,18 +1,14 @@
-package com.example.eattogether_neep.SOCKET
+package com.example.eattogether_neep.socket
 
 import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
 import android.util.Log
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import org.json.JSONArray
 import java.net.URISyntaxException
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class SingleSocket {
@@ -20,6 +16,7 @@ class SingleSocket {
         private val TAG = SingleSocket::class.java.simpleName
         private var instance: Socket? = null
         private lateinit var context: Context
+
 
         fun getInstance(context: Context): Socket = instance
             ?: synchronized(this) {

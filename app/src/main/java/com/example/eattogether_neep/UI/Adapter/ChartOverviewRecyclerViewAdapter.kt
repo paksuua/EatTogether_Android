@@ -1,14 +1,13 @@
 package com.example.eattogether_neep.UI.Adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.example.eattogether_neep.Network.Get.chart1
+import com.example.eattogether_neep.network.Get.chart1
 import com.example.eattogether_neep.R
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.AxisBase

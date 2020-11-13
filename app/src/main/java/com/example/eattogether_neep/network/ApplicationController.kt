@@ -1,7 +1,6 @@
-package com.example.eattogether_neep.Network.Network
+package com.example.eattogether_neep.network.Network
 
-import android.app.Application
-import com.example.eattogether_neep.Network.NetworkService
+import com.example.eattogether_neep.network.NetworkService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

@@ -1,17 +1,10 @@
-package com.example.eattogether_neep.SOCKET
+package com.example.eattogether_neep.socket
 
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
-import android.util.Base64
 import android.util.Log
 import androidx.core.app.JobIntentService
-import io.socket.client.IO
 import io.socket.client.Socket
-import io.socket.emitter.Emitter
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 import java.net.URISyntaxException
 
 class SocketService : JobIntentService() {
@@ -74,6 +67,7 @@ class SocketService : JobIntentService() {
 
                 mSocket.emit("savePredict", avgHappy,avgNeutral, uuid, imageOrder)
             }
+            
             "avgPredict" -> {
                 Log.d("AvgPredict Called in SocketService.","")
                 val roomName = intent.getStringExtra("roomName")

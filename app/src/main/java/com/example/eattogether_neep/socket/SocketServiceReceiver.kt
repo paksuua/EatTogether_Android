@@ -1,4 +1,4 @@
-package com.example.eattogether_neep.SOCKET
+package com.example.eattogether_neep.socket
 
 
 import android.os.Bundle

@@ -6,25 +6,16 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.bumptech.glide.Glide
 import com.example.eattogether_neep.R
-import com.example.eattogether_neep.SOCKET.SocketService
+import com.example.eattogether_neep.socket.SocketService
 import kotlinx.android.synthetic.main.activity_ranking.*
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import android.Manifest
 import android.content.pm.PackageManager
-import com.example.eattogether_neep.Network.Post.PostMakeUrlRequest
-import com.example.eattogether_neep.Network.Post.PostMakeUrlResponse
-import com.example.eattogether_neep.UI.User
-import kotlinx.android.synthetic.main.activity_make_url.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class RankingActivity : AppCompatActivity() {
 

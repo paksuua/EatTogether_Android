@@ -1,4 +1,4 @@
-package com.example.eattogether_neep.Network.Post
+package com.example.eattogether_neep.network.Post
 
 /**
  * status = 상태 코드

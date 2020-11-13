@@ -1,9 +1,4 @@
-package com.example.eattogether_neep.Network.Kakao
-
-import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Query
+package com.example.eattogether_neep.network.Kakao
 
 
 /*

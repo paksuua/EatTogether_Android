@@ -1,4 +1,4 @@
-package com.example.eattogether_neep.Network
+package com.example.eattogether_neep.network
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 

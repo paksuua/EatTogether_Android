@@ -1,8 +1,7 @@
-package com.example.eattogether_neep.Network
+package com.example.eattogether_neep.network
 
-import com.example.eattogether_neep.Network.Post.*
-import com.example.eattogether_neep.Network.Get.*
-import com.google.gson.JsonObject
+import com.example.eattogether_neep.network.Post.*
+import com.example.eattogether_neep.network.Get.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call

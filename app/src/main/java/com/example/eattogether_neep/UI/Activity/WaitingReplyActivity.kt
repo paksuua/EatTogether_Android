@@ -6,14 +6,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import com.bumptech.glide.Glide
 import com.example.eattogether_neep.R
-import com.example.eattogether_neep.SOCKET.SocketService
-import com.example.eattogether_neep.UI.User
-import kotlinx.android.synthetic.main.activity_waiting.*
+import com.example.eattogether_neep.socket.SocketService
 import kotlinx.android.synthetic.main.activity_waiting.img_rotate
-import kotlinx.android.synthetic.main.activity_waiting_reply.*
 
 class WaitingReplyActivity : AppCompatActivity() {
     private var roomName = ""

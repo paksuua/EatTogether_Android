@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -12,7 +11,7 @@ import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doOnTextChanged
 import com.example.eattogether_neep.R
-import com.example.eattogether_neep.SOCKET.SocketService
+import com.example.eattogether_neep.socket.SocketService
 import com.example.eattogether_neep.UI.User
 import kotlinx.android.synthetic.main.activity_join.*
 

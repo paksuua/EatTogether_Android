@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import java.nio.ByteBuffer
 import com.example.eattogether_neep.R
-import com.example.eattogether_neep.SOCKET.SocketService
+import com.example.eattogether_neep.socket.SocketService
 import com.example.eattogether_neep.UI.User
 import com.example.eattogether_neep.emotion.coredetection.DrawFace
 import com.example.eattogether_neep.emotion.facedetection.FaceDetector
@@ -31,9 +31,6 @@ import com.otaliastudios.cameraview.Facing
 import com.otaliastudios.cameraview.Frame
 import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_emotion_analysis.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream

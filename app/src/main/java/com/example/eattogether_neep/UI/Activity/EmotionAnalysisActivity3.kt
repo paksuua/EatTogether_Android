@@ -23,13 +23,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.example.eattogether_neep.Network.EmotionDataRepository
-import com.example.eattogether_neep.Network.Post.PostEmotionResponse
+import com.example.eattogether_neep.network.EmotionDataRepository
+import com.example.eattogether_neep.network.Post.PostEmotionResponse
 import com.example.eattogether_neep.R
-import com.example.eattogether_neep.SOCKET.SocketService
+import com.example.eattogether_neep.socket.SocketService
 import com.example.eattogether_neep.UI.User
-import com.example.eattogether_neep.emotion.coredetection.DrawFace
-import com.example.eattogether_neep.emotion.facedetection.FaceDetector
 import kotlinx.android.synthetic.main.activity_emotion_analysis3.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
