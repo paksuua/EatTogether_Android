@@ -21,6 +21,7 @@ class SingleSocket {
         private var instance: Socket? = null
         private lateinit var context: Context
 
+
         fun getInstance(context: Context): Socket = instance
             ?: synchronized(this) {
                 instance ?: try {
