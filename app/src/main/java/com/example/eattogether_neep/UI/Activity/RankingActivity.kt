@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.activity_ranking.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import android.Manifest
 import android.content.pm.PackageManager
+import com.google.android.gms.location.LocationServices
 
 class RankingActivity : AppCompatActivity() {
 
@@ -53,7 +54,7 @@ class RankingActivity : AppCompatActivity() {
         }
         registerReceiver(socketReceiver, intentFilter)
 
-        //fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         num1.setOnClickListener {
             showMap(Uri.parse("kakaomap://search?q=" + rv_ranking_food_name1.text + "&p=" + mCurrentLat + "," + mCurrentLng))
@@ -89,7 +90,7 @@ class RankingActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        //getCurrentLocation()
+        getCurrentLocation()
         sendResult(roomName)
     }
 
