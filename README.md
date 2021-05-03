@@ -35,6 +35,7 @@
 
 | 라이브러리                                                   | 목적                                                    |
 | ------------------------------------------------------------ | ------------------------------------------------------- |
+| [CameraX](https://developer.android.com/jetpack/androidx/releases/camera) | 카메라 캡처 |
 | [MPChart](https://github.com/PhilJay/MPAndroidChart) | 결과 분석 그래프                       |
 | [Gson](https://github.com/google/gson) | JSON 객체 Converter |
 | [Glide](https://github.com/bumptech/glide) | 이미지 포멧팅 |
